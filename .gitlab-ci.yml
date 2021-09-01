@@ -27,7 +27,7 @@ build_image:
           --pull
           --cache-from $DOCKER_REGISTRY_IMAGE:latest
           --tag $DOCKER_REGISTRY_IMAGE:latest
-        
+          .
         - docker push $DOCKER_REGISTRY_IMAGE:latest
 
         env: 
