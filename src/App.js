@@ -1,7 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
 
+require("dotenv").config();
+
 function App() {
+  console.log(process.env.CONFIGURATION_HOST);
   return (
     <div className="App">
       <header className="App-header">

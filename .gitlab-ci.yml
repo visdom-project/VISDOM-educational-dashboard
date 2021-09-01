@@ -23,7 +23,7 @@ build_image:
         - master
     script: 
         - docker pull $DOCKER_REGISTRY_IMAGE:latest || true
-        - apk add --update npm=$NPM_VERSION
+        - apk add --update npm=14.16.1-r1
         - npm clean-install
         - npm build 
         - docker build
