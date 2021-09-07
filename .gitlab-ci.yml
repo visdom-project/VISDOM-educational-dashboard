@@ -42,16 +42,13 @@ deploy_latest:
         - .docker_registry
     only:
         - master
+    before_script:
+      - apk add openssh-client
+      - eval $(ssh-agent -s) 
+      - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+      - mkdir -p ~/.ssh
+      - chmod 700 ~/.ssh
     script:
-        # setup the private SSH key for connecting to the production server
-        - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-        - eval $(ssh-agent -s)
-        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-        - mkdir -p ~/.ssh
-        - chmod 700 ~/.ssh
-        # ensure that the production server host key is verified
-        - ssh-keyscan $DEPLOY_HOSTNAME >> ~/.ssh/known_hosts
-        - chmod 644 ~/.ssh/known_hosts
         # copy the Docker registry access credentials to the production server
         - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
           mkdir -p /home/$DEPLOY_USERNAME/.docker
