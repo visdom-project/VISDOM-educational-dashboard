@@ -1,0 +1,14 @@
+.calendar-view {
+  width: inherit;
+  margin: 0 auto;
+  padding-top: 2vw;
+}
+
+.fit-row {
+  display: flex;
+  margin: 0px 0px 20px 0px;
+  margin-right: 1em;
+  flex-wrap: wrap;
+  flex: start;
+}
+    

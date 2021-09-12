@@ -1,0 +1,80 @@
+.EKG-view {
+  text-align: left;
+  width: 100%;
+}
+
+.basic-line {
+  stroke: #8884d8;
+}
+
+.basic-grid {
+  stroke: #ccc;
+}
+
+div .intended {
+  padding-left: 4vh;
+}
+
+h1 {
+  font-size: 2em;
+  margin: 0.5em auto;
+}
+
+h2 {
+  font-size: 1.5em;
+  padding-left: 2vh;
+  margin: 0.5em;
+}
+
+h3 {
+  font-size: 1em;
+  padding-left: 4vh;
+  margin: 0.5em 0em;
+}
+
+.hoverable path:hover {
+  pointer-events: all;
+  stroke: #757575;
+}
+
+.fit-row {
+  display: flex;
+  margin: auto;
+  margin-right: 0;
+  flex-wrap: wrap;
+}
+
+.partial-border::after {
+  content: "";
+  display: block;
+  border-bottom: 0.5px solid lightgrey;
+  padding-bottom: 1.2em;
+  width: 73%;
+  margin-left: 4vh;
+}
+
+#showGradesButton {
+  min-width: 10em;
+  display: block;
+  border: 1px solid lightgrey;
+  border-radius: 0.25em;
+  font-family: inherit;
+  font-size: unset;
+  padding: 10px;
+  height: 3em;
+  margin: auto;
+  margin-left: 1em;
+  margin-right: 4em;
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+}
+
+.view {
+  width: 90%;
+  margin: auto;
+  padding-right: 2%;
+}
+  
