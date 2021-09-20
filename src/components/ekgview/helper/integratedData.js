@@ -6,7 +6,7 @@ export const getCurveType = (curve) => {
         case "triangle":
             return "curveLinear";
         case "rectangle":
-            return "curveStepAfter";
+            return "curveStepBefore";
         case "pulse":
             // might be wrong curve
             return curveBumpX;
