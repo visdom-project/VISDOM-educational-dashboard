@@ -44,7 +44,6 @@ const MODE_AVG_MAPPING = {
 
 const studentsDataMappingToChartData = (studentsData, mode) => {
   const attribute = MODE_MAPPING[mode];
-  // const avg_attribute = 
   if (!Object.keys(studentsData).length)
   {
     return [];
@@ -255,10 +254,6 @@ const ProgressTab = () => {
     setDisplayedStudents(state.instances);
   }, [state.instances]); //eslint-disable-line
 
-  // useEffect(() => {
-  //   setLineChartShouldUpdate(lineChartShouldUpdate + 1);
-  // }, [state.timescale]); //eslint-disable-line
-
   // Toggle selection of a student that is clicked in the student list:
   const handleListClick = (id) => {
     const targetNode = document.querySelector(`#li-${id}`);
@@ -284,7 +279,6 @@ const ProgressTab = () => {
     );
   };
 
-
   const handleModeClick = (newMode) => {
     if (selectedMode === newMode) {
       return;
@@ -292,7 +286,6 @@ const ProgressTab = () => {
     setSelectedMode(newMode);
   };
 
-  
   const handleToggleStudentGroupClick = (groupIdentifier, groupState) => {
     if (groupIdentifier === "all") {
       setDisplayedStudents(groupState ? studentIds : []);
@@ -456,7 +449,6 @@ const ProgressTab = () => {
             strokeWidth={avgStrokeWidth}
             style={{ display: showOptions["Average"] ? "" : "none" }}
           />
-
           {state.timescale && <Brush
             startIndex={Math.floor(state.timescale.start / 7)}
             endIndex={Math.ceil(state.timescale.end / 7)}
