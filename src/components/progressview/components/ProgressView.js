@@ -6,6 +6,7 @@ const ProgressView = () => {
   return (
     <div className="progress-view">
       <ProgressTab />
+      {/* <ProgressTab /> */}
     </div>
   );
 }

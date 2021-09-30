@@ -17,7 +17,10 @@ import GroupDisplay from "./GroupDisplay.js";
 import StudentSelector from "./StudentSelector";
 
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
-import { getAllStudentsData, fetchStudentData, fetchStudentsData } from "../services/studentData";
+import { 
+  // getAllStudentsData, 
+  // fetchStudentData, 
+  fetchStudentsData } from "../services/studentData";
 import { getAgregateData } from "../services/courseData";
 
 import {
@@ -54,7 +57,20 @@ const studentsDataMappingToChartData = (studentsData, mode) => {
   })
   return transformedData;
 }
-
+const getAverageData = (studentsData, selectedMode) => {
+  const data = Object.values(studentsData);
+  if (!data.length){
+    return null;
+  }
+  const numberOfWeeks = Object.values(studentsData)[0].length;
+  const dataKey = MODE_MAPPING[selectedMode];
+  const sumData = Object.values(studentsData).reduce((prev, current) => {
+    current.forEach((element, index) => prev[index] = prev[index] + element[dataKey]);
+    return prev;
+  }, new Array(numberOfWeeks).fill(0));
+  return sumData.map(e => e / Object.values(data).length);
+}
+const getExpectData = (courseData, selectedMode) => courseData.map(gradeData => gradeData.map(weekData => weekData[MODE_AVG_MAPPING[selectedMode]]));
 
 /////////////////////////
 
@@ -112,12 +128,10 @@ const ExpectedLabel = ({ index, x, y, strokeColor, grade, display }) => {
 
 // eslint-disable-next-line max-lines-per-function
 const ProgressTab = () => {
-  // TODO: determine mode or not ? maybe yes ( to synchronize or to create multi visualizations) but objectives is synchronize, not the other one
   const state = useMessageState();
   const dispatch = useMessageDispatch();
 
   // const [client, setClient] = useState(null);
-  const [lineChartShouldUpdate, setLineChartShouldUpdate] = useState(0);
 
   const [studentIds, setStudentIds] = useState([]);
   const [studentsData, setStudentsData] = useState({});
@@ -132,7 +146,7 @@ const ProgressTab = () => {
   const selectableModes = modes.filter((mode) => mode !== selectedMode);
 
   const grades = [0, 1, 2, 3, 4, 5];
-  const initialGradeGroup = new Array(grades.length + 2).fill(true); // for > max point option & "all student" option
+  const initialGradeGroup = new Array(grades.length + 2).fill(true); // for > max point option & "all students" option
   const [gradeGroup, setGradeGroup] = useState(initialGradeGroup);
 
   useEffect(() => {
@@ -149,6 +163,15 @@ const ProgressTab = () => {
       setStudentsData(data);
       setStudentIds(Object.keys(data));
       setDisplayedStudents(Object.keys(data));
+
+      // setup timescale
+      if (!state.timescale){
+        dispatch({...state, 
+        timescale: {
+          start: 0,
+          end: (Object.values(data)[0].length - 1) * 7 - 1
+        }});
+      }
     });
     Promise.all( grades.map(grade => getAgregateData(grade)) ).then(expectValues => setCourseData(expectValues));
   }, []);
@@ -167,11 +190,19 @@ const ProgressTab = () => {
     { name: "init" },
   ]);
   // hard coding const without metadata
-  const maxlength = 98;
-  const [timescale, setTimescale] = useState({
-    start: 0,
-    end: maxlength,
-  });
+  // const maxlength = 98;
+  // const defaultTimescale = {
+  //   start: 0,
+  //   end: 0
+  // }
+  // const timescale = state.timescale || defaultTimescale;
+
+  // console.log(state.timescale);
+  // console.log(!state.timescale ? 0 : Math.floor(state.timescale.end / 7))
+  // const [timescale, setTimescale] = useState({
+  //   start: 0,
+  //   end: maxlength,
+  // });
 
   // graph configure
   const axisNames = ["Week", ""];
@@ -194,25 +225,13 @@ const ProgressTab = () => {
     //average goes here ...
 
     //helper function
-    const getAverageData = (studentsData, selectedMode) => {
-      const data = Object.values(studentsData);
-      if (!data.length){
-        return null;
-      }
-      const numberOfWeeks = Object.values(studentsData)[0].length;
-      const dataKey = MODE_MAPPING[selectedMode];
-      const sumData = Object.values(studentsData).reduce((prev, current) => {
-        current.forEach((element, index) => prev[index] = prev[index] + element[dataKey]);
-        return prev;
-      }, new Array(numberOfWeeks).fill(0));
-      return sumData.map(e => e / Object.values(data).length);
-    }
+    
     const avgData = {
       [avgDataKey]: getAverageData(studentsData, selectedMode),
     };
 
     //helper
-    const getExpectData = (courseData, selectedMode) => courseData.map(gradeData => gradeData.map(weekData => weekData[MODE_AVG_MAPPING[selectedMode]]));
+    
 
     const expectData = getExpectData(courseData, selectedMode).reduce( (obj, currentValue, currentIndex) => {
            obj[`avg_expect_${currentIndex}`] = currentValue;
@@ -236,18 +255,9 @@ const ProgressTab = () => {
     setDisplayedStudents(state.instances);
   }, [state.instances]); //eslint-disable-line
 
-  useEffect(() => {
-    if (!state.timescale) {
-      return;
-    }
-    if (
-      state.timescale.start !== timescale.start ||
-      state.timescale.end !== timescale.end
-    ) {
-      setTimescale(state.timescale);
-      setLineChartShouldUpdate(lineChartShouldUpdate + 1);
-    }
-  }, [state.timescale]); //eslint-disable-line
+  // useEffect(() => {
+  //   setLineChartShouldUpdate(lineChartShouldUpdate + 1);
+  // }, [state.timescale]); //eslint-disable-line
 
   // Toggle selection of a student that is clicked in the student list:
   const handleListClick = (id) => {
@@ -284,7 +294,6 @@ const ProgressTab = () => {
 
   
   const handleToggleStudentGroupClick = (groupIdentifier, groupState) => {
-    
     if (groupIdentifier === "all") {
       setDisplayedStudents(groupState ? studentIds : []);
       setGradeGroup(new Array(8).fill(groupState));
@@ -348,7 +357,6 @@ const ProgressTab = () => {
       setDisplayedStudents(disp);
     }
   };
-
   return (
     <div className="chart" style={{ paddingTop: "30px" }}>
       <h2>{`Weekly ${selectedMode}`}</h2>
@@ -383,7 +391,6 @@ const ProgressTab = () => {
       <ResponsiveContainer
         minWidth="300px"
         minHeight="700px"
-        key={lineChartShouldUpdate}
       >
         <LineChart
           className="intendedChart"
@@ -450,32 +457,27 @@ const ProgressTab = () => {
             style={{ display: showOptions["Average"] ? "" : "none" }}
           />
 
-          <Brush
-            startIndex={Math.floor(timescale.start / 7)}
-            endIndex={Math.ceil(timescale.end / 7)}
+          {state.timescale && <Brush
+            startIndex={Math.floor(state.timescale.start / 7)}
+            endIndex={Math.ceil(state.timescale.end / 7)}
             tickFormatter={(tick) => tick + 1}
             onChange={(e) => {
-              setTimescale({
+              const newTimescale = {
                 start: e.startIndex * 7,
                 end: e.endIndex * 7 - 1,
-              });
+              };
+
+              if (state.timescale.start !== newTimescale.start ||
+                state.timescale.end !== newTimescale.end)
+              dispatch(
+                {
+                  ...state,
+                  timescale: newTimescale
+                })                
             }}
-          />
+          />}
         </LineChart>
       </ResponsiveContainer>
-      {/* Hide sync button */}
-      {/* <button
-        onClick={() => {
-            dispatch({...state,
-              mode: selectedMode,
-              timescale: timescale,
-              instances: displayedStudents,
-            });
-          }
-        }
-      >
-        Sync
-      </button> */}
     </div>
   );
 };
