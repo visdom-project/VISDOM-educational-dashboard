@@ -2,17 +2,23 @@ import axios from "axios";
 import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 import { getAgregateData } from "./courseData";
 
-const baseUrl = ElasticSearchConfiguration.createUrl("gitlab-course-40-commit-data-anonymized/_search");
+// TODO: fix base URL and courseId, parameter in request
+const courseId = 90;
+// const baseUrl = ElasticSearchConfiguration.createUrl("gitlab-course-40-commit-data-anonymized/_search");
+const baseUrl = `https://visdom.tlt-cityiot.rd.tuni.fi/adapter/data?courseId=${courseId}`
 
 export const getAllStudentsData = () => {
     const request = axios
         .get(baseUrl, {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+            headers:{
+                Authorization: "$(cat $HOME/visdom-dms.txt)",
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            }
         })
         .then((response) => {
         const allStudentData = [];
-        response.data.hits.hits[0]._source.results.forEach((student) => {
+        response.data.results.forEach((student) => {
             allStudentData.push(student.student_id);
         });
         return allStudentData;
@@ -27,9 +33,12 @@ export const fetchStudentData = async (studentId, expectGrade = 1) => {
 
     // get student document
     const studentData = await axios.get(baseUrl, {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-    }).then(response => response.data.hits.hits[0]._source.results)
+        headers:{
+            Authorization: "$(cat $HOME/visdom-dms.txt)",
+            Accept: "application/json",
+            "Content-Type": "application/json",
+        }
+    }).then(response => response.data.results)
     .then(data => data.filter(student => student.student_id === studentId)[0]);
 
 
@@ -78,9 +87,12 @@ export const fetchStudentsData = async () => {
     const studentsData = {};
     // get students document
     await axios.get(baseUrl, {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-    }).then(response => response.data.hits.hits[0]._source.results)
+        headers:{
+            Authorization: "$(cat $HOME/visdom-dms.txt)",
+            Accept: "application/json",
+            "Content-Type": "application/json",
+        }
+    }).then(response => response.data.results)
     .then(data => data.forEach(studentData => {
         const commits = studentData.commits.map(week => {
             return week.projects.reduce( (numberOfCommit, p) => numberOfCommit + p.commit_count, 0);
@@ -135,6 +147,5 @@ export const fetchStudentsData = async () => {
             }
         })
     });
-    console.log(studentsData);
     return studentsData;
 };
