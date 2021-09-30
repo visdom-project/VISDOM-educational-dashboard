@@ -1,0 +1,15 @@
+.rectangle-view {
+  width: 100%;
+  padding-top: 2vw;
+}
+
+.rectangle-visu {
+  width: 100%;
+}
+
+.fit-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 2em;
+}
+  

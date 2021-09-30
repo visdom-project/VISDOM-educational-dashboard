@@ -1,0 +1,13 @@
+#toggle {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 1em;
+  padding: 1em;
+  width: max-content;
+  border: 1px darkgray solid;
+}
+
+#scheme-display {
+  margin-right: 1em;
+  width: 11em;
+}

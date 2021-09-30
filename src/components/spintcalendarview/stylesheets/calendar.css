@@ -1,0 +1,24 @@
+.calendar {
+  color: #343a40;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.day {
+  width: calc(100%/7);
+  height: calc(20vw - 2em);
+  border: 1px darkgrey solid;
+  padding: 1em;
+  margin-bottom: 0.5em;
+}
+
+.date-content {
+  align-content: center;
+  font-size: inherit;
+}
+
+.day h4 {
+  margin: 0;
+  padding: 0 0 1em 0;
+}

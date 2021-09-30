@@ -1,0 +1,43 @@
+.triangle-issue-display {
+  display: inline-flex;
+  margin-top: calc(100%);
+}
+
+.triangle-down {
+  border-style: solid;
+  border-width: 2em 1.2em 0em 1.2em;
+  width: 0;
+  height: 0;
+}
+
+.triangle-up {
+  border-style: solid;
+  border-width: 0em 1.2em 2em 1.2em;
+  width: 0;
+  height: 0;
+}
+
+.triangle-down div:nth-child(1) {
+  color: blue;
+  -webkit-transform: translate(-1.2em, -2.8em);
+}
+
+.triangle-up > div:nth-child(1) {
+  -webkit-transform: translate(-1.2em, 3.6em);
+}
+
+.issue:hover {
+  border-color: aqua #0000;
+}
+
+.exercise-number {
+  display: flex;
+  font-size: 0.5em;
+  font-weight: bolder;
+  position: absolute;
+}
+
+.exercise-number:hover + .details{
+  visibility: visible;
+}
+

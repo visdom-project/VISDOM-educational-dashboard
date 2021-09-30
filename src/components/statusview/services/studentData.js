@@ -1,0 +1,74 @@
+/* eslint-disable camelcase */
+import axios from "axios";
+import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+import { EXERCISE_INDICES } from "./constant";
+
+const getStudentData = studentID => {
+  if (!studentID) return null;
+
+  const baseUrl = ElasticSearchConfiguration.createUrl(
+    "gitlab-course-40-commit-data-anonymized/_search"
+  );
+  const request = axios
+    .get(baseUrl, {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    })
+    .then((response) => {
+      // TODO: remove hard-coding from this mapping of modules and corresponding project names:
+
+      const student = response && response.data.hits.hits[0]._source.results.find(
+        s => s.student_id === studentID
+      );
+
+      const studentData = {
+        personal_information: {
+          id: student.id,
+          username: student.username,
+          student_id: student.student_id,
+          email: student.email,
+          full_name: student.full_name,
+        },
+        modules: student.points.modules.map(module => ({
+          name: module.name,
+          max_points: module.max_points,
+          points: module.points,
+          passed: module.passed,
+          submissions: module.submission_count,
+          exercises: module.exercises.map(ex => ({
+            commit_name: "",
+            name: ex.name,
+            points: ex.points,
+            max_points: ex.max_points,
+            submissions: ex.submission_count,
+            commits: 0
+          }))
+        }))
+      };
+
+      student.commits.forEach(module => {
+        const moduleIndex = parseInt(module.module_name.slice(-2)) - 1;
+        const commitModule = studentData.modules[moduleIndex];
+
+        module.projects.forEach(project => {
+          const exerciseIndex = EXERCISE_INDICES[project.name.toLowerCase()];
+          
+          if (exerciseIndex !== undefined) {
+            const exercise = commitModule.exercises[exerciseIndex]
+            exercise.commits = project.commit_count;
+            exercise.commit_name = project.name
+          } else {
+            console.log(`Could not find exercise for git project '${project.name}' module ${module.module_name}`);
+          }
+        })
+      })
+
+      return studentData;
+    })
+    .catch(() => [[], []]);
+
+  return request;
+};
+
+//eslint-disable-next-line
+export default { getStudentData };

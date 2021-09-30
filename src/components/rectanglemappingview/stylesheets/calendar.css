@@ -1,0 +1,22 @@
+.calendar {
+  color: #343a40;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-wrap: wrap;
+  width: inherit;
+}
+
+.day {
+  width: calc(100%/7);
+  height: 300px;
+  border: 1px darkgrey solid;
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.date-content {
+  align-content: center;
+  font-size: inherit;
+  margin: 0;
+  padding: 0;
+}
