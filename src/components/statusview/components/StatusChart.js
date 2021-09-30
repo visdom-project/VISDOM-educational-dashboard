@@ -320,9 +320,6 @@ const MultiChart = (props) => {
     },
   ];
 
-  // console.log("data", data)
-  // console.log("mapping", mapping)
-
   return (
     <div className="intendedChart">
       <ResponsiveContainer minWidth="300px" minHeight="500px">

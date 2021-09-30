@@ -35,7 +35,6 @@ const StatusTab = () => {
 
   const modes = ["points", "exercises", "submissions", "commits"];
   const [selectedMode, setSelectedMode] = useState(modes[0]);
-
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [treshold, setTreshold] = useState(0.4);
   const [studentsBelowTreshold, setStudentsBelowTreshold] = useState(-99);

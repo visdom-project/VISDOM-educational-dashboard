@@ -10,7 +10,7 @@ const GroupDisplay = ({ grades, handleClick, groupSelected }) => {
       </h3>
       <table style={{ width: "13em", fontSize: "small" }}>
         <tbody>
-          {grades.concat(["6"]).map((grade) => (
+          {grades.concat([grades[grades.length-1]+1]).map((grade) => (
             <tr key={`grade-${grade}`}>
               <td>
                 <label className="switch" style={{ marginTop: "0.2em" }}>
@@ -18,25 +18,25 @@ const GroupDisplay = ({ grades, handleClick, groupSelected }) => {
                     className="gradeswitch"
                     id={`input-${grade}`}
                     type="checkbox"
-                    onClick={() => handleClick(grade)}
-                    defaultChecked={groupSelected[grade]}
+                    onChange={(event) => handleClick(grade, event.target.checked)}
+                    checked={groupSelected[grade]}
                   ></input>
                   <span className="slider round"></span>
                 </label>
               </td>
               <td style={{ paddingLeft: "0.5em" }}>
-                {grade === "6" ? "> avg of grade 5" : `< avg of grade ${grade}`}
+                {grade === grades[grades.length-1]+1 ? `> avg of grade ${grades[grades.length-1]}` : `< avg of grade ${grade}`}
               </td>
             </tr>
           ))}
-          <tr key="All">
+          <tr key="grade-all">
             <td>
               <label className="switch" style={{ margin: "0em 0em" }}>
                 <input
                   id={"input-all"}
                   type="checkbox"
-                  onClick={() => handleClick("all")}
-                  defaultChecked={groupSelected[groupSelected.length -1]}
+                  onChange={(event) => handleClick("all", event.target.checked)}
+                  checked={groupSelected[groupSelected.length - 1]}
                 ></input>
                 <span className="slider round"></span>
               </label>

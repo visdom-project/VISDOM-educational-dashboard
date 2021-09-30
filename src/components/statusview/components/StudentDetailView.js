@@ -82,7 +82,7 @@ const ModuleDisplay = ({ module, index }) => {
           className="fit-row"
           style={{ flexWrap: "wrap", paddingBottom: "1em", width: "37vw" }}
         >
-          {module.exercises.map((exercise) => (
+          {module.exercises.map(exercise => (
             <ProjectDisplay key={exercise.name} project={exercise} />
           ))}
         </div>

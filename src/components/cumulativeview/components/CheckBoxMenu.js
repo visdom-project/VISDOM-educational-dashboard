@@ -25,7 +25,7 @@ const CheckBoxMenu = ({ options, handleClick, showAvg, showExpected }) => {
                 type="checkbox"
                 style={{ margin: "auto 0" }}
                 id={option}
-                defaultChecked={option === "Average" ? showAvg : showExpected}
+                defaultChecked={true}
               ></input>
               <label htmlFor={option} style={labelStyle}>
                 {" "}
