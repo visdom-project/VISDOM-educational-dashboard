@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import Calendar from './Calendar'
 import getTimeframe from "../services/timeframe";
 import { getTimePeriod } from "../services/studentData";
-import DropDownMenu from "./DropDownMenu";
-import { TimeSelection } from "./DropDownMenu";
+import StudentSelector from "./StudentSelector";
+import TimeSelection from "./TimeSelection";
 
 import {
   useMessageDispatch,
@@ -47,12 +47,6 @@ const CalendarTab = () => {
     }
   }, [timePeriod]) // eslint-disable-line
 
-
-  // useEffect(() => {
-  //   MQTTConnect(dispatch).then(client => setClient(client));
-  //   return () => client.end();
-  // }, []);
-
   useEffect(() => {
     // if empty array then render nothing, if more than one intance(s), render first one;
     const currentIntance = state.instances[0] || "";
@@ -82,26 +76,31 @@ const CalendarTab = () => {
   return (
     <div className="calendar-tab">
       <h2>Sprint Calendar Visualization</h2>
-      <DropDownMenu studentID={studentID} setStudentID={setStudentID} />
-      {studentID && <TimeSelection 
-        timescale={timescale}
-        setTimescale={setTimescale}
-        maxlength={maxlength}
-      />}
-      {studentID && <button
-        onClick={() => {
-          const instances = studentID ? [studentID] : [];
-          dispatch({...state,
-            timescale: timescale,
-            instances: instances,
-          });
-        }}
-      >
-        Sync
-      </button>}
-      <Calendar
-        key={graphKey} 
-        timeframe={timeframe.slice(timescale.start, timescale.end)} />
+      <StudentSelector studentID={studentID} setStudentID={setStudentID} />
+      {studentID && 
+      <>
+        <TimeSelection 
+          timescale={timescale}
+          setTimescale={setTimescale}
+          maxlength={maxlength}
+        />
+        <button
+          onClick={() => {
+            const instances = studentID ? [studentID] : [];
+            dispatch({...state,
+              timescale: timescale,
+              instances: instances,
+            });
+          }}
+        >
+          Sync
+        </button>
+        <Calendar
+          key={graphKey} 
+          timeframe={timeframe.slice(timescale.start, timescale.end)} 
+        />
+      </>
+      }
     </div>
   );
 }

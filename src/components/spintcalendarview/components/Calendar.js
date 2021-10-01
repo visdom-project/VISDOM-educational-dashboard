@@ -1,18 +1,20 @@
-import React from "react";
-import IssueDisplay from './Issues';
-import Toggle from './Toggle';
+import React, { useState } from "react";
+import TriangleIssues from "./TriangleIssues"
+import DropdownMenu from "./DropdownMenu";
 import '../stylesheets/calendar.css';
 
-const Day = ({ content }) => {
+const Day = ({ content, colorScheme }) => {
   return (
     <div className='day'>
       <h4 className="date-content">{content.key}</h4>
-      <IssueDisplay issues={content.issues} />
+      <TriangleIssues issues={content.issues} colorScheme={colorScheme} />
     </div>
   )
 }
 
 const Calendar = ({ timeframe }) => {
+  const COLORSCHEMES = ["issue", "commits", "quality"];
+  const [colorScheme, setColorScheme] = useState(COLORSCHEMES[0]);
   
   if (timeframe === undefined) {
     return <div>No timeframe to show</div>
@@ -20,9 +22,14 @@ const Calendar = ({ timeframe }) => {
 
   return (
     <>
-      <Toggle />
+      <DropdownMenu
+        handleClick={option => setColorScheme(option)}
+        options={COLORSCHEMES}
+        selectedOption={colorScheme}
+        title="Color Scheme:"
+      />
       <div className='calendar'>
-        {timeframe.map((day,i) => <Day key={`${day.key} ${i}`} content={day} />)}
+        {timeframe.map((day,i) => <Day key={`${day.key} ${i}`} content={day} colorScheme={colorScheme}/>)}
       </div>
     </>
   )

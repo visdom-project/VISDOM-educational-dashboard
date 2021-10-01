@@ -3,83 +3,17 @@
 import React, { useState, useEffect } from "react";
 import dataService from "../services/statusData";
 import MultiChart from "./StatusChart";
-import DropdownMenu from "./DropdownMenu";
-import CheckBoxMenu from "./CheckBoxMenu";
+// import DropdownMenu from "./DropdownMenu";
+// import CheckBoxMenu from "./CheckBoxMenu";
 import StudentDetailView from "./StudentDetailView";
+import ControlAccordion from "./ControlAccordion";
 import {
   useMessageState,
   useMessageDispatch,
 } from "../../../contexts/messageContext";
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 import ConfigDialog from "./ConfigDialog";
-const Controls = (props) => {
-  const {
-    handleModeClick,
-    modes,
-    selectedMode,
-    showableLines,
-    handleToggleRefLineVisibilityClick,
-    showAvg,
-    showExpected,
-    handleWeekClick,
-    weeks,
-    selectedWeek,
-  } = props;
-
-  if (selectedMode === "submissions" || selectedMode === "commits") {
-    return (
-      <div className="fit-row">
-        <DropdownMenu
-          handleClick={handleModeClick}
-          options={modes}
-          selectedOption={selectedMode}
-          title={"Mode:"}
-        />
-        <DropdownMenu
-          handleClick={handleWeekClick}
-          options={weeks}
-          selectedOption={selectedWeek}
-          title={"Week:"}
-        />
-        <button
-          id={"showGradesButton"}
-          onClick={() => console.log("TODO: Show grades")}
-        >
-          Show grades
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fit-row">
-      <CheckBoxMenu
-        options={showableLines}
-        handleClick={handleToggleRefLineVisibilityClick}
-        showAvg={showAvg}
-        showExpected={showExpected}
-      />
-      <DropdownMenu
-        handleClick={handleModeClick}
-        options={modes}
-        selectedOption={selectedMode}
-        title={"Mode:"}
-      />
-      <DropdownMenu
-        handleClick={handleWeekClick}
-        options={weeks}
-        selectedOption={selectedWeek}
-        title={"Week:"}
-      />
-      <button
-        id={"showGradesButton"}
-        onClick={() => console.log("TODO: Show grades")}
-      >
-        Show grades
-      </button>
-    </div>
-  );
-};
+import helpers from "../services/helpers";
 
 // eslint-disable-next-line max-lines-per-function
 const StatusTab = () => {
@@ -101,12 +35,11 @@ const StatusTab = () => {
 
   const modes = ["points", "exercises", "submissions", "commits"];
   const [selectedMode, setSelectedMode] = useState(modes[0]);
-  const [displayedModes, setdisplayedModes] = useState(
-    modes.filter((mode) => mode !== selectedMode)
-  );
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [treshold, setTreshold] = useState(0.4);
   const [studentsBelowTreshold, setStudentsBelowTreshold] = useState(-99);
+
+  const [sortConfig, setSortConfig] = useState({});
 
   const allKeys = {
     points: {
@@ -178,7 +111,6 @@ const StatusTab = () => {
 
   const handleModeSwitchClick = (newMode) => {
     setSelectedMode(newMode);
-    setdisplayedModes(modes.filter((name) => name !== newMode));
 
     const newKeys = allKeys[newMode];
     setDataKeys(newKeys);
@@ -228,7 +160,7 @@ const StatusTab = () => {
       data[newWeek - 1]["data"] !== undefined
     ) {
       setMax(data[newWeek - 1]["data"][0][keys.max]);
-      setSelectedWeekData(data[newWeek - 1]["data"]);
+      setSelectedWeekData(data[newWeek - 1].data);
 
       setcommonDataToDisplay({
         avg: commons[keys.cumulativeAvgs][newWeek - 1],
@@ -254,15 +186,13 @@ const StatusTab = () => {
             ? weekStr
             : "01-14";
         newCountData =
-          commitData[commitData.findIndex((module) => module.week === key)][
-            "data"
-          ];
+          commitData[commitData.findIndex(module => module.week === key)].data;
         setSelectedCountData(newCountData);
       }
     }
 
     if (newCountData !== undefined) {
-      updateTreshold(treshold, data[newWeek - 1]["data"], newCountData);
+      updateTreshold(treshold, data[newWeek - 1].data, newCountData);
     }
   };
 
@@ -308,14 +238,14 @@ const StatusTab = () => {
   };
 
   useEffect(() => {
-    dataService.getData().then((response) => {
+    dataService.getData().then(response => {
       const [pData, commons, submissions] = response;
 
       // Fetch needed data:
       setProgressData(pData);
       setCommonData(commons);
       setSubmissionData(submissions);
-      setWeeks(pData.map((week) => week.week));
+      setWeeks(pData.map(week => week.week));
 
       // Set initial UI state:
       handleWeekSwitch(1, pData, commons, undefined, submissions);
@@ -325,15 +255,10 @@ const StatusTab = () => {
       const commits = response;
 
       setCommitData(commits);
-
       // Select count data from correct week:
       const selected =
         commits !== undefined && commits.length > 0
-          ? commits[
-              commits.findIndex(
-                (module) => parseInt(module.week) === parseInt(selectedWeek)
-              )
-            ]["data"]
+          ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
           : [];
       setSelectedCountData(selected);
 
@@ -359,25 +284,60 @@ const StatusTab = () => {
     setSelectedStudent(currentIntance);
   }, [state.instances]);
 
+  useEffect(() => {
+    if (progressData.length && submissionData.length && commitData.length) {
+      const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
+      setProgressData(result.sortedProgress);
+      setCommitData(result.sortedCommit);
+      setSubmissionData(result.sortedSubmission);
+
+      const key = selectedMode === "commits" 
+        ? selectedWeek.toString().length < 2
+          ? `0${selectedWeek}`
+          : selectedWeek !== "14"
+            ? selectedWeek.toString()
+            : "01-14"
+        : selectedWeek.toString();
+
+      if (selectedMode === "commits") {
+        const selected = result.sortedCommit !== undefined && result.sortedCommit.length > 0
+            ? result.sortedCommit.find(module => module.week === key).data
+            : [];
+        setSelectedCountData(selected);
+      } else if (selectedMode === "submissions") {
+        const selected = result.sortedSubmission !== undefined && result.sortedSubmission.length > 0
+          ? result.sortedSubmission.find(module => module.week === key).data
+          : [];
+        setSelectedCountData(selected);
+      } else {
+        const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
+          ? result.sortedProgress.find(module => module.week === key).data
+          : [];
+        setSelectedWeekData(selected)
+      }
+    }
+  }, [sortConfig]) //eslint-disable-line
+
+
   return (
     <>
-      <div className="fit-row">
-        <h2>{"Current Student Statuses"}</h2>
-        <Controls
-          handleModeClick={handleModeSwitchClick}
-          modes={displayedModes}
-          selectedMode={selectedMode}
-          showableLines={showableLines}
-          handleToggleRefLineVisibilityClick={
-            handleToggleRefLineVisibilityClick
-          }
-          showAvg={showAvg}
-          showExpected={showExpected}
-          handleWeekClick={handleWeekSwitch}
-          weeks={weeks}
-          selectedWeek={selectedWeek}
-        ></Controls>
-      </div>
+      <h2>{"Current Student Statuses"}</h2>
+      <ControlAccordion 
+        handleModeClick={handleModeSwitchClick}
+        selectedMode={selectedMode}
+        showableLines={showableLines}
+        handleToggleRefLineVisibilityClick={
+          handleToggleRefLineVisibilityClick
+        }
+        showAvg={showAvg}
+        showExpected={showExpected}
+        handleWeekClick={handleWeekSwitch}
+        weeks={weeks}
+        selectedWeek={selectedWeek}
+        sortConfig={sortConfig}
+        setSortConfig={setSortConfig}
+        modes={modes}
+      />
 
       <MultiChart
         chartWidth={chartWidth}
@@ -394,7 +354,7 @@ const StatusTab = () => {
         studentsBelowTreshold={studentsBelowTreshold}
         updateTreshold={updateTreshold}
         treshold={treshold}
-      ></MultiChart>
+      />
       <button
         onClick={() => {
           const instances = selectedStudent ? [selectedStudent] : [];
@@ -411,14 +371,15 @@ const StatusTab = () => {
         title={{
           button: "Show student detail",
           dialog: "Commit details",
-          confirm: null,
+          confirm: "Close",
         }}
         openDialog={openStatusDialog}
         setOpenDialog={ openState => setOpenStatusDialog(openState) }
       >
         <StudentDetailView
           selectedStudentID={selectedStudent}
-        ></StudentDetailView>
+          selectedWeek={selectedWeek}
+        />
       </ConfigDialog>
     </>
   );

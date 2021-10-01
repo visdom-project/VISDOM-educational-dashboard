@@ -151,7 +151,7 @@ const MultiChart = (props) => {
     if (countData !== undefined && countData.length > 0) {
       let i = 0;
       // eslint-disable-next-line no-unused-vars
-      submissionMapping = countData[0][key].map((item) => {
+      submissionMapping = countData[0][key].map(() => {
         i += 1;
         submissionTicks.push(i);
         return { key: "exercise-".concat(i), stackId: alphabets[i - 1] };
@@ -206,7 +206,7 @@ const MultiChart = (props) => {
                             alphabets.indexOf(bar.stackId),
                             key
                           )}
-                        ></Cell>
+                        />
                       );
                     })
                   : ""}

@@ -1,6 +1,4 @@
 import React from 'react'
-import { useSelector } from 'react-redux';
-import { ColorSchemes } from '../reducers/colorSchemeReducer'
 import "../stylesheets/triangle-issues.css";
 import '../stylesheets/details.css'
 import { prefix } from "inline-style-prefixer";
@@ -19,7 +17,7 @@ const DetailWindow = ({ issue, issueIndex }) => {
 }
 
 const getIssueColor = (colorScheme, issue) => {
-	if (colorScheme === ColorSchemes.Commits) {
+	if (colorScheme === "commits") {
 		return `#${issue.hash.substr(0, 6)} #0000`
 	}
 	else { // if (colorScheme === ColorSchemes.Quality) {
@@ -35,9 +33,7 @@ const getIssueColor = (colorScheme, issue) => {
 	}
 }
 
-const TriangleIssue = ({ index, dx, y, orientation, issue }) => {
-	const colors = useSelector(state => state.colorScheme)
-
+const TriangleIssue = ({ index, dx, y, orientation, issue, colorScheme }) => {
 	const exerciseNumber = issue.exercise.name
 		.substr(0, issue.exercise.name.search(/\|/))
 		.trim()
@@ -49,7 +45,7 @@ const TriangleIssue = ({ index, dx, y, orientation, issue }) => {
 	const triangleStyle = {
 		// translate: `${dx*50}% -${y*100}%`,
 		WebkitTransform: `translate(${dx*50}%, -${y*100}%)`,
-		borderColor: getIssueColor(colors, issue),
+		borderColor: getIssueColor(colorScheme, issue),
 		color: textColor
 	}
 
@@ -69,7 +65,7 @@ const TriangleIssue = ({ index, dx, y, orientation, issue }) => {
 	)
 }
 
-const TriangleIssues = ({ issues }) => {
+const TriangleIssues = ({ issues, colorScheme }) => {
 
 	/* The following positioning stacks triangles into a 2D "pyramid". */
 
@@ -109,7 +105,9 @@ const TriangleIssues = ({ issues }) => {
 					dx={dxTot}
 					y={Math.floor(y)} 
 					orientation={orientation}
-					issue={issue}/>
+					issue={issue}
+					colorScheme={colorScheme}
+        />
 			})
 		}
     </div>

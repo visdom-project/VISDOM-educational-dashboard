@@ -78,3 +78,15 @@ svg {
   margin: auto;
   padding-right: 2%;
 }
+
+.student-info-box {
+  display: flex;
+  margin: auto;
+  margin-right: 0;
+  flex-wrap: wrap;
+  padding: 0.5em;
+  border-radius: 0.5em;
+  border: solid 1px darkgrey;
+  margin-bottom: 0.5em;
+  margin-left: 4vh;
+}

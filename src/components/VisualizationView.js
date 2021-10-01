@@ -111,25 +111,14 @@ const VisualizationView = () => {
               </Nav>
             </Offcanvas.Body>
         </Offcanvas>
-        <Container className="view-container">
           {viewkey.length > 0 
             ? viewkey === "group"
               ? <GroupOfVisualizations views={VIEWS.filter(v => v.key !== "group")} />
-              : VIEWS.find(view => view.key === viewkey).microfrontend
+              : <Container className="view-container">
+                {VIEWS.find(view => view.key === viewkey).microfrontend}
+              </Container>
             : null
           }
-          {/* <Switch>
-            <Route exact path="/" >
-              {null}
-            </Route>
-            {VIEWS.filter(v => v.key !== "group").map(view => <Route key={view.key} path={`/${view.key}`}> 
-              {view.microfrontend}
-            </Route>)}
-            <Route path="/group">
-              <GroupOfVisualizations views={VIEWS.filter(v => v.key !== "group")} />
-            </Route>
-          </Switch> */}
-        </Container>
       </div>
       {showButton && (
         <Button

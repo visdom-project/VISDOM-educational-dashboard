@@ -2,24 +2,19 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import dataService from "../services/studentData";
+import { Spinner, Pagination, Tabs, Tab } from "react-bootstrap";
+import { WEEK_NUMBER } from "../services/constant";
 
 const parseName = (name) => {
   const index = name.indexOf("|fi:");
   return name.slice(index + "|fi:".length, name.length - 1);
 };
 
-const ProjectDisplay = (project) => {
-  project = project["project"];
+const ProjectDisplay = ({ project }) => {
 
   const exerciseNumber = project.name.split("|")[0];
-  const projectGitName = project.project_git_name;
   const projectName = parseName(project.name).split("|en:")[0];
-  const commitCount = project.commit_count;
-  const maxPoints = project.max_points;
-  const passed = project.passed;
-  const receivedPts = project.points;
-  const submissionCount = project.submission_count;
-  const isGitProject = !projectGitName.includes("(K)");
+  const isGitProject = project.commit_name.length > 0;
 
   return (
     <div className="partial-border" style={{ width: "18vw" }}>
@@ -27,12 +22,12 @@ const ProjectDisplay = (project) => {
         {exerciseNumber} {projectName}
       </h3>
       <div style={{ paddingLeft: "8vh" }}>
-        Gathered points: {receivedPts}/{maxPoints}
-        <br></br>
-        Exercise passed: {passed ? "true" : "false"}
-        <br></br>
-        Submissions: {submissionCount}
-        <br></br>
+        Gathered points: {project.points}/{project.max_points}
+        <br/>
+        Exercise passed: {project.passed}
+        <br/>
+        Submissions: {project.submissions}
+        <br/>
         <div
           style={{
             paddingTop: "0.5em",
@@ -40,63 +35,33 @@ const ProjectDisplay = (project) => {
             fontStyle: isGitProject ? "normal" : "italic",
           }}
         >
-          Qt project name: {isGitProject ? projectGitName : " –"}
-          <br></br>
-          Commits: {commitCount}
+          Qt project name: {isGitProject ? project.commit_name : " –"}
+          <br/>
+          Commits: {project.commits}
         </div>
       </div>
     </div>
   );
 };
 
-const ModuleDisplay = (data) => {
-  data = data["data"];
-
-  const repoFolder = data.commit_module_name;
-  const moduleName = parseName(data.name);
-  const exerciseList = data.exercises;
-  const maxPoints = data.max_points;
-  const gatheredPts = data.points;
-  const passed = data.passed;
-  const submissionCount = data.submission_count;
-  const moduleNumber =
-    data.commit_module_name === "01-14"
-      ? 14
-      : parseInt(data.commit_module_name);
-
-  const handleClick = () => {
-    document.querySelectorAll(`#module-${repoFolder}`).forEach((obj) => {
-      obj.style.display = obj.style.display === "none" ? "block" : "none";
-    });
-  };
+const ModuleDisplay = ({ module, index }) => {
 
   return (
-    <div
-      className="fit-row"
-      style={{
-        padding: "0.5em",
-        borderRadius: "0.5em",
-        border: "solid 1px darkgrey",
-        marginBottom: "0.5em",
-        marginLeft: "4vh",
-      }}
-    >
-      <button
+    <div className="student-info-box">
+      <div
         style={{
-          color: "darkgrey",
+          backgroundColor: "darkgrey",
           border: "lightgrey 1px solid",
           borderRadius: "3px",
           width: "12px",
-        }}
-        onClick={handleClick}
-      ></button>
+        }} />
 
       <div>
         <h3>
-          Module {moduleNumber}: {moduleName}
+          Module {index + 1}: {parseName(module.name)}
         </h3>
         <div
-          id={`module-${repoFolder}`}
+          id={`module-${index}`}
           style={{
             paddingLeft: "4vh",
             marginTop: "1em",
@@ -104,20 +69,20 @@ const ModuleDisplay = (data) => {
             width: "20vw",
           }}
         >
-          Gathered points: {gatheredPts}/{maxPoints}
-          <br></br>
-          Module passed: {passed ? "true" : "false"}
-          <br></br>
-          Total submissions: {submissionCount}
+          Gathered points: {module.points}/{module.max_points}
+          <br/>
+          Module passed: {module.passed ? "true" : "false"}
+          <br/>
+          Total submissions: {module.submissions}
         </div>
       </div>
 
-      <div id={`module-${repoFolder}`}>
+      <div id={`module-${module.name}`}>
         <div
           className="fit-row"
           style={{ flexWrap: "wrap", paddingBottom: "1em", width: "37vw" }}
         >
-          {exerciseList.map((exercise) => (
+          {module.exercises.map(exercise => (
             <ProjectDisplay key={exercise.name} project={exercise} />
           ))}
         </div>
@@ -126,111 +91,73 @@ const ModuleDisplay = (data) => {
   );
 };
 
-const PointsDisplay = (data) => {
+const PointsDisplay = ({ data, selectedWeek}) => {
+  const [week, setWeek] = useState(selectedWeek);
+  const paginationItems = Array.from({length: WEEK_NUMBER}, (_, i) => i + 1);
+  console.log(week)
   return (
-    <div>
-      {data["data"].modules.map((module) => (
+    <Tabs defaultActiveKey="detail" id="student-info-tab">
+      <Tab eventKey="summary" title="Summary">
+        <div>
+          {data.map((module, index) => (
+            <ModuleDisplay
+              key={module.name}
+              module={module}
+              index={index}
+            />
+          ))}
+      </div>
+      </Tab>
+      <Tab eventKey="detail" title="Week detail">
         <ModuleDisplay
-          key={module.commit_module_name}
-          data={module}
-        ></ModuleDisplay>
-      ))}
-    </div>
+          key={data[week - 1].name}
+          module={data[week - 1]}
+          index={week - 1}
+        />
+        <Pagination style={{ justifyContent: "center" }}>
+          <Pagination.First onClick={() => setWeek(1)}/>
+          <Pagination.Prev onClick={() => setWeek(week === 1 ? 1 : week - 1)}/>
+          {paginationItems.map(p => (
+            <Pagination.Item 
+              key={p}
+              value={p}
+              active={parseInt(p, 10) === parseInt(week, 10)}
+              onClick={e => {
+                e.preventDefault();
+                setWeek(parseInt(e.target.text, 10))}
+              }
+            >
+              {p}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next onClick={() => setWeek(week === WEEK_NUMBER ? WEEK_NUMBER : week + 1)}/>
+          <Pagination.Last onClick={() => setWeek(WEEK_NUMBER)}/>
+        </Pagination>
+      </Tab>
+    </Tabs>
   );
 };
 
-const EmptyView = ({ title }) => (
-  <div style={{ marginBottom: document.documentElement.clientHeight * 0.1 }}>
-    <h2>{title}</h2>
-    <div className="intended"></div>
-  </div>
-);
-
-const parseStudentData = (studentData) => {
-  if (studentData === undefined) {
-    return undefined;
-  }
-
-  const commitModules = studentData.commits;
-
-  if (commitModules === undefined || studentData.points === undefined) {
-    return studentData;
-  }
-
-  const pointModules = studentData.points.modules.filter(
-    (module) => module.max_points > 0 || module.id === 570
-  );
-
-  const mergedModules = pointModules;
-  commitModules.forEach((commitModule) => {
-    const pointModuleIndex = pointModules.findIndex((pointModule) => {
-      const pointModuleName =
-        pointModule.name[1] === "."
-          ? pointModule.name.slice(0, 1)
-          : pointModule.name.slice(0, 2);
-      const commitModuleName =
-        commitModule.module_name === "01-14"
-          ? 14
-          : parseInt(commitModule.module_name);
-
-      return parseInt(pointModuleName) === commitModuleName;
-    });
-
-    if (pointModuleIndex > -1) {
-      mergedModules[pointModuleIndex]["commit_module_name"] =
-        commitModule.module_name;
-      const newExercises = mergedModules[pointModuleIndex].exercises;
-
-      let i = 0;
-      commitModule.projects.forEach((project) => {
-        newExercises[i].project_git_name = project.name;
-        newExercises[i].commit_count = project.commit_count;
-        newExercises[i].commit_meta = project.commit_meta;
-        i += 1;
-      });
-      mergedModules[pointModuleIndex].exercises = newExercises;
-    }
-  });
-
-  studentData.points.modules = mergedModules;
-  delete studentData.commits;
-
-  return studentData;
-};
-
-const StudentDetailView = ({ selectedStudentID }) => {
-  const [students, setStudents] = useState([]);
+const StudentDetailView = ({ selectedStudentID, selectedWeek }) => {
+  const [student, setStudent] = useState({});
 
   useEffect(() => {
-    dataService.getStudentData().then((response) => {
-      setStudents(response);
-    });
-  }, []);
+    dataService
+      .getStudentData(selectedStudentID)
+      .then(response => response && setStudent(response));
+  }, [selectedStudentID]); // eslint-disable-line
 
-  const title = "Exercise completion details";
-
-  const studentData =
-    selectedStudentID !== "" && students.length > 0
-      ? parseStudentData(
-          students.find((student) => student.student_id === selectedStudentID)
-        )
-      : undefined;
-
-  if (studentData !== undefined) {
-    return (
-      <div
-        style={{ marginBottom: document.documentElement.clientHeight * 0.1 }}
-      >
-        <h2>{title}</h2>
+  return (
+    Object.keys(student).length > 0 ?
+      <div style={{ marginBottom: document.documentElement.clientHeight * 0.1 }}>
+        <h2>Exercise completion details</h2>
         <h3>
-          <strong>Student: {studentData.email}</strong>
+          <strong>Student: {student.personal_information.email}</strong>
         </h3>
-        <PointsDisplay data={studentData.points}></PointsDisplay>
+        <PointsDisplay data={student.modules} selectedWeek={selectedWeek} />
       </div>
-    );
-  }
-
-  return <EmptyView />;
+      : <Spinner animation="border" />
+  );
 };
 
 export default StudentDetailView;

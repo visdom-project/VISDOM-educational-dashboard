@@ -27,6 +27,7 @@ const ConfigDialog = ({ title, children, openDialog, setOpenDialog }) => {
         onHide={handleClose}
         size="xl"
         centered
+        style={{ marginTop: "40px" }}
       >
         <Modal.Header>
           <Modal.Title  id="alert-dialog-title">

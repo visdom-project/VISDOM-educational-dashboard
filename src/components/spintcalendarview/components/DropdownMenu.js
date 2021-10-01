@@ -1,19 +1,18 @@
-/* eslint-disable react/prop-types */
 import React from "react";
 import "../stylesheets/dropdown.css";
 
 const DropdownMenu = ({ handleClick, options, selectedOption, title }) => {
   return (
-    <div className="dropdown-menu">
-      <label style={{ margin: "auto 1em", height: "1.2em" }}>{title}</label>
+    <div style={{ marginRight: "10px" }}>
+      <label style={{ paddingRight: "10px" }}>{title}</label>
       <div className="dropdown">
         <button className="dropdown-title-button">{selectedOption}</button>
-        <div 
+        <div
           className="dropdown-options"
           style={{ maxHeight: "200px", overflow: "scroll" }}
         >
-          {options.map((option) => (
-            <button key={option} onClick={() => handleClick(option)}>
+          {options && options.map((option, i) => (
+            <button key={option} onClick={() => handleClick(option)} >
               {option}
             </button>
           ))}
@@ -23,4 +22,4 @@ const DropdownMenu = ({ handleClick, options, selectedOption, title }) => {
   );
 };
 
-export default DropdownMenu;
+export default DropdownMenu
