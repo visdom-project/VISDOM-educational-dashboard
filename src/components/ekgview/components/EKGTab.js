@@ -108,7 +108,7 @@ const EKGTab = () => {
   //     instances: [],
   //   });
   // }, []); //eslint-disable-line
-
+  console.log(displayData);
   useEffect(() => {
     // if empty array then render nothing, if more than one intance(s), render first one;
     const currentIntance = state.instances[0] || "";

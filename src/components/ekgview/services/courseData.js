@@ -17,7 +17,7 @@ export const getAgregateData = (grade = 1) => {
         });
     }).then(data => {
         return Object.entries(data).sort( (w1, w2) => w1[0] - w2[0]).map( w => w[1]);
-    }).then(data => Object.values(data));
+    }).then(data => !console.log(data) && Object.values(data));
 
     return previousCourseData;
 };

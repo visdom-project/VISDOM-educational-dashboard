@@ -44,17 +44,6 @@ const EKGTab = () => {
   });
 
 
-  // const maxlength = 98;
-
-  // useEffect(() => {
-  //   const newClient = MQTTConnect(dispatch).then( client => {
-  //     setClient(client);
-  //     return client;
-  //   });
-  //   // return;
-  //   return () => newClient.end();
-  // }, []);
-
   useEffect(() => {
     getAllStudentsData().then(list => setStudentList(list));
   }, []);
@@ -172,7 +161,7 @@ const EKGTab = () => {
                 }}
               />
             </div>
-            <button
+            {/* <button
               onClick={() => {
                 const instances = studentID ? [studentID] : [];
                 dispatch({...state,
@@ -182,7 +171,7 @@ const EKGTab = () => {
               }}
             >
               Sync
-            </button>
+            </button> */}
           </>
         }
     </div>
