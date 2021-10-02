@@ -9,7 +9,7 @@ const DetailWindow = ({ issue, issueIndex }) => {
 		<div className='details' style={{ color: 'black', fontSize: '1em', background: "white" }}>
 			<b>Issue:</b> #{issueIndex} <i>(placeholder)</i><br></br>
 			<b>Project:</b> {issue.git_project.name}<br></br>
-			<b>Exercise:</b> {issue.exercise.name}<br></br>
+			<b>Exercise:</b> {issue.exercise.name.raw}<br></br>
 			<b>commit message:</b><br></br>
 			{issue.message}
 		</div>
@@ -34,8 +34,8 @@ const getIssueColor = (colorScheme, issue) => {
 }
 
 const TriangleIssue = ({ index, dx, y, orientation, issue, colorScheme }) => {
-	const exerciseNumber = issue.exercise.name
-		.substr(0, issue.exercise.name.search(/\|/))
+	const exerciseNumber = issue.exercise.name.raw
+		.substr(0, issue.exercise.name.raw.search(/\|/))
 		.trim()
 		.substring(0, 6)
 	const split = exerciseNumber.split('.');

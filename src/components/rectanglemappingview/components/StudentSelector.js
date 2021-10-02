@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { Card } from "react-bootstrap";
 
-import studentsInformation from "../services/studentsInformation";
+import studentsInformationService from "../services/studentsInformation";
 
 import "../stylesheets/dropdown.css";
 
@@ -32,17 +32,18 @@ const StudentSelector = ({ studentID, setStudentID }) => {
   const [student, setStudent] = useState({});
 
   useEffect(() => {
-    studentsInformation()
-      .then(res => {
-        setStudents(res)
-        setStudent(res.find(s => s.student_id === studentID))
-      })
+    studentsInformationService
+      .getAllStudentData()
+      .then(res => {setStudents(res)})
       .catch(err => console.log(err))
   },[]); //eslint-disable-line
 
   useEffect(() => {
     if (studentID && students) {
-      setStudent(students.find(s => s.student_id === studentID))
+      studentsInformationService
+        .getStudentInfo(studentID)
+        .then(res => setStudent(res))
+        .catch(err => console.log(err))
     }
   },[studentID]) //eslint-disable-line
 
@@ -50,15 +51,12 @@ const StudentSelector = ({ studentID, setStudentID }) => {
     <div className="fit-row">
       <DropdownMenu 
         handleClick={setStudentID}
-        options={students && students.map((student) => student.student_id)}
+        options={students}
         selectedOption={studentID}
         title={"Student ID:"}
       />
       {student && <Card className="student-info-card" style={{ width: "20rem", border: "none" }}>
         <Card.Body>
-          <Card.Title>
-            {studentID}
-          </Card.Title>
           <Card.Text>
             <b>Full name</b>: {student.fullname}
             <br />

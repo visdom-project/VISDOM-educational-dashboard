@@ -23,7 +23,7 @@ const RadarGraph = ({ day, domain, width, height, radarConfigProps }) => {
   }, [radarConfigProps]) //eslint-disable-line
 
   if (day.data.length === 0) return null;
-
+  console.log(hoverCellValue)
   return (
     <div className="radar-chart" style={{ width: width, height: height }}>
       <FlexibleRadarChart

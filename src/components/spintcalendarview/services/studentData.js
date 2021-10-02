@@ -1,40 +1,63 @@
 import axios from "axios";
-import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+// import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 
-const baseUrl = ElasticSearchConfiguration.createUrl('gitlab-course-40-commit-data-anonymized/_search');
+// const baseUrl = ElasticSearchConfiguration.createUrl('gitlab-course-40-commit-data-anonymized/_search');
 const NUMBER_OF_WEEKS = 14;
+const courseId = process.env.REACT_APP_COURSE_ID;
 
 export const getAllStudentData = () => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/usernames?courseId=${courseId}`
   const request = axios
     .get(baseUrl, {
-      Accept: "application/json",
-      "Content-Type": "application/json",
+      // Accept: "application/json",
+      // "Content-Type": "application/json",
+      headers:{
+        Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      }
     })
-    .then((response) => {
-      const allStudentData = response.data.hits.hits[0]._source.results.map(student => ( 
-        {
-          username: student.username,
-          student_id: student.student_id,
-          email: student.email,
-          fullname: student.full_name
-        })
-      );
-      return allStudentData;
-    })
+    .then(response => response.data.results)
     .catch((someError) => console.log(someError));
 
   return request;
 };
 
+export const getStudentInfo = async studentID => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID}`;
+  const studentData = await axios.get(baseUrl, {
+    headers:{
+        Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    }
+  }).then(response => response.data.results[0])
+
+  if (!studentData) return {};
+  return {
+    username: studentData.username,
+    student_id: studentData.student_id,
+    email: studentData.email,
+    fullname: studentData.full_name
+  }
+};
+
 export const getTimePeriod = studentID => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID}`;
   const request = axios
   .get(baseUrl, {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  })
+    // Accept: "application/json",
+    // "Content-Type": "application/json",
+    headers:{
+      Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    }
+  }).then(response => response.data.results[0])
   .then(response => {
-    const student = response.data.hits.hits[0]._source.results.find(
-      person => person.student_id === studentID);
+    // const student = response.data.hits.hits[0]._source.results.find(
+    //   person => person.student_id === studentID);
+    const student = response;
     let studentCommit = [];
     if (student) {
       studentCommit = student.commits;

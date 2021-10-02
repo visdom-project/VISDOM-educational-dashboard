@@ -102,7 +102,7 @@ const StatusTab = () => {
   // eslint-disable-next-line no-unused-vars
   const handleStudentClick = (data, barIndex) => {
     if (data !== undefined) {
-      const newSelected = data.id;
+      const newSelected = data;
       setSelectedStudent(newSelected);
       setOpenStatusDialog(true);
     }
@@ -317,8 +317,6 @@ const StatusTab = () => {
       }
     }
   }, [sortConfig]) //eslint-disable-line
-
-
   return (
     <>
       <h2>{"Current Student Statuses"}</h2>

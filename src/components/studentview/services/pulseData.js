@@ -2,38 +2,52 @@
 /* eslint-disable camelcase */
 
 import axios from "axios";
-import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
-
+// import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+const courseId = process.env.REACT_APP_COURSE_ID;
 // TODO: fix this
-const baseUrl = ElasticSearchConfiguration.createUrl(
-  "gitlab-course-40-commit-data-anonymized/_search"
-);
+// const baseUrl = ElasticSearchConfiguration.createUrl(
+//   "gitlab-course-40-commit-data-anonymized/_search"
+// );
 
 const getAllStudentData = () => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/usernames?courseId=${courseId}`
   const request = axios
     .get(baseUrl, {
-      Accept: "application/json",
-      "Content-Type": "application/json",
+      // Accept: "application/json",
+      // "Content-Type": "application/json",
+      headers:{
+        Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      }
     })
-    .then((response) => {
-      const allStudentData = [];
-      response.data.hits.hits[0]._source.results.forEach((student) => {
-        const newObj = {
-          username: student.username,
-          student_id: student.student_id,
-          email: student.email,
-          fullname: student.full_name,
-        };
-        allStudentData.push(newObj);
-      });
-      return allStudentData;
-    })
+    .then(response => response.data.results)
     .catch((someError) => console.log(someError));
 
   return request;
 };
 
+const getStudentInfo = async studentID => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID}`;
+  const studentData = await axios.get(baseUrl, {
+    headers:{
+        Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    }
+  }).then(response => response.data.results[0])
+
+  if (!studentData) return {};
+  return {
+    username: studentData.username,
+    student_id: studentData.student_id,
+    email: studentData.email,
+    fullname: studentData.full_name
+  }
+};
+
 const getData = (studentId) => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentId}`;
   const CheckCommitDate = (deadline, date) => {
     if (deadline - date === 1) return "IN-TIME";
     if (deadline - date > 1) return "EARLY";
@@ -44,13 +58,19 @@ const getData = (studentId) => {
 
   const request = axios
     .get(baseUrl, {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    })
-    .then((response) => {
-      const studentData = response.data.hits.hits[0]._source.results.find(
-        (student) => student.student_id === studentId
-      );
+      // Accept: "application/json",
+      // "Content-Type": "application/json",
+      headers:{
+        Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      }
+    }).then(response => response.data.results[0])
+    .then(response => {
+      // const studentData = response.data.hits.hits[0]._source.results.find(
+      //   (student) => student.student_id === studentId
+      // );
+      const studentData = response;
       const commitData = [];
       const WEEKLY_DEADLINE = {};
       const NUMBER_OF_WEEK = 14;
@@ -138,4 +158,4 @@ const getData = (studentId) => {
 };
 
 //eslint-disable-next-line
-export default { getData, getAllStudentData };
+export default { getData, getStudentInfo, getAllStudentData };

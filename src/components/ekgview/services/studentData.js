@@ -16,7 +16,7 @@ export const getAllStudentsData = () => {
                 "Content-Type": "application/json",
             }
         })
-        .then((response) => response.data.results)
+        .then(response => response.data.results)
         // eslint-disable-next-line no-console
         .catch((someError) => console.log(someError));
         return request;
@@ -34,7 +34,6 @@ export const fetchStudentData = async (studentId, expectGrade = 1) => {
         }
     }).then(response => response.data.results)
     .then(data => data[0]);
-
     const commits = {};
     studentData.commits.forEach(week => {
             try {

@@ -41,16 +41,16 @@ export const StudentList = ({ setStudentID, studentID }) => {
   }, []);
 
   useEffect(() => {
-    if (studentData.length && studentID) {
-      setStudent(studentData.find((item) => item.student_id === studentID))
-    }
+    pulseData
+      .getStudentInfo(studentID)
+      .then(res => setStudent(res))
   }, [studentID]) //eslint-disable-line
 
   if (!studentData || !student)
     return (
       <DropdownMenu
         handleClick={setStudentID}
-        options={studentData && studentData.map((student) => student.student_id)}
+        options={studentData}
         selectedOption={studentID}
         title={"Chosen student:"}
       />
@@ -59,15 +59,12 @@ export const StudentList = ({ setStudentID, studentID }) => {
     <div className="fit-row">
       <DropdownMenu
         handleClick={setStudentID}
-        options={studentData.map((std) => std.student_id)}
+        options={studentData}
         selectedOption={studentID}
         title={"Chosen student:"}
       />
       {student && <Card className="student-info-card" style={{ width: "20rem", border: "none" }}>
         <Card.Body>
-          <Card.Title>
-            {studentID}
-          </Card.Title>
           <Card.Text>
             <b>Full name</b>: {student.fullname}
             <br />

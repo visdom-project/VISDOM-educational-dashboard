@@ -280,6 +280,7 @@ export const dataForRadarGraph = (data, radarConfigProps) => {
     }]
   } else if (radarConfigProps.dayMode === "detail") {
     tempData = data.map(d => ({
+      name: d.name,
       "commits": d.commits,
       "submissions": d.submissions,
       "points": d.points,

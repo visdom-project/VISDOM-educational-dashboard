@@ -57,6 +57,3 @@ export const PROJECT_MAPPING = {
   15: [],
   16: ["(K) Tutkimussuostumus (Tehtävä gdpr)"],
 };
-
-export const WEEK_NUMBER = 16;
-
