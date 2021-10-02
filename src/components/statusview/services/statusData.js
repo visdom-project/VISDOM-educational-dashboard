@@ -1,12 +1,14 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 import axios from "axios";
-import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+// import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 import { PROJECT_MAPPING } from "./constant";
 
-const baseUrl = ElasticSearchConfiguration.createUrl(
-  "gitlab-course-40-commit-data-anonymized/_search"
-);
+// const baseUrl = ElasticSearchConfiguration.createUrl(
+//   "gitlab-course-40-commit-data-anonymized/_search"
+// );
+const courseId = process.env.REACT_APP_COURSE_ID;
+const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}`
 
 const getWeeklyPoints = (modules, mapping) => {
   const weeklyPts = {};
@@ -16,13 +18,13 @@ const getWeeklyPoints = (modules, mapping) => {
   const weeklySubmissions = {};
   const weeklyPassed = {};
 
-  modules.forEach((module) => {
+  modules.forEach(module => {
     // Exclude all fake or ghost modules:
     if (mapping.indexOf(module.id) > -1 || module.id === 570) {
       // Hard coding: ID 570 is a special case: git-course-module that has no points in Programming 2.
 
       // Deduct which week the module stands for:
-      let week = module.name.slice(0, 2);
+      let week = module.name.raw.slice(0, 2);
       if (week[1] === ".") {
         week = week.slice(0, 1);
       }
@@ -53,7 +55,6 @@ const getWeeklyPoints = (modules, mapping) => {
       );
     }
   });
-
   return [
     weeklyPts,
     weeklyMaxes,
@@ -64,11 +65,11 @@ const getWeeklyPoints = (modules, mapping) => {
   ];
 };
 
-const getModuleMapping = (modules) => {
+const getModuleMapping = modules => {
   const corrects = [];
-  modules.forEach((module) => {
+  modules.forEach(module => {
     if (module.max_points > 0) {
-      let module_number = module.name.slice(0, 2);
+      let module_number = module.name.raw.slice(0, 2);
       if (module_number[1] === ".") {
         module_number = module_number[0];
       }
@@ -78,7 +79,7 @@ const getModuleMapping = (modules) => {
   });
 
   const mapped = new Array(corrects.length).fill("");
-  corrects.forEach((module) => {
+  corrects.forEach(module => {
     mapped[parseInt(module.week) - 1] = module.id;
   });
 
@@ -93,6 +94,7 @@ const formatSubmissionData = (data) => {
   return formatted.map((week) => {
     week.data = data.map((student) => {
       const newStudent = {
+        username: student.username,
         id: student.id,
         submissions: student.weeklySubmissions[week.week],
         passed: student.weeklyPassed[week.week],
@@ -116,61 +118,123 @@ const formatSubmissionData = (data) => {
 const getData = () => {
   const request = axios
     .get(baseUrl, {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    })
-    .then((response) => {
+      // Accept: "application/json",
+      // "Content-Type": "application/json",
+      headers:{
+        Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      }
+    }).then(response => response.data.results)
+    .then(response => {
       // Map modules to weeks:
-      const first_non_empty = response.data.hits.hits[0]._source.results.find(
-        (result) => !result.student_id.includes("redacted")
+      const first_non_empty = response.find(
+        result => !result.student_id.includes("redacted")
       );
       const moduleMapping = getModuleMapping(first_non_empty.points.modules);
 
-      const results = [];
-      const submissionData = [];
+      // const results = [];
+      // const submissionData = [];
 
       // Map student data into weeks:
-      response.data.hits.hits.forEach((hit) => {
-        hit._source.results.forEach((result) => {
-          if (!result.username.includes("redacted")) {
-            const [
-              weeklies,
-              weeklyMaxes,
-              weeklyExercises,
-              weeklyExerciseMaxes,
-              weeklySubmissions,
-              weeklyPassed,
-            ] = getWeeklyPoints(result.points.modules, moduleMapping);
+      // response.forEach(result => {
+      //   console.log("here",result)
+      //   if (!result.username.includes("redacted")) {
+      //     const [
+      //       weeklies,
+      //       weeklyMaxes,
+      //       weeklyExercises,
+      //       weeklyExerciseMaxes,
+      //       weeklySubmissions,
+      //       weeklyPassed,
+      //     ] = getWeeklyPoints(result.points.modules, moduleMapping);
 
-            const formattedResult = {
-              name: result.username,
-              id: result.student_id,
-              weeklyPoints: weeklies,
-              weeklyExercises: weeklyExercises,
-              maxPts: 0,
-              maxExer: 0,
-              weeklyMaxes: weeklyMaxes,
-              weeklyExerciseMaxes: weeklyExerciseMaxes,
-              cumulativeMaxes: [],
-              cumulativeExerMaxes: [],
-              cumulativePoints: {},
-              cumulativeExercises: {},
-            };
-            results.push(formattedResult);
+      //     const formattedResult = {
+      //       name: result.username,
+      //       id: result.student_id,
+      //       weeklyPoints: weeklies,
+      //       weeklyExercises: weeklyExercises,
+      //       maxPts: 0,
+      //       maxExer: 0,
+      //       weeklyMaxes: weeklyMaxes,
+      //       weeklyExerciseMaxes: weeklyExerciseMaxes,
+      //       cumulativeMaxes: [],
+      //       cumulativeExerMaxes: [],
+      //       cumulativePoints: {},
+      //       cumulativeExercises: {},
+      //     };
+      //     results.push(formattedResult);
 
-            submissionData.push({
-              id: result.student_id,
-              weeklySubmissions: weeklySubmissions,
-              weeklyPassed: weeklyPassed,
-              cumulativePoints: Object.keys(Object.values(weeklies)).map(
-                (key) =>
-                  Object.values(weeklies)
-                    .slice(0, key + 1)
-                    .reduce((sum, val) => sum + val, 0)
-              ),
-            });
-          }
-        });
+      //     submissionData.push({
+      //       id: result.student_id,
+      //       weeklySubmissions: weeklySubmissions,
+      //       weeklyPassed: weeklyPassed,
+      //       cumulativePoints: Object.keys(Object.values(weeklies)).map(
+      //         (key) =>
+      //           Object.values(weeklies)
+      //             .slice(0, key + 1)
+      //             .reduce((sum, val) => sum + val, 0)
+      //       ),
+      //     });
+      //   }
+      // });
+
+      // console.log("mapping", moduleMapping)
+
+      const results = response.map(result => {
+        if (!result) return {};
+        if (!result.username.includes("redacted")) {
+          const [
+            weeklies,
+            weeklyMaxes,
+            weeklyExercises,
+            weeklyExerciseMaxes,
+            weeklySubmissions,
+            weeklyPassed,
+          ] = getWeeklyPoints(result.points.modules, moduleMapping);
+          const formattedResult = {
+            username: result.username,
+            id: result.student_id,
+            weeklyPoints: weeklies,
+            weeklyExercises: weeklyExercises,
+            maxPts: 0,
+            maxExer: 0,
+            weeklyMaxes: weeklyMaxes,
+            weeklyExerciseMaxes: weeklyExerciseMaxes,
+            cumulativeMaxes: [],
+            cumulativeExerMaxes: [],
+            cumulativePoints: {},
+            cumulativeExercises: {},
+          };
+          return formattedResult;
+        }
+      });
+
+      const submissionData = response.map(result => {
+        if (!result) return {};
+        if (!result.username.includes("redacted")) {
+          const [
+            weeklies,
+            weeklyMaxes,
+            weeklyExercises,
+            weeklyExerciseMaxes,
+            weeklySubmissions,
+            weeklyPassed,
+          ] = getWeeklyPoints(result.points.modules, moduleMapping);
+          const formattedData = {
+            username: result.username,
+            id: result.student_id,
+            weeklySubmissions: weeklySubmissions,
+            weeklyPassed: weeklyPassed,
+            cumulativePoints: Object.keys(Object.values(weeklies)).map(
+              (key) =>
+                Object.values(weeklies)
+                  .slice(0, key + 1)
+                  .reduce((sum, val) => sum + val, 0)
+            ),
+          };
+          return formattedData;
+        }
       });
 
       const [progress, commons] = formatProgressData(results);
@@ -335,6 +399,7 @@ const dataByWeeks = (data) => {
       const weekIndex = week - 1;
 
       return {
+        username: student.username,
         id: student.id,
 
         // How many points in total there has been available on the course:
@@ -384,39 +449,41 @@ const formatProgressData = (pData) => {
 const getCommitData = () => {
   const request = axios
     .get(baseUrl, {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    })
-    .then((response) => {
+      // Accept: "application/json",
+      // "Content-Type": "application/json",
+      headers:{
+        Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      }
+    }).then(respone => respone.data.results)
+    .then(response => {
 
-      const results = Object.keys(PROJECT_MAPPING).map((moduleName) => {
+      const results = Object.keys(PROJECT_MAPPING).map(moduleName => {
         return { week: moduleName, data: [] };
       });
 
+      // console.log("statusData", response)
+
       // Parse fetched commit data into proper format and fill in missing data:
-      response.data.hits.hits.forEach((hit) => {
-        hit._source.results.forEach((result) => {
+      response.forEach(result => {
           // Which exercises the student has passed:
           const passedExercises = result.points.modules
-            .filter((module) => module.max_points > 0 || module.id === 570)
-            .map((module) =>
-              module.exercises.map((exercise) => exercise.passed)
+            .map(module =>
+              module.exercises.map(exercise => exercise.passed)
             );
 
-          const modulePoints = result.points.modules
-            .filter((module) => module.max_points > 0 || module.id === 570)
-            .map((module) => module.points);
-
-          const cumulativePoints = Object.keys(modulePoints).map((key) => {
+          const modulePoints = result.points.modules.map(module => module.points);
+          
+          const cumulativePoints = Object.keys(modulePoints).map(key => {
             return modulePoints
               .slice(0, parseInt(key) + 1)
               .reduce((sum, val) => {
                 return sum + val;
               }, 0);
           });
-
           // Start with a data stucture with proper default values:
-          const newCommits = Object.keys(PROJECT_MAPPING).map((moduleName) => {
+          const newCommits = Object.keys(PROJECT_MAPPING).map(moduleName => {
             return {
               module_name: moduleName,
               projects: PROJECT_MAPPING[moduleName].map((projectName) => {
@@ -426,10 +493,10 @@ const getCommitData = () => {
           });
 
           // Override default values with student data wherever there is any:
-          result.commits.forEach((module) => {
+          result.commits.forEach(module => {
             const newModule = module;
             const moduleIndex = newCommits.findIndex(
-              (commitModule) => commitModule.module_name === module.module_name
+              commitModule => commitModule.module_name === module.module_name
             );
 
             if (moduleIndex > -1) {
@@ -437,14 +504,14 @@ const getCommitData = () => {
 
               // Fill in missing project data:
               const newProjects = newCommits[moduleIndex].projects;
-              module.projects.forEach((studentProject) => {
-                const projectIndex = newProjects.findIndex((project) =>
+              module.projects.forEach(studentProject => {
+                const projectIndex = newProjects.findIndex(project =>
                   project.name.includes(studentProject.name)
                 );
                 if (projectIndex < newProjects.length && projectIndex > -1) {
                   newProjects[projectIndex] = studentProject;
                 } else {
-                  //console.log("Excluding a project from commit data; it was not recognized as submittable exercise:", studentProject);
+                  // console.log("Excluding a project from commit data; it was not recognized as submittable exercise:", studentProject);
                 }
               });
               newModule.projects = newProjects;
@@ -455,7 +522,7 @@ const getCommitData = () => {
           result.commits = newCommits;
 
           // Map each student's commit data to correct weeks in result data:
-          result.commits.forEach((module) => {
+          result.commits.forEach(module => {
             const moduleInd =
               module.module_name === "01-14"
                 ? 14
@@ -463,32 +530,33 @@ const getCommitData = () => {
 
             // Format student data into displayable format:
             const student = {
+              username: result.username,
               id: result.student_id,
               commit_counts: module.projects.map(
-                (project) => project.commit_count
+                project => project.commit_count
               ),
-              project_names: module.projects.map((project) => project.name),
-              passed: passedExercises[moduleInd],
+              project_names: module.projects.map(project => project.name),
+              passed: passedExercises[moduleInd] ? passedExercises[moduleInd] : true,
               weekPts: modulePoints[moduleInd],
-              cumulativePoints: cumulativePoints[moduleInd],
+              cumulativePoints: cumulativePoints[moduleInd] ? cumulativePoints[moduleInd] : 0,
             };
 
             // Separate commit counts to their own fields:
-            let i = 1;
+            // let i = 1;
             // eslint-disable-next-line no-unused-vars
-            student.commit_counts.forEach((commit_count) => {
-              student[`exercise-${i}`] = i;
-              i += 1;
+            student.commit_counts.forEach((commit_count, i) => {
+              student[`exercise-${i + 1}`] = i + 1;
+              // i += 1;
             });
 
-            results[
-              results.findIndex((week) => week.week === module.module_name)
-            ].data.push(student);
+            // results[
+            //   results.findIndex((week) => week.week === module.module_name)
+            // ].data.push(student);
+            results.find(week => week.week === module.module_name).data.push(student);
           });
         });
-      });
-
       // return helpers.orderCountData(results);
+      // console.log("result", results)
       return results
     })
     .catch(() => [[], []]);

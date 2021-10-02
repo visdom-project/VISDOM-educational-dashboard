@@ -16,7 +16,7 @@ export const getAllStudentsData = () => {
                 "Content-Type": "application/json",
             }
         })
-        .then((response) => response.data.results)
+        .then(response => response.data.results)
         // eslint-disable-next-line no-console
         .catch((someError) => console.log(someError));
         return request;
@@ -34,7 +34,6 @@ export const fetchStudentData = async (studentId, expectGrade = 1) => {
         }
     }).then(response => response.data.results)
     .then(data => data[0]);
-
     const commits = {};
     studentData.commits.forEach(week => {
             try {
@@ -50,7 +49,6 @@ export const fetchStudentData = async (studentId, expectGrade = 1) => {
 
     // metadata has 15 weeks but students have 16 weeks;
     studentData.points.modules.splice(15, 1);
-    console.log(studentData)
 
     //expected value is missing 15th and 16th week
     return studentData.points.modules.map( (module, index) => ({

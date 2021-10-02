@@ -40,9 +40,10 @@ const CalendarTab = () => {
   useEffect(() => {
     if (timePeriod.startDate && timePeriod.endDate) {
       getTimeframe(timePeriod.startDate, timePeriod.endDate, studentID)
-      .then(frame => {
+      .then(frame => 
+        // console.log(frame)
         setTimeframe(frame)
-      })
+      )
       .catch(error => console.log(error))
     }
   }, [timePeriod]) // eslint-disable-line
@@ -95,10 +96,10 @@ const CalendarTab = () => {
         >
           Sync
         </button>
-        <Calendar
+        {timeframe && <Calendar
           key={graphKey} 
           timeframe={timeframe.slice(timescale.start, timescale.end)} 
-        />
+        />}
       </>
       }
     </div>

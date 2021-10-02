@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import dataService from "../services/studentData";
 import { Spinner, Pagination, Tabs, Tab } from "react-bootstrap";
-import { WEEK_NUMBER } from "../services/constant";
 
 const parseName = (name) => {
   const index = name.indexOf("|fi:");
@@ -93,8 +92,9 @@ const ModuleDisplay = ({ module, index }) => {
 
 const PointsDisplay = ({ data, selectedWeek}) => {
   const [week, setWeek] = useState(selectedWeek);
-  const paginationItems = Array.from({length: WEEK_NUMBER}, (_, i) => i + 1);
-  console.log(week)
+  const dataLength = data.length;
+  const paginationItems = Array.from({length: dataLength}, (_, i) => i + 1);
+
   return (
     <Tabs defaultActiveKey="detail" id="student-info-tab">
       <Tab eventKey="summary" title="Summary">
@@ -116,7 +116,7 @@ const PointsDisplay = ({ data, selectedWeek}) => {
         />
         <Pagination style={{ justifyContent: "center" }}>
           <Pagination.First onClick={() => setWeek(1)}/>
-          <Pagination.Prev onClick={() => setWeek(week === 1 ? 1 : week - 1)}/>
+          <Pagination.Prev onClick={() => setWeek(week === 1 ? 1 : parseInt(week - 1, 10))}/>
           {paginationItems.map(p => (
             <Pagination.Item 
               key={p}
@@ -130,8 +130,8 @@ const PointsDisplay = ({ data, selectedWeek}) => {
               {p}
             </Pagination.Item>
           ))}
-          <Pagination.Next onClick={() => setWeek(week === WEEK_NUMBER ? WEEK_NUMBER : week + 1)}/>
-          <Pagination.Last onClick={() => setWeek(WEEK_NUMBER)}/>
+          <Pagination.Next onClick={() => setWeek(week === dataLength ? dataLength : parseInt(week + 1, 10))}/>
+          <Pagination.Last onClick={() => setWeek(parseInt(dataLength, 10))}/>
         </Pagination>
       </Tab>
     </Tabs>
@@ -148,7 +148,7 @@ const StudentDetailView = ({ selectedStudentID, selectedWeek }) => {
   }, [selectedStudentID]); // eslint-disable-line
 
   return (
-    Object.keys(student).length > 0 ?
+    student && Object.keys(student).length > 0 ?
       <div style={{ marginBottom: document.documentElement.clientHeight * 0.1 }}>
         <h2>Exercise completion details</h2>
         <h3>

@@ -1,12 +1,12 @@
 import axios from 'axios'
-import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+// import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const dayInMilliSecs = 24 * 60 * 60 * 1000;
-
-const baseUrl = ElasticSearchConfiguration.createUrl('gitlab-course-40-commit-data-anonymized/_search');
+const courseId = process.env.REACT_APP_COURSE_ID;
+// const baseUrl = ElasticSearchConfiguration.createUrl('gitlab-course-40-commit-data-anonymized/_search');
 /**
  * Check if two date objects represent a timestamp on a same day.
  * 
@@ -54,7 +54,6 @@ const getTimeframe = (timeframeStart, timeframeEnd, studentID) => {
   // Attach "issue" data to correct days and return data:
   return getStudentData(studentID)
     .then(student => {
-
       for (let module of student.points.modules) {
         for (let exercise of module.exercises) {
 
@@ -77,10 +76,9 @@ const getTimeframe = (timeframeStart, timeframeEnd, studentID) => {
           }
         }
       }
-
       return days;
     })
-    .catch(() => console.error("Could not fetch student data"))
+    // .catch(() => console.error("Could not fetch student data"))
 }
 
 /**
@@ -88,20 +86,21 @@ const getTimeframe = (timeframeStart, timeframeEnd, studentID) => {
  * 
  * @returns Object. Contains student data on success, empty object on failure. 
  */
-const getStudentData = (studentID) => {
-
-  const request = axios
-    .get(baseUrl)
-    .then(data => {
-      const studentData = data.data.hits.hits[0]._source.results.find(
-      person => person.student_id === studentID);
-      return parseStudentData(studentData)
-    })
-    .catch(() => {
-      console.error('Could not fetch data from server')
-      return {}
-    })
-
+const getStudentData = async studentID => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID}`;
+  const request = await axios
+    .get(baseUrl, {
+      headers:{
+          Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+      }
+    }).then(response => response.data.results[0])
+    .then(data => 
+      // const studentData = data.data.hits.hits[0]._source.results.find(
+      // person => person.student_id === studentID);
+      parseStudentData(data)
+    ).catch(err => console.log(err))
   return request
 }
 
@@ -137,17 +136,17 @@ const parseStudentData = student => {
   for (let commitModule of student.commits) {
     const moduleIndex = parseInt(commitModule.module_name.slice(-2)) - 1
     
-    for (let gitProject of commitModule.projects) {      
+    for (let gitProject of commitModule.projects) {     
       if (EXERCISE_INDICES[gitProject.name.toLowerCase()] !== undefined) {
         const exerciseIndex = EXERCISE_INDICES[gitProject.name]
         modules[moduleIndex].exercises[exerciseIndex]['git_project'] = gitProject
+        // modules[moduleIndex].exercises[exerciseIndex].name = modules[moduleIndex].exercises[exerciseIndex].name.raw
       }
       else {
         console.log(`Could not find exercise for git project '${gitProject.name}' module ${commitModule.module_name}`);
       }
     }
   }
-
   return student
 }
 

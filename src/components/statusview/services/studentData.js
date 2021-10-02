@@ -1,25 +1,34 @@
 /* eslint-disable camelcase */
 import axios from "axios";
-import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+// import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 import { EXERCISE_INDICES } from "./constant";
 
-const getStudentData = studentID => {
-  if (!studentID) return null;
+const courseId = process.env.REACT_APP_COURSE_ID;
 
-  const baseUrl = ElasticSearchConfiguration.createUrl(
-    "gitlab-course-40-commit-data-anonymized/_search"
-  );
+const getStudentData = studentID => {
+  if (!studentID) return {};
+
+  // const baseUrl = ElasticSearchConfiguration.createUrl(
+  //   "gitlab-course-40-commit-data-anonymized/_search"
+  // );
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID.username}`;
   const request = axios
     .get(baseUrl, {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    })
-    .then((response) => {
-      // TODO: remove hard-coding from this mapping of modules and corresponding project names:
+      // Accept: "application/json",
+      // "Content-Type": "application/json",
+      headers:{
+        Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      }
+    }).then(response => response.data.results[0])
+    .then(response => {
+      // const student = response && response.data.hits.hits[0]._source.results.find(
+      //   s => s.student_id === studentID
+      // );
+      const student = response;
 
-      const student = response && response.data.hits.hits[0]._source.results.find(
-        s => s.student_id === studentID
-      );
+      if (!student) return {};
 
       const studentData = {
         personal_information: {
@@ -30,14 +39,14 @@ const getStudentData = studentID => {
           full_name: student.full_name,
         },
         modules: student.points.modules.map(module => ({
-          name: module.name,
+          name: module.name.raw,
           max_points: module.max_points,
           points: module.points,
           passed: module.passed,
           submissions: module.submission_count,
           exercises: module.exercises.map(ex => ({
             commit_name: "",
-            name: ex.name,
+            name: ex.name.raw,
             points: ex.points,
             max_points: ex.max_points,
             submissions: ex.submission_count,
@@ -60,8 +69,8 @@ const getStudentData = studentID => {
           } else {
             console.log(`Could not find exercise for git project '${project.name}' module ${module.module_name}`);
           }
-        })
-      })
+        });
+      });
 
       return studentData;
     })
