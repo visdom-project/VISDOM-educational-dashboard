@@ -8,7 +8,7 @@ import { PROJECT_MAPPING } from "./constant";
 //   "gitlab-course-40-commit-data-anonymized/_search"
 // );
 const courseId = process.env.REACT_APP_COURSE_ID;
-const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}`
+const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}`
 
 const getWeeklyPoints = (modules, mapping) => {
   const weeklyPts = {};

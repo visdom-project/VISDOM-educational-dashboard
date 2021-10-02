@@ -28,7 +28,7 @@ const getAllStudentData = () => {
 };
 
 const getStudentInfo = async studentID => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
   const studentData = await axios.get(baseUrl, {
     headers:{
         Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
@@ -47,7 +47,7 @@ const getStudentInfo = async studentID => {
 };
 
 const getData = (studentId) => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentId}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentId}`;
   const CheckCommitDate = (deadline, date) => {
     if (deadline - date === 1) return "IN-TIME";
     if (deadline - date > 1) return "EARLY";

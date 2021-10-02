@@ -24,7 +24,7 @@ export const getAllStudentData = () => {
 };
 
 export const getStudentInfo = async studentID => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
   const studentData = await axios.get(baseUrl, {
     headers:{
         Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
@@ -43,7 +43,7 @@ export const getStudentInfo = async studentID => {
 };
 
 export const getTimePeriod = studentID => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
   const request = axios
   .get(baseUrl, {
     // Accept: "application/json",

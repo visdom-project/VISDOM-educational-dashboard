@@ -41,7 +41,7 @@ const timeframe = date => {
 const studentData = studentID => {
   if (!studentID) return null;
 
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
 
   const request = 
     axios

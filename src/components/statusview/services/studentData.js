@@ -11,7 +11,7 @@ const getStudentData = studentID => {
   // const baseUrl = ElasticSearchConfiguration.createUrl(
   //   "gitlab-course-40-commit-data-anonymized/_search"
   // );
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID.username}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID.username}`;
   const request = axios
     .get(baseUrl, {
       // Accept: "application/json",

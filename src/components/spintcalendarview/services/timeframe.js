@@ -87,7 +87,7 @@ const getTimeframe = (timeframeStart, timeframeEnd, studentID) => {
  * @returns Object. Contains student data on success, empty object on failure. 
  */
 const getStudentData = async studentID => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
   const request = await axios
     .get(baseUrl, {
       headers:{

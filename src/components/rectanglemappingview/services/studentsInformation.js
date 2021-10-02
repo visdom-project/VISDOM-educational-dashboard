@@ -44,7 +44,7 @@ const getAllStudentData = async() => {
 };
 
 const getStudentInfo = async studentID => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentID}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
   const studentData = await axios.get(baseUrl, {
     headers:{
       Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
