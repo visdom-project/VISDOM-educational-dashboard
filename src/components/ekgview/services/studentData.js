@@ -1,12 +1,12 @@
 import axios from "axios";
-import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+// import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 import { getAgregateData } from "./courseData";
 
 // TODO: fix base URL and courseId, parameter in request
 const courseId = process.env.REACT_APP_COURSE_ID;
 
 export const getAllStudentsData = () => {
-    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/usernames?courseId=${courseId}`
+    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseId}`
 
     const request = axios
         .get(baseUrl, {
@@ -24,7 +24,7 @@ export const getAllStudentsData = () => {
 
 
 export const fetchStudentData = async (studentId, expectGrade = 1) => {
-    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentId}`;
+    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentId}`;
     // get student document
     const studentData = await axios.get(baseUrl, {
         headers:{
@@ -50,7 +50,6 @@ export const fetchStudentData = async (studentId, expectGrade = 1) => {
 
     // metadata has 15 weeks but students have 16 weeks;
     studentData.points.modules.splice(15, 1);
-    console.log(studentData)
 
     //expected value is missing 15th and 16th week
     return studentData.points.modules.map( (module, index) => ({
@@ -87,7 +86,7 @@ export const fetchStudentData = async (studentId, expectGrade = 1) => {
 };
 
 export const fetchStudentsData = async () => {
-    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}`
+    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}`
     const studentsData = {};
     // get students document
     await axios.get(baseUrl, {

@@ -6,7 +6,7 @@ import { getAgregateData } from "./courseData";
 const courseId = process.env.REACT_APP_COURSE_ID;
 
 export const getAllStudentsData = () => {
-    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/usernames?courseId=${courseId}`
+    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseId}`
 
     const request = axios
         .get(baseUrl, {
@@ -24,7 +24,7 @@ export const getAllStudentsData = () => {
 
 
 export const fetchStudentData = async (studentId, expectGrade = 1) => {
-    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}&username=${studentId}`;
+    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentId}`;
     // get student document
     const studentData = await axios.get(baseUrl, {
         headers:{
@@ -86,7 +86,7 @@ export const fetchStudentData = async (studentId, expectGrade = 1) => {
 };
 
 export const fetchStudentsData = async () => {
-    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/data?courseId=${courseId}`
+    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}`
     const studentsData = {};
     // get students document
     await axios.get(baseUrl, {

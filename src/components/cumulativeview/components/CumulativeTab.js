@@ -148,6 +148,13 @@ const CumulativeTab = () => {
   const initialGradeGroup = new Array(grades.length + 2).fill(true); // for > max point option & "all students" option
   const [gradeGroup, setGradeGroup] = useState(initialGradeGroup);
 
+  // depencies from rechart: the brush doesnt update the timerange itself with the props
+  const [linechartShouldUpdate, setLineChartShouldUpdate] = useState(0);
+
+  useEffect(() => {
+    setLineChartShouldUpdate(linechartShouldUpdate+1);
+  }, [state.timescale]);
+
   useEffect(() => {
     // fetch every student (make many requests)
     // getAllStudentsData().then(list => {
@@ -450,6 +457,7 @@ const CumulativeTab = () => {
             style={{ display: showOptions["Average"] ? "" : "none" }}
           />
           {state.timescale && <Brush
+          key={`brush-cumulative-${linechartShouldUpdate}`}
             startIndex={Math.floor(state.timescale.start / 7)}
             endIndex={Math.ceil(state.timescale.end / 7)}
             tickFormatter={(tick) => tick + 1}
@@ -459,13 +467,15 @@ const CumulativeTab = () => {
                 end: e.endIndex * 7 - 1,
               };
 
+
               if (state.timescale.start !== newTimescale.start ||
-                state.timescale.end !== newTimescale.end)
-              dispatch(
-                {
-                  ...state,
-                  timescale: newTimescale
-                })                
+                state.timescale.end !== newTimescale.end) {
+                  dispatch(
+                    {
+                      ...state,
+                      timescale: newTimescale
+                    });
+              }
             }}
           />}
         </LineChart>
