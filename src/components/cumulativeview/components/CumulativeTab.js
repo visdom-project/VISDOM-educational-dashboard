@@ -130,13 +130,17 @@ const CumulativeTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
 
+  const setDisplayedStudents = (instances) => dispatch({ ...state, instances: instances});
+  const setTimescale = (timescale) => dispatch({ ...state, timescale: timescale });
+  const setMode = (newMode) => dispatch({ ...state, mode: newMode});
+
   // const [client, setClient] = useState(null);
 
   const [studentIds, setStudentIds] = useState([]);
   const [studentsData, setStudentsData] = useState({});
-
   const [courseData, setCourseData] = useState([]);
-
+  const [maxlength, setMaxlength] = useState(0);
+  
   // TODO: maybe a constant file for this
   const modes = ["points", "exercises", "commits", "submissions"];
     // TODO: change this to use context
@@ -152,8 +156,26 @@ const CumulativeTab = () => {
   const [linechartShouldUpdate, setLineChartShouldUpdate] = useState(0);
 
   useEffect(() => {
+    if (!state.timescale) {
+      if (maxlength !== 0) {
+        setTimescale({
+          start: 0,
+          end: maxlength - 1,
+        });
+      }
+      return;
+    }
+
+    if (state.timescale.end > maxlength - 1 && maxlength - 1 > 0){
+      setTimescale({
+        ...state.timescale,
+        end: maxlength - 1,
+      });
+      return;      
+    }
     setLineChartShouldUpdate(linechartShouldUpdate+1);
-  }, [state.timescale]);
+
+  }, [state.timescale, maxlength]);
 
   useEffect(() => {
     // fetch every student (make many requests)
@@ -171,20 +193,19 @@ const CumulativeTab = () => {
       setDisplayedStudents(Object.keys(data));
 
       // setup timescale
-      if (!state.timescale){
-        dispatch({...state, 
-        timescale: {
-          start: 0,
-          end: (Object.values(data)[0].length - 1) * 7 - 1
-        }});
+      try {
+        setMaxlength((Object.values(data)[0].length) * 7);
       }
+      catch (err){
+        // Do nothing
+      }         
     });
     Promise.all( grades.map(grade => getAgregateData(grade)) ).then(expectValues => setCourseData(expectValues));
   }, []);
   
 
   // TODO: consider this to use Context ?
-  const [displayedStudents, setDisplayedStudents] = useState([]);
+  // const [displayedStudents, setDisplayedStudents] = useState([]);
 
   const showableLines = ["Average", "Expected"];
   const [showOptions, setShowOptions] = useState({
@@ -258,7 +279,7 @@ const CumulativeTab = () => {
       setDisplayedStudents(studentIds);
       return;
     }
-    setDisplayedStudents(state.instances);
+    // setDisplayedStudents(state.instances);
   }, [state.instances]); //eslint-disable-line
 
   // Toggle selection of a student that is clicked in the student list:
@@ -271,7 +292,7 @@ const CumulativeTab = () => {
     }
 
     if (targetNode.style.color === "grey") {
-      setDisplayedStudents(displayedStudents.concat(targetNode.textContent));
+      // setDisplayedStudents(displayedStudents.concat(targetNode.textContent));
       targetNode.style.color = "black";
     } else {
       handleStudentLineClick(id);
@@ -282,7 +303,7 @@ const CumulativeTab = () => {
   // Hide student that was clicked from the chart:
   const handleStudentLineClick = (id) => {
     setDisplayedStudents(
-      displayedStudents.filter((student) => !student.includes(id))
+      state.instances.filter((student) => !student.includes(id))
     );
   };
 
@@ -347,10 +368,10 @@ const CumulativeTab = () => {
 
       // Toggle the visibility of students by selecting correct group of students to be displayed:
       const disp = groupState
-        ? displayedStudents.concat(
+        ? state.instances.concat(
             targetStudents.filter((student) => !student.startsWith("avg_"))
           )
-        : displayedStudents.filter(
+        : state.instances.filter(
             (student) =>
               !targetStudents.includes(student) && !student.startsWith("avg_")
           );
@@ -434,7 +455,7 @@ const CumulativeTab = () => {
             ))
           }
 
-          {displayedStudents.map((student) => (
+          {state.instances.map((student) => (
             <Line
               key={student}
               onClick={() => console.log(student)}
@@ -459,22 +480,17 @@ const CumulativeTab = () => {
           {state.timescale && <Brush
           key={`brush-cumulative-${linechartShouldUpdate}`}
             startIndex={Math.floor(state.timescale.start / 7)}
-            endIndex={Math.ceil(state.timescale.end / 7)}
+            endIndex={Math.floor(state.timescale.end / 7)}
             tickFormatter={(tick) => tick + 1}
             onChange={(e) => {
               const newTimescale = {
                 start: e.startIndex * 7,
-                end: e.endIndex * 7 - 1,
-              };
-
+                end: (e.endIndex + 1) * 7 - 1,
+              }             
 
               if (state.timescale.start !== newTimescale.start ||
                 state.timescale.end !== newTimescale.end) {
-                  dispatch(
-                    {
-                      ...state,
-                      timescale: newTimescale
-                    });
+                  setTimescale(newTimescale);
               }
             }}
           />}

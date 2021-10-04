@@ -26,14 +26,44 @@ const EKGTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
 
+  const setStudentInstance = (currentInstance) => {
+    if (state.instances.length === 0) {
+      dispatch({
+        ...state,
+        instances: [currentInstance],
+      })
+    };
+    const index = state.instances.findIndex( instance => instance === currentInstance);
+    if (index === -1) {
+      const newInstances = [...state.instances];
+      newInstances.splice(0, 0, currentInstance);
+      dispatch({
+        ...state,
+        instances: newInstances,
+      })
+      return;
+    }
+    const newInstances = [...state.instances];
+    newInstances[index] = state.instances[0];
+    newInstances[0] = currentInstance;
+    dispatch({
+      ...state,
+      instances: newInstances,
+    })
+    return;
+  }
+  const setTimescale = (timescale) => dispatch({...state, timescale: timescale});
+  
   // const [client, setClient] = useState(null);
 
   const [studentList, setStudentList] = useState([]);
-  const [studentID, setStudentID] = useState("");
+
   const [configurationList, setConfigurationList] = useState([]);
   const [currentConfiguration, setCurrentConfiguration] = useState("");
 
   const [displayData, setDisplayData] = useState([]);
+  const [maxlength, setMaxlength] = useState(0);
+  
   const [expectedGrade, setExpectedGrade] = useState(1);
 
   const relativeTimescaleOptions = [true, false];
@@ -42,7 +72,6 @@ const EKGTab = () => {
   const DEFAULT_PULSE_RATIO = 1.5;
   const [pulseRatio, setPulseRatio] = useReferredState(DEFAULT_PULSE_RATIO);
 
-  // const [numberOfWeeks, setNumberOfweeks] = useState(0);
   const [displayedWeek, setDisplayedWeek] = useState([1, 0]);
 
   const grades = [0, 1, 2, 3, 4, 5];
@@ -61,17 +90,11 @@ const EKGTab = () => {
 };
   const [configs, setConfigs] = useReferredState([init]);
   const [configName, setConfigName] = useReferredState("");
-  // little hard code
-  // const maxlength = 98;
 
-  // useEffect(() => {
-  //   // eslint-disable-next-line no-shadow
-  //   const newClient = MQTTConnect(dispatch).then(client => {
-  //     setClient(client);
-  //     return client;
-  //   });
-  //   return () => newClient.end();
-  // }, []);
+  useEffect(() => {
+    getAllStudentsData().then(list => setStudentList(list));
+    getConfigurationsList().then(list => setConfigurationList(list)).catch(displayError);
+  }, []);
 
   useEffect(() => {
     if (!currentConfiguration.length) {
@@ -79,158 +102,78 @@ const EKGTab = () => {
     }
     getConfiguration(currentConfiguration).then(data => {
       try {
-        data.config.configs && data.config.relativeTimescale !== undefined && data.config.pulseRatio &&
+        // eslint-disable-next-line no-unused-expressions
+        data.config.configs && data.config.relativeTimescale !== undefined && data.config.pulseRatio;
         setConfigs(data.config.configs);
         setRelativeTimescale(data.config.relativeTimescale);
         setPulseRatio(data.config.pulseRatio);
       }
       catch (error) {
-        throw { error: "Something not right with the configuration" }; //eslint-disable-line
+        alert("Something not right with the configuration");
       }
-    }).catch(displayError);
+    })
   }, [currentConfiguration]); //eslint-disable-line
 
   useEffect(() => {
-    getAllStudentsData().then(list => setStudentList(list));
-    getConfigurationsList().then(list => setConfigurationList(list)).catch(displayError);
-  }, []);
-
-  // hard coding without metadata
-  const maxlength = 98;
-  const [timescale, setTimescale] = useState({
-    start: 0,
-    end: maxlength - 1,
-  });
-
-  // useEffect(() => {
-  //   dispatch({...state,
-  //     timescale: timescale,
-  //     instances: [],
-  //   });
-  // }, []); //eslint-disable-line
-  console.log(displayData);
-  useEffect(() => {
-    // if empty array then render nothing, if more than one intance(s), render first one;
-    const currentIntance = state.instances[0] || "";
-    setStudentID(currentIntance);
-  }, [state.instances]);
-
-  useEffect(() => {
     if (!state.timescale) {
-      return;
-    }
-    if (
-      state.timescale.start !== timescale.start ||
-      state.timescale.end !== timescale.end
-    ) {
-      if (state.timescale.end > maxlength - 1) {
+      if (maxlength !== 0) {
         setTimescale({
-          ...timescale,
+          start: 0,
           end: maxlength - 1,
         });
-        setDisplayedWeek([Math.floor(state.timescale.start / 7) + 1, Math.ceil((maxlength - 1) / 7) + 1]);
-      } else {
-        setTimescale(state.timescale);
-        setDisplayedWeek([Math.floor(state.timescale.start / 7) + 1, Math.ceil(state.timescale.end / 7) + 1]);
       }
+      return;
     }
-  }, [state.timescale]); //eslint-disable-line
+
+    if (state.timescale.end > maxlength - 1 && maxlength - 1 > 0){
+      setTimescale({
+        ...state.timescale,
+        end: maxlength - 1,
+      });
+      return;      
+    }
+    setDisplayedWeek([Math.floor(state.timescale.start / 7) + 1, Math.ceil(state.timescale.end / 7)]);
+  }, [state.timescale, maxlength]); //eslint-disable-line
 
   useEffect(() => {
-    if (studentID.length){
-      fetchStudentData(studentID, expectedGrade)
+    if (state.instances.length){
+      fetchStudentData(state.instances[0], expectedGrade)
         .then(data => {
           setDisplayData(data);
-          // setNumberOfweeks(data.length);
-          setDisplayedWeek([1, data.length]);
+          setMaxlength(data.length * 7);
       });
     }
-  }, [studentID, expectedGrade]);
+  }, [state.instances, expectedGrade]);
 
   return (
     <div className="container-body">
       <h2>EKG Visualization</h2>
         <DropdownMenu
           options={studentList}
-          selectedOption={ studentID.length ? studentID : null }
-          handleClick={ instance => setStudentID(instance)}
+          selectedOption={ state.instances[0] || ""}
+          handleClick={setStudentInstance}
           title="Student ID:"
           selectAllOption={false}
         />
 
         <div className="config-board">
+        <DropdownMenu
+          options={configurationList}
+          selectedOption={ currentConfiguration }
+          handleClick={ config => {
+            setCurrentConfiguration(config)
+            setConfigName(config)
+          }}
+          title="Config name:"
+          selectAllOption={false}
+        />
           <ConfigDialog
-          showButton={studentID.length > 0}
+          showButton={state.instances.length !== 0}
           title={{
             button: "Show view configuration",
             dialog: "Modify show configuration",
             confirm: "OK",
-          }}
-          // additionalFooter={
-          //   <div className="container" style={{width: "50%"}}>
-          //     <div className="row">
-          //       <div className="col">
-          //         <Button
-          //           size="md"
-          //           onClick={() => {
-          //             if (!currentConfiguration.length){
-          //               return alert("Cant change configuration of unsaved configuration");
-          //             }
-          //             const publishConfiguration = {
-          //               configs: configs.current,
-          //               relativeTimescale: relativeTimescale.current,
-          //               pulseRatio: pulseRatio.current,
-          //             };
-          //             modifyConfig(currentConfiguration, publishConfiguration).catch(displayError);
-          //           }}
-          //         >
-          //           Modify this config
-          //         </Button>
-          //       </div>
-          //       <div className="col">
-          //         <Form.Control
-          //             type="text"
-          //             value={configName.current}
-          //             onChange={(event) => setConfigName(event.target.value)}
-          //             style={{ margin:  "10px", width: "80%", }}
-          //           />
-          //         <Button
-          //             size="md"
-          //             onClick={() => {
-          //               if (! configName.current.length){
-          //                 return;
-          //               }
-          //               const publishConfiguration = {
-          //                 configs: configs.current,
-          //                 relativeTimescale: relativeTimescale.current,
-          //                 pulseRatio: pulseRatio.current,
-          //               };
-          //               createConfig(configName.current, publishConfiguration).then(() => {
-          //                 const newConfigurationList = [...configurationList];
-          //                 newConfigurationList.push(configName.current);
-          //                 setConfigurationList(newConfigurationList);
-          //                 setConfigName(configName.current);
-          //               }).catch(displayError);
-          //             }}
-          //             >
-          //             Create new config
-          //           </Button>
-          //       </div>
-          //     </div>
-              
-          //   </div>
-          // }
-          >
-            <DropdownMenu
-              options={configurationList}
-              selectedOption={ currentConfiguration }
-              handleClick={ config => {
-                setCurrentConfiguration(config)
-                setConfigName(config)
-              }}
-              title="Config name:"
-              selectAllOption={false}
-            />
+          }}>
             <DropdownMenu
               options={grades}
               selectedOption={expectedGrade}
@@ -346,7 +289,7 @@ const EKGTab = () => {
         </div>
         <div className="storing-cofig-diaglog" style={{ padding: "5px 0 5px 0", display: "flex", justifyContent: "flex-end" }}>
           <ConfigDialog
-            showButton={studentID.length > 0}
+            showButton={state.instances !== 0}
             title={{
               button: "Save",
               dialog: "Storing Configuration",
@@ -413,7 +356,7 @@ const EKGTab = () => {
         </div>
         
         {
-          studentID &&
+          state.instances[0] && maxlength !== 0 &&
           <>
             <div>
               <VisGraph 
@@ -430,28 +373,17 @@ const EKGTab = () => {
               <TwoThumbInputRange
                 values={displayedWeek}
                 min={1}
-                max={15}
+                max={Math.ceil(maxlength / 7) }
                 style={{ padding: "10px 0 10px 0" }}
                 onChange={(newValue) => {
                   setDisplayedWeek(newValue.sort((a, b) => a-b));
                   setTimescale({
                     start: (newValue[0] - 1) * 7,
-                    end: (newValue[1] - 1) * 7 -1
+                    end: (newValue[1]) * 7 - 1
                   })
                 }}
               />
             </div>
-            <button
-              onClick={() => {
-                const instances = studentID ? [studentID] : [];
-                dispatch({...state,
-                  timescale: timescale,
-                  instances: instances,
-                });
-              }}
-            >
-              Sync
-            </button>
           </>
         }
     </div>
