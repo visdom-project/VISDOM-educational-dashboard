@@ -40,9 +40,10 @@ h3 {
 
 .fit-row {
   display: flex;
-  margin: auto;
+  margin-bottom: 0 !important;
   margin-right: 0;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .partial-border::after {

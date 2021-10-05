@@ -26,11 +26,11 @@ const GroupOfVisualizations = ({ views }) => {
       id="drap-drop-mode-switch"
       style={{ backgroundColor: dragMode ? "#d8f3dc" : "#e9ecef" }}
     >
-      {label && <Form.Check
+      <Form.Check
         type="switch"
-        label="Drag and drop mode"
-        onChange={() => setDragMode(!dragMode)}
-      />}
+        label={label && "Drag and drop mode"}
+        onClick={() => setDragMode(!dragMode)}
+      />
       <Button
         id="drap-drop-mode-btn"
         style={{ backgroundColor: "inherit" }}

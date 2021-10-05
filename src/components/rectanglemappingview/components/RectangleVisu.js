@@ -73,6 +73,7 @@ const RectangleVisu = () => {
     // if empty array then render nothing, if more than one intance(s), render first one;
     const currentIntance = state.instances[0] || "";
     setStudentID(currentIntance);
+    console.log("here id")
   }, [state.instances]); //eslint-disable-line
 
   useEffect(() => {
@@ -95,7 +96,10 @@ const RectangleVisu = () => {
       }
       graphShouldUpdate(graphKey + 1);
     }
+    console.log("here time")
   }, [state.timescale]); //eslint-disable-line
+
+  console.log(studentID)
 
   return(
     <div className="rectangle-visu">
@@ -104,7 +108,7 @@ const RectangleVisu = () => {
         studentID={studentID} 
         setStudentID={setStudentID} 
       />
-      {studentID.length !== 0 && <ConfigurationTable 
+      {studentID.length && <ConfigurationTable 
         configProps={configProps} 
         setConfigProps={setConfigProps}
         mode={mode}
@@ -116,7 +120,7 @@ const RectangleVisu = () => {
         radarConfigProps={radarConfigProps}
         setRadarConfigProps={setRadarConfigProps}
       />}
-      {studentID && <button
+      {studentID && data.length > 0 && <button
         onClick={() => {
           const instances = studentID ? [studentID] : [];
           dispatch({...state,
@@ -127,14 +131,14 @@ const RectangleVisu = () => {
       >
         sync
       </button>}
-      {!mode && <AllWeeksVisu 
+      {data.length > 0 && !mode && <AllWeeksVisu 
         rawData={data} 
         configProps={configProps} 
         weekDisplay={weekDisplay}
         setWeekDisplay={setWeekDisplay}
         setTimescale={setTimescale}
       />}
-      {mode && <CalendarModeVisu
+      {data.length > 0 && mode && <CalendarModeVisu
         studentID={studentID}
         radarConfigProps={radarConfigProps}
         configProps={configProps}

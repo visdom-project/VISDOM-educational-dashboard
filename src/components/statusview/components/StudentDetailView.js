@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import dataService from "../services/studentData";
 import { Spinner, Pagination, Tabs, Tab } from "react-bootstrap";
+import EKGView from "../../ekgview/components/EKGView";
 
 const parseName = (name) => {
   const index = name.indexOf("|fi:");
@@ -96,7 +97,10 @@ const PointsDisplay = ({ data, selectedWeek}) => {
   const paginationItems = Array.from({length: dataLength}, (_, i) => i + 1);
 
   return (
-    <Tabs defaultActiveKey="detail" id="student-info-tab">
+    <Tabs defaultActiveKey="ekg" id="student-info-tab">
+      <Tab eventKey="ekg" title="EKG view">
+        <EKGView />
+      </Tab>
       <Tab eventKey="summary" title="Summary">
         <div>
           {data.map((module, index) => (

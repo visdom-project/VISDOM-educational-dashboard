@@ -171,7 +171,6 @@ const ControlAccordion = ({
         </Card.Header>
         <Accordion.Collapse eventKey="0">
           <Card.Body>
-            Hello
             <SortControl
               sortConfig={sortConfig}
               setSortConfig={setSortConfig}

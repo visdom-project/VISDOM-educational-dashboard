@@ -19,9 +19,9 @@ const ConfigDialog = ({ title, children, openDialog, setOpenDialog }) => {
   }, [openDialog]);
   return (
     <div>
-      <Button variant="outline-primary" onClick={handleClickOpen}>
+      {/* <Button variant="outline-primary" onClick={handleClickOpen}>
         {title.button}
-      </Button>
+      </Button> */}
       <Modal
         show={open}
         onHide={handleClose}

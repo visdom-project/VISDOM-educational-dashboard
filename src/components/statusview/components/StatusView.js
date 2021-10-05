@@ -1,11 +1,11 @@
 import React from "react";
 import "../stylesheets/statusview.css";
-import StatusTab from "./StatusTab";
+import MultiStatusChartContainer from "./MultiStatusChartContainer";
 
 const StatusView = () => {
   return (
     <div className="status-view">
-      <StatusTab />
+      <MultiStatusChartContainer />
     </div>
   );
 }

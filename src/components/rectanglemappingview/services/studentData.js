@@ -38,12 +38,12 @@ const timeframe = date => {
 
 }
 
-const studentData = studentID => {
+const studentData = async studentID => {
   if (!studentID) return null;
 
   const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
 
-  const request = 
+  const request = await
     axios
       .get(baseUrl, {
         // Accept: "application/json",
@@ -142,6 +142,9 @@ const studentData = studentID => {
 
           return studentModules;
         }
+      }).catch(err => {
+        console.lof(err)
+        return [];
       })
   return request;
 }

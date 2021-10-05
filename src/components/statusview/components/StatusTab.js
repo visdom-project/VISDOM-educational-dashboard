@@ -16,7 +16,7 @@ import ConfigDialog from "./ConfigDialog";
 import helpers from "../services/helpers";
 
 // eslint-disable-next-line max-lines-per-function
-const StatusTab = () => {
+const StatusTab = ({ allowSync }) => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
   // const [client, setClient] = useState(null);
@@ -102,8 +102,13 @@ const StatusTab = () => {
   // eslint-disable-next-line no-unused-vars
   const handleStudentClick = (data, barIndex) => {
     if (data !== undefined) {
-      const newSelected = data;
-      setSelectedStudent(newSelected);
+      // const newSelected = data;
+      const instances = data.username ? [data.username] : [];
+      dispatch({...state,
+        // mode: selectedMode,
+        instances: instances,
+      });
+      setSelectedStudent(data);
       setOpenStatusDialog(true);
     }
 
@@ -111,6 +116,9 @@ const StatusTab = () => {
 
   const handleModeSwitchClick = (newMode) => {
     setSelectedMode(newMode);
+    dispatch({...state,
+      mode: newMode,
+    });
 
     const newKeys = allKeys[newMode];
     setDataKeys(newKeys);
@@ -278,11 +286,11 @@ const StatusTab = () => {
     }
   }, [state.mode]); //eslint-disable-line
 
-  useEffect(() => {
-    // if empty array then render nothing, if more than one intance(s), render first one;
-    const currentIntance = state.instances[0] || "";
-    setSelectedStudent(currentIntance);
-  }, [state.instances]);
+  // useEffect(() => {
+  //   // if empty array then render nothing, if more than one intance(s), render first one;
+  //   const currentIntance = state.instances[0] || "";
+  //   setSelectedStudent(currentIntance);
+  // }, [state.instances]);
 
   useEffect(() => {
     if (progressData.length && submissionData.length && commitData.length) {
@@ -319,7 +327,6 @@ const StatusTab = () => {
   }, [sortConfig]) //eslint-disable-line
   return (
     <>
-      <h2>{"Current Student Statuses"}</h2>
       <ControlAccordion 
         handleModeClick={handleModeSwitchClick}
         selectedMode={selectedMode}
@@ -353,7 +360,7 @@ const StatusTab = () => {
         updateTreshold={updateTreshold}
         treshold={treshold}
       />
-      <button
+      {allowSync && <button
         onClick={() => {
           const instances = selectedStudent ? [selectedStudent] : [];
           dispatch({...state,
@@ -363,7 +370,7 @@ const StatusTab = () => {
         }}
       >
         Sync
-      </button>
+      </button>}
 
       <ConfigDialog
         title={{

@@ -19,7 +19,7 @@ const CheckBoxMenu = ({ options, handleClick, showAvg, showExpected }) => {
       <div>
         {options.map((option) => {
           return (
-            <div key={option} className="fit-row">
+            <div key={option}>
               <input
                 onClick={() => handleClick(option)}
                 type="checkbox"
