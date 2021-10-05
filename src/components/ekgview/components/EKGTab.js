@@ -22,9 +22,12 @@ import { OPTIONS_MAP } from "../helper/constants";
 
 
 // eslint-disable-next-line max-lines-per-function
-const EKGTab = () => {
+const EKGTab = ({onlyRead=false}) => {
+
   const state = useMessageState();
   const dispatch = useMessageDispatch();
+
+  const modes = ["points", "exercises", "commits", "submissions"];
 
   const setStudentInstance = (currentInstance) => {
     if (state.instances.length === 0) {
@@ -53,13 +56,14 @@ const EKGTab = () => {
     return;
   }
   const setTimescale = (timescale) => dispatch({...state, timescale: timescale});
-  
+  const setMode = (newmode) => dispatch({...state, mode: newmode});
   // const [client, setClient] = useState(null);
 
   const [studentList, setStudentList] = useState([]);
 
   const [configurationList, setConfigurationList] = useState([]);
-  const [currentConfiguration, setCurrentConfiguration] = useState("");
+  const defaultConfigname = onlyRead === false ? "" : (!state.mode ? `default_${modes[0]}` : `default_${state.mode}`);
+  const [currentConfiguration, setCurrentConfiguration] = useState(defaultConfigname);
 
   const [displayData, setDisplayData] = useState([]);
   const [maxlength, setMaxlength] = useState(0);
@@ -115,6 +119,18 @@ const EKGTab = () => {
   }, [currentConfiguration]); //eslint-disable-line
 
   useEffect(() => {
+    if (onlyRead) {
+      if (state.mode) {
+        setCurrentConfiguration(`default_${state.mode}`);
+      }
+      else {
+        setCurrentConfiguration(`default_${modes[0]}`);
+        setMode(modes[0]);
+      }
+    }
+  }, [state.mode])
+
+  useEffect(() => {
     if (!state.timescale) {
       if (maxlength !== 0) {
         setTimescale({
@@ -136,7 +152,7 @@ const EKGTab = () => {
   }, [state.timescale, maxlength]); //eslint-disable-line
 
   useEffect(() => {
-    if (state.instances.length){
+    if (state.instances.length && state.instances[0].length !== 0){
       fetchStudentData(state.instances[0], expectedGrade)
         .then(data => {
           setDisplayData(data);
@@ -149,7 +165,7 @@ const EKGTab = () => {
     <div className="container-body">
       <h2>EKG Visualization</h2>
         <DropdownMenu
-          options={studentList}
+          options={onlyRead ? [] : studentList}
           selectedOption={ state.instances[0] || ""}
           handleClick={setStudentInstance}
           title="Student ID:"
