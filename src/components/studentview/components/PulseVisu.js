@@ -95,16 +95,41 @@ const PulseVisu = () => {
     end: maxlength - 1,
   });
 
+  const setStudentInstance = currentInstance => {
+    if (state.instances.length === 0) {
+      dispatch({
+        ...state,
+        instances: [currentInstance],
+      })
+    };
+    const index = state.instances.findIndex(instance => instance === currentInstance);
+    if (index === -1) {
+      const newInstances = [...state.instances];
+      newInstances.splice(0, 0, currentInstance);
+      dispatch({
+        ...state,
+        instances: newInstances,
+      })
+      return;
+    }
+    const newInstances = [...state.instances];
+    newInstances[index] = state.instances[0];
+    newInstances[0] = currentInstance;
+    dispatch({
+      ...state,
+      instances: newInstances,
+    })
+    return;
+  }
+
   useEffect(() => {
+    if (state.instances.length && state.instances[0].length !== 0) {
     pulseData
-      .getData(studentID)
+      .getData(state.instances[0])
       .then((response) => setData(response[0]))
       .catch((err) => console.log(err));
-    const instances = studentID ? [studentID] : [];
-    dispatch({...state,
-      instances: instances,
-    });
-  }, [studentID]);
+    }
+  }, [state.instances]);
 
   useEffect(() => {
     // if empty array then render nothing, if more than one intance(s), render first one;
@@ -142,7 +167,10 @@ const PulseVisu = () => {
     <div className="" style={{ minHeight: "700px" }}>
       <h2>Pulse Visualization</h2>
       <h3>Student Commits Status</h3>
-      <StudentList setStudentID={setStudentID} studentID={studentID} />
+      <StudentList 
+        studentID={state.instances[0] || ""} 
+        setStudentID={setStudentInstance}
+      />
       {studentID && data && 
       <>
         <ResponsiveContainer minWidth="300px" minHeight="700px">

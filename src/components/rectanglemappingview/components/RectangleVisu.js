@@ -56,6 +56,33 @@ const RectangleVisu = () => {
      end: maxlength - 1,
    });
 
+   const setStudentInstance = (currentInstance) => {
+    if (state.instances.length === 0) {
+      dispatch({
+        ...state,
+        instances: [currentInstance],
+      })
+    };
+    const index = state.instances.findIndex(instance => instance === currentInstance);
+    if (index === -1) {
+      const newInstances = [...state.instances];
+      newInstances.splice(0, 0, currentInstance);
+      dispatch({
+        ...state,
+        instances: newInstances,
+      })
+      return;
+    }
+    const newInstances = [...state.instances];
+    newInstances[index] = state.instances[0];
+    newInstances[0] = currentInstance;
+    dispatch({
+      ...state,
+      instances: newInstances,
+    })
+    return;
+  }
+
   const handleTimeChange = newValue => {
     const time = newValue.sort((a,b) => a-b)
     setWeekDisplay(time)
@@ -72,28 +99,12 @@ const RectangleVisu = () => {
   }
 
   useEffect(() => {
-    if (studentID) {
-      studentData(studentID)
+    if (state.instances.length && state.instances[0].length !== 0) {
+      studentData(state.instances[0])
         .then(res => setData(res))
         .catch(err => console.log(err))
-      const instances = studentID ? [studentID] : [];
-      dispatch({...state,
-        instances: instances,
-      });
     }
-  },[studentID]) //eslint-disable-line
-
-  // useEffect(() => {
-  //   dispatch({...state,
-  //     timescale: timescale
-  //   })
-  // }, [timescale])
-
-  useEffect(() => {
-    // if empty array then render nothing, if more than one intance(s), render first one;
-    const currentIntance = state.instances[0] || "";
-    setStudentID(currentIntance);
-  }, [state.instances]); //eslint-disable-line
+  },[state.instances]) //eslint-disable-lisapsane
 
   useEffect(() => {
     if (!state.timescale) {
@@ -121,8 +132,8 @@ const RectangleVisu = () => {
     <div className="rectangle-visu">
       <h2>Rectangle Mapping Visualization</h2>
       <StudentSelector 
-        studentID={studentID} 
-        setStudentID={setStudentID} 
+        studentID={state.instances[0] || ""} 
+        setStudentID={setStudentInstance} 
       />
       {studentID.length && <ConfigurationTable 
         configProps={configProps} 

@@ -42,23 +42,40 @@ const CalendarTab = () => {
     })
   }
 
+  const setStudentInstance = (currentInstance) => {
+    if (state.instances.length === 0) {
+      dispatch({
+        ...state,
+        instances: [currentInstance],
+      })
+    };
+    const index = state.instances.findIndex(instance => instance === currentInstance);
+    if (index === -1) {
+      const newInstances = [...state.instances];
+      newInstances.splice(0, 0, currentInstance);
+      dispatch({
+        ...state,
+        instances: newInstances,
+      })
+      return;
+    }
+    const newInstances = [...state.instances];
+    newInstances[index] = state.instances[0];
+    newInstances[0] = currentInstance;
+    dispatch({
+      ...state,
+      instances: newInstances,
+    })
+    return;
+  }
+
   useEffect(() => {
-    if (studentID) {
-      getTimePeriod(studentID)
+    if (state.instances.length && state.instances[0].length !== 0) {
+      getTimePeriod(state.instances[0])
         .then(res => res && setTimePeriod(res))
         .catch(error => console.log(error)) 
-      const instances = studentID ? [studentID] : [];
-      dispatch({...state,
-        instances: instances,
-      });
     }
-  },[studentID])
-
-  // useEffect(() => {
-  //   dispatch({...state,
-  //     timescale: timescale
-  //   })
-  // }, [timescale])
+  },[state.instances])
 
   useEffect(() => {
     if (timePeriod.startDate && timePeriod.endDate) {
@@ -100,7 +117,10 @@ const CalendarTab = () => {
   return (
     <div className="calendar-tab">
       <h2>Sprint Calendar Visualization</h2>
-      <StudentSelector studentID={studentID} setStudentID={setStudentID} />
+      <StudentSelector 
+        studentID={state.instances[0] || ""} 
+        setStudentID={setStudentInstance} 
+      />
       {studentID && 
       <>
         <TimeSelection 
