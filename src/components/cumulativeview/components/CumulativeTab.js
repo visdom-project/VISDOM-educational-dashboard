@@ -400,7 +400,7 @@ const CumulativeTab = () => {
             handleClick={handleToggleStudentGroupClick}
             groupSelected={gradeGroup}
           />
-          <StudentSelector students={studentIds} handleClick={handleListClick} />
+          {/* <StudentSelector students={studentIds} handleClick={handleListClick} /> */}
         </div>
 
         <div className="fit-row">
