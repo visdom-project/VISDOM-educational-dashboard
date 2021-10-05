@@ -109,7 +109,6 @@ const EKGTab = () => {
   //       setDisplayedWeek([Math.floor(state.timescale.start / 7) + 1, Math.ceil(state.timescale.end / 7) + 1]);
   //     });
   // }, [studentID]); //eslint-disable-line
-
   return (
     <div className="container-body">
       <h2>Radar Visualization</h2>

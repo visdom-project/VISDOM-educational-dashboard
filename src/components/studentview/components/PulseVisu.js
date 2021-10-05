@@ -112,11 +112,11 @@ const PulseVisu = () => {
     setStudentID(currentIntance);
   }, [state.instances]); //eslint-disable-line
 
-  useEffect(() => {
-    dispatch({...state,
-      timescale: timescale
-    })
-  }, [timescale])
+  // useEffect(() => {
+  //   dispatch({...state,
+  //     timescale: timescale
+  //   })
+  // }, [timescale])
 
   useEffect(() => {
     if (!state.timescale) {
@@ -181,17 +181,17 @@ const PulseVisu = () => {
               }
               height={25}
               stroke="#8884d8"
-              onChange={(e) => {
+              onChange={e => {
                 setTimescale({
                   start: e.startIndex,
                   end: e.endIndex,
                 });
-                // dispatch({...state,
-                //   timescale: {
-                //       start: e.startIndex,
-                //       end: e.endIndex,
-                //     }
-                // })
+                dispatch({...state,
+                  timescale: {
+                    start: e.startIndex,
+                    end: e.endIndex,
+                  }
+                })
               }}
             />
           </BarChart>

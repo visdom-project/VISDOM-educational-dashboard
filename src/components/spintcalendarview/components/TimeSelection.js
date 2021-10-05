@@ -15,20 +15,13 @@ const TimeSelection = ({
     })
   }
 
-  const handleChange = newValue => {
-    setTimescale({
-      start: newValue[0],
-      end: newValue[1],
-    })
-  }
-
   return (
     <div className="fit-row" style={{ paddingTop: "20px" }}>
       <TwoThumbInputRange
         values={Object.keys(timescale).map(key => timescale[key])}
         min={0}
         max={maxlength}
-        onChange={handleChange}
+        onChange={setTimescale}
       />
       <button key="reset-date" onClick={resetDate}>Reset</button>
     </div>

@@ -25,7 +25,6 @@ const AllWeeksVisu = ({
   rawData, 
   configProps, 
   weekDisplay,
-  setWeekDisplay,
   setTimescale
 }) => {
   const [hoverCell, setHoverCell] = useState(false);
@@ -99,14 +98,7 @@ const AllWeeksVisu = ({
           values={weekDisplay}
           min={1}
           max={_NUMBER_OF_WEEKS_}
-          onChange={(newValue) => {
-            const time = newValue.sort((a,b) => a-b)
-            setWeekDisplay(time)
-            setTimescale({
-              start: (time[0] - 1) * 7,
-              end: (time[1] - 1) * 7 -1
-            })
-          }}
+          onChange={setTimescale}
         />
       </div>}
     </div>

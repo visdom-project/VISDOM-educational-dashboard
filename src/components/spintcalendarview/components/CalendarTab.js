@@ -29,6 +29,19 @@ const CalendarTab = () => {
     end: maxlength - 1,
   });
 
+  const handleTimeChange = newValue => {
+    setTimescale({
+      start: newValue[0],
+      end: newValue[1],
+    })
+    dispatch({...state,
+      timescale: {
+        start: newValue[0],
+        end: newValue[1],
+      }
+    })
+  }
+
   useEffect(() => {
     if (studentID) {
       getTimePeriod(studentID)
@@ -41,11 +54,11 @@ const CalendarTab = () => {
     }
   },[studentID])
 
-  useEffect(() => {
-    dispatch({...state,
-      timescale: timescale
-    })
-  }, [timescale])
+  // useEffect(() => {
+  //   dispatch({...state,
+  //     timescale: timescale
+  //   })
+  // }, [timescale])
 
   useEffect(() => {
     if (timePeriod.startDate && timePeriod.endDate) {
@@ -92,7 +105,7 @@ const CalendarTab = () => {
       <>
         <TimeSelection 
           timescale={timescale}
-          setTimescale={setTimescale}
+          setTimescale={handleTimeChange}
           maxlength={maxlength}
         />
         {/* <button

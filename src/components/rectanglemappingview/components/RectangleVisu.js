@@ -56,6 +56,21 @@ const RectangleVisu = () => {
      end: maxlength - 1,
    });
 
+  const handleTimeChange = newValue => {
+    const time = newValue.sort((a,b) => a-b)
+    setWeekDisplay(time)
+    setTimescale({
+      start: (time[0] - 1) * 7,
+      end: (time[1] - 1) * 7 - 1
+    })
+    dispatch({...state,
+      timescale: {
+        start: (time[0] - 1) * 7,
+        end: (time[1] - 1) * 7 -1
+      }
+    })
+  }
+
   useEffect(() => {
     if (studentID) {
       studentData(studentID)
@@ -68,11 +83,11 @@ const RectangleVisu = () => {
     }
   },[studentID]) //eslint-disable-line
 
-  useEffect(() => {
-    dispatch({...state,
-      timescale: timescale
-    })
-  }, [timescale])
+  // useEffect(() => {
+  //   dispatch({...state,
+  //     timescale: timescale
+  //   })
+  // }, [timescale])
 
   useEffect(() => {
     // if empty array then render nothing, if more than one intance(s), render first one;
@@ -136,8 +151,7 @@ const RectangleVisu = () => {
         rawData={data} 
         configProps={configProps} 
         weekDisplay={weekDisplay}
-        setWeekDisplay={setWeekDisplay}
-        setTimescale={setTimescale}
+        setTimescale={handleTimeChange}
       />}
       {data.length > 0 && mode && <CalendarModeVisu
         studentID={studentID}
