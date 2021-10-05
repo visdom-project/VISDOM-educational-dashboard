@@ -170,6 +170,7 @@ const MultiChart = (props) => {
           >
             <XAxis
               dataKey="id"
+              tick={false}
               padding={{ left: 0, right: 0 }}
               label={{ value: axisNames[0], position: "bottom" }}
             />
@@ -332,6 +333,7 @@ const MultiChart = (props) => {
         >
           <XAxis
             dataKey="id"
+            tick={false}
             padding={{ left: 0, right: 0 }}
             label={{ value: axisNames[0], position: "bottom" }}
           />

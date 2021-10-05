@@ -32,10 +32,20 @@ const CalendarTab = () => {
   useEffect(() => {
     if (studentID) {
       getTimePeriod(studentID)
-      .then(res => res && setTimePeriod(res))
-      .catch(error => console.log(error)) 
+        .then(res => res && setTimePeriod(res))
+        .catch(error => console.log(error)) 
+      const instances = studentID ? [studentID] : [];
+      dispatch({...state,
+        instances: instances,
+      });
     }
   },[studentID])
+
+  useEffect(() => {
+    dispatch({...state,
+      timescale: timescale
+    })
+  }, [timescale])
 
   useEffect(() => {
     if (timePeriod.startDate && timePeriod.endDate) {
@@ -85,7 +95,7 @@ const CalendarTab = () => {
           setTimescale={setTimescale}
           maxlength={maxlength}
         />
-        <button
+        {/* <button
           onClick={() => {
             const instances = studentID ? [studentID] : [];
             dispatch({...state,
@@ -95,7 +105,7 @@ const CalendarTab = () => {
           }}
         >
           Sync
-        </button>
+        </button> */}
         {timeframe && <Calendar
           key={graphKey} 
           timeframe={timeframe.slice(timescale.start, timescale.end)} 

@@ -95,16 +95,15 @@ const PulseVisu = () => {
     end: maxlength - 1,
   });
 
-  // useEffect(() => {
-  //   MQTTConnect(dispatch).then((client) => setClient(client));
-  //   return () => client.end();
-  // }, []);
-
   useEffect(() => {
     pulseData
       .getData(studentID)
       .then((response) => setData(response[0]))
       .catch((err) => console.log(err));
+    const instances = studentID ? [studentID] : [];
+    dispatch({...state,
+      instances: instances,
+    });
   }, [studentID]);
 
   useEffect(() => {
@@ -112,6 +111,12 @@ const PulseVisu = () => {
     const currentIntance = state.instances[0] || "";
     setStudentID(currentIntance);
   }, [state.instances]); //eslint-disable-line
+
+  useEffect(() => {
+    dispatch({...state,
+      timescale: timescale
+    })
+  }, [timescale])
 
   useEffect(() => {
     if (!state.timescale) {
@@ -132,6 +137,8 @@ const PulseVisu = () => {
       graphShouldUpdate(graphKey + 1);
     }
   }, [state.timescale]); //eslint-disable-line
+
+  // console.log(state)
 
   return (
     <div className="" style={{ minHeight: "700px" }}>
@@ -181,11 +188,17 @@ const PulseVisu = () => {
                   start: e.startIndex,
                   end: e.endIndex,
                 });
+                // dispatch({...state,
+                //   timescale: {
+                //       start: e.startIndex,
+                //       end: e.endIndex,
+                //     }
+                // })
               }}
             />
           </BarChart>
         </ResponsiveContainer>
-        <button
+        {/* <button
           onClick={() => {
               const instances = studentID ? [studentID] : [];
               dispatch({...state,
@@ -195,7 +208,7 @@ const PulseVisu = () => {
             }}
         >
           Sync
-        </button>
+        </button> */}
       </>
     }
     </div>

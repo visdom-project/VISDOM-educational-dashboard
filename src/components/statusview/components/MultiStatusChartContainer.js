@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import DropdownMenu from "./DropdownMenu";
 import StatusTab from "./StatusTab";
 
+import { Alert } from "react-bootstrap";
+
 const MAX_GRAPH = 4;
 
 const MultiStatusChartContainer = () => {
@@ -17,14 +19,15 @@ const MultiStatusChartContainer = () => {
         selectedOption={graphNum}
         title="Select number of graphs: "
       />
-      <div className="status-chart-container">
-        {Array(graphNum)
-          .fill(0)
-          .map((_, item) => <div className="status-chart">
-            <StatusTab key={`status-chart-${item}`} allowSync={item === 0}/>
-          </div>)
-        }
-      </div>
+      {graphNum > 1 && <Alert variant="warning">
+        <i>Only <strong>first</strong> chart configuration allows synchronization!</i>
+      </Alert>}
+      {Array(graphNum)
+        .fill(0)
+        .map((_, item) => <div className="status-chart">
+          <StatusTab key={`status-chart-${item}`} allowSync={item === 0}/>
+        </div>)
+      }
     </div>
   )
 }

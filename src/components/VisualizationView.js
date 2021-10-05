@@ -27,6 +27,7 @@ const VisualizationView = () => {
   const [openOffCanvas, setOpenOffCanvas] = useState(true);
   const [showButton, setShowButton] = useState(false);
   const [viewkey, setViewKey] = useState("");
+  const [currentGroup, setCurrentGroup] = useState([]);
 
   useEffect(() => {
     window.addEventListener("scroll", () => {
@@ -38,19 +39,27 @@ const VisualizationView = () => {
     });
   }, []);
 
-  const viewObjectFormmat = (name, key, microfrontend, important=false) => ({ name, key, microfrontend, important });
+  const viewObjectFormmat = (name, key, microfrontend) => ({ name, key, microfrontend});
 
-  const VIEWS = [
+  const COURSE_VIEWS = [
     viewObjectFormmat("Status", "statusview", <StatusView />),
     viewObjectFormmat("Progress", "progressview", <ProgressView />),
-    viewObjectFormmat("Cummulative", "cummulativeview", <CumulativeView />),
+    viewObjectFormmat("Cummulative", "cummulativeview", <CumulativeView />)
+  ];
+
+  const INDIVIDUAL_VIEW = [
     viewObjectFormmat("Pulse", "studentview", <StudentView />),
     viewObjectFormmat("Sprint Calendar", "sprintcalendarview", <CalendarView />),
-    viewObjectFormmat("Radar", "radarview", <RadarView />),
+    // viewObjectFormmat("Radar", "radarview", <RadarView />),
     viewObjectFormmat("Rectangle Mapping", "rectanglemappingview", <RectangleView />),
-    viewObjectFormmat("EKG", "ekgview", <EKGView />),
-    viewObjectFormmat("Group of visualization", "group", null)
+    viewObjectFormmat("EKG", "ekgview", <EKGView />)
   ];
+
+  const GROUP_VIEW = [
+    viewObjectFormmat("Group of Course Summary", "course", <GroupOfVisualizations views={COURSE_VIEWS} viewkey={viewkey} />),
+    viewObjectFormmat("Group of individual", "individual", <GroupOfVisualizations views={INDIVIDUAL_VIEW} viewkey={viewkey} />)
+  ]  
+  const VIEWS = COURSE_VIEWS.concat(INDIVIDUAL_VIEW).concat(GROUP_VIEW);
 
   return (
     <div className="visualization-view">
@@ -111,14 +120,32 @@ const VisualizationView = () => {
               </Nav>
             </Offcanvas.Body>
         </Offcanvas>
-          {viewkey.length > 0 
-            ? viewkey === "group"
-              ? <GroupOfVisualizations views={VIEWS.filter(v => v.key !== "group")} />
+        {/* {viewkey.length > 0 
+          ? viewkey === "course"
+            ? <GroupOfVisualizations views={COURSE_VIEWS.filter(v => v.key !== "course")} />
+            : viewkey === "individual"
+              ? <GroupOfVisualizations views={INDIVIDUAL_VIEW.filter(v => v.key !== "individual")} />
               : <Container className="view-container">
                 {VIEWS.find(view => view.key === viewkey).microfrontend}
               </Container>
-            : null
-          }
+          : null
+        } */}
+        {viewkey.length > 0
+          // ? viewkey === "course"
+          //   ? <GroupOfVisualizations views={COURSE_VIEWS} viewkey={viewkey} />
+          //   : viewkey === "individual" 
+          //     ? <GroupOfVisualizations views={INDIVIDUAL_VIEW} viewkey={viewkey}/>
+          //     : <Container className="view-container">
+          //       {VIEWS.find(view => view.key === viewkey).microfrontend}
+          //     </Container>
+          // : null
+          ? (viewkey !== "course" && viewkey !== "individual")
+            ? <Container className="view-container">
+              {VIEWS.find(view => view.key === viewkey).microfrontend}
+            </Container>
+            : VIEWS.find(view => view.key === viewkey).microfrontend 
+          : null
+        }
       </div>
       {showButton && (
         <Button

@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import "../stylesheets/visualizationview.css"
 
 import { Form, Container, Button } from "react-bootstrap";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
-const GroupOfVisualizations = ({ views }) => {
+const GroupOfVisualizations = ({ views, viewkey }) => {
   const [visualizations, updateVisualizations] = React.useState(views);
   const [dragMode, setDragMode] = React.useState(false);
   const [label, setLabel] = React.useState(true);
@@ -19,6 +19,12 @@ const GroupOfVisualizations = ({ views }) => {
 
     updateVisualizations(items);
   }
+
+  useEffect(() => {
+    if (viewkey.length > 0) {
+      updateVisualizations(views)
+    }
+  }, [viewkey])
 
   return (
     <>
