@@ -1,0 +1,11 @@
+version: 3
+
+services: 
+  edu-dashboard:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - 8000:3000
+    env_file:
+      - .env

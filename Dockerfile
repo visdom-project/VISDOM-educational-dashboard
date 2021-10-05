@@ -1,6 +1,6 @@
-FROM node:latest AS builder
-COPY package*.json ./
-RUN npm ci
+FROM node:14 AS builder
+COPY package.json ./
+RUN npm install
 COPY . .
 RUN npm build
 
