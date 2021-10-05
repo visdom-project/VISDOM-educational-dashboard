@@ -112,7 +112,7 @@ const EKGTab = () => {
 
   return (
     <div className="container-body">
-      <h2>EKG Visualization</h2>
+      <h2>Radar Visualization</h2>
         <DropdownMenu
           options={studentList}
           selectedOption={ state.instances[0] || ""}

@@ -99,7 +99,7 @@ const PointsDisplay = ({ data, selectedWeek}) => {
   return (
     <Tabs defaultActiveKey="ekg" id="student-info-tab">
       <Tab eventKey="ekg" title="EKG view">
-        <EKGView />
+        <EKGView onlyRead={true}/>
       </Tab>
       <Tab eventKey="summary" title="Summary">
         <div>

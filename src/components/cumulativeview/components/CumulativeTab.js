@@ -155,7 +155,7 @@ const CumulativeTab = () => {
   const [gradeGroup, setGradeGroup] = useState(initialGradeGroup);
 
   // depencies from rechart: the brush doesnt update the timerange itself with the props
-  const [linechartShouldUpdate, setLineChartShouldUpdate] = useState(0);
+  // const [linechartShouldUpdate, setLineChartShouldUpdate] = useState(0);
 
   useEffect(() => {
     if (!state.timescale) {
@@ -175,7 +175,7 @@ const CumulativeTab = () => {
       });
       return;      
     }
-    setLineChartShouldUpdate(linechartShouldUpdate+1);
+    // setLineChartShouldUpdate(linechartShouldUpdate+1);
 
   }, [state.timescale, maxlength]);
 
@@ -384,6 +384,7 @@ const CumulativeTab = () => {
 
   return (
     <div className="chart" style={{ paddingTop: "30px" }}>
+      <h1>Cumulative Visualization</h1>
       <h2>{`Weekly ${state.mode}`}</h2>
       
       <ConfigDialog
@@ -482,7 +483,7 @@ const CumulativeTab = () => {
             style={{ display: showOptions["Average"] ? "" : "none" }}
           />
           {state.timescale && <Brush
-          key={`brush-cumulative-${linechartShouldUpdate}`}
+          // key={`brush-cumulative-${linechartShouldUpdate}`}
             startIndex={Math.floor(state.timescale.start / 7)}
             endIndex={Math.floor(state.timescale.end / 7)}
             tickFormatter={(tick) => tick + 1}
