@@ -46,9 +46,9 @@ const VisualizationView = () => {
     viewObjectFormmat("Cummulative", "cummulativeview", <CumulativeView />),
     viewObjectFormmat("Pulse", "studentview", <StudentView />),
     viewObjectFormmat("Sprint Calendar", "sprintcalendarview", <CalendarView />),
-    // viewObjectFormmat("Radar", "radarview", <RadarView />),
-    // viewObjectFormmat("Rectangle Mapping", "rectanglemappingview", <RectangleView />),
-    // viewObjectFormmat("EKG", "ekgview", <EKGView />),
+    viewObjectFormmat("Radar", "radarview", <RadarView />),
+    viewObjectFormmat("Rectangle Mapping", "rectanglemappingview", <RectangleView />),
+    viewObjectFormmat("EKG", "ekgview", <EKGView />),
     viewObjectFormmat("Group of visualization", "group", null)
   ];
 

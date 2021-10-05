@@ -17,11 +17,14 @@ const MultiStatusChartContainer = () => {
         selectedOption={graphNum}
         title="Select number of graphs: "
       />
-      {Array(graphNum)
-        .fill(0)
-        .map((_, item) => <StatusTab key={`status-chart-${item}`} allowSync={item === 0}/>)
-      }
-      {/* <StatusTab /> */}
+      <div className="status-chart-container">
+        {Array(graphNum)
+          .fill(0)
+          .map((_, item) => <div className="status-chart">
+            <StatusTab key={`status-chart-${item}`} allowSync={item === 0}/>
+          </div>)
+        }
+      </div>
     </div>
   )
 }

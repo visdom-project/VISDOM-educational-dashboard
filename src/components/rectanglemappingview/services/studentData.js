@@ -39,7 +39,8 @@ const timeframe = date => {
 }
 
 const studentData = async studentID => {
-  if (!studentID) return null;
+  console.log(studentID)
+  if (!studentID) return [];
 
   const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
 

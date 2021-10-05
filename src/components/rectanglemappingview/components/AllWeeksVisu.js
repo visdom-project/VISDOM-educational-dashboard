@@ -97,7 +97,7 @@ const AllWeeksVisu = ({
         <Form.Label>Weeks range display</Form.Label>
         <TwoThumbInputRange
           values={weekDisplay}
-          min={0}
+          min={1}
           max={_NUMBER_OF_WEEKS_}
           onChange={(newValue) => {
             const time = newValue.sort((a,b) => a-b)

@@ -116,9 +116,12 @@ const StatusTab = ({ allowSync }) => {
 
   const handleModeSwitchClick = (newMode) => {
     setSelectedMode(newMode);
-    dispatch({...state,
-      mode: newMode,
-    });
+
+    if (allowSync) {
+      dispatch({...state,
+        mode: newMode,
+      });
+    }
 
     const newKeys = allKeys[newMode];
     setDataKeys(newKeys);
@@ -280,7 +283,7 @@ const StatusTab = ({ allowSync }) => {
   // }, []);
 
   useEffect(() => {
-    let _mode = determineMode(state);
+    const _mode = determineMode(state);
     if (selectedMode !== _mode) {
       handleModeSwitchClick(_mode);
     }
@@ -360,7 +363,7 @@ const StatusTab = ({ allowSync }) => {
         updateTreshold={updateTreshold}
         treshold={treshold}
       />
-      {allowSync && <button
+      {/* {allowSync && <button
         onClick={() => {
           const instances = selectedStudent ? [selectedStudent] : [];
           dispatch({...state,
@@ -370,7 +373,7 @@ const StatusTab = ({ allowSync }) => {
         }}
       >
         Sync
-      </button>}
+      </button>} */}
 
       <ConfigDialog
         title={{
