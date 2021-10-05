@@ -4,10 +4,10 @@ import EKGTab from "./EKGTab";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
-const EKGView = () => {
+const EKGView = (props) => {
   return (
     <div className="EKG-view">
-      <EKGTab />
+      <EKGTab {...props}/>
     </div>
   );
 }
