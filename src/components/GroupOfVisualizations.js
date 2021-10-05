@@ -24,7 +24,7 @@ const GroupOfVisualizations = ({ views, viewkey }) => {
     if (viewkey.length > 0) {
       updateVisualizations(views)
     }
-  }, [viewkey])
+  }, [viewkey]) 
 
   return (
     <>

@@ -27,7 +27,6 @@ const VisualizationView = () => {
   const [openOffCanvas, setOpenOffCanvas] = useState(true);
   const [showButton, setShowButton] = useState(false);
   const [viewkey, setViewKey] = useState("");
-  const [currentGroup, setCurrentGroup] = useState([]);
 
   useEffect(() => {
     window.addEventListener("scroll", () => {
@@ -50,7 +49,7 @@ const VisualizationView = () => {
   const INDIVIDUAL_VIEW = [
     viewObjectFormmat("Pulse", "studentview", <StudentView />),
     viewObjectFormmat("Sprint Calendar", "sprintcalendarview", <CalendarView />),
-    // viewObjectFormmat("Radar", "radarview", <RadarView />),
+    viewObjectFormmat("Radar", "radarview", <RadarView />),
     viewObjectFormmat("Rectangle Mapping", "rectanglemappingview", <RectangleView />),
     viewObjectFormmat("EKG", "ekgview", <EKGView />)
   ];
@@ -131,14 +130,6 @@ const VisualizationView = () => {
           : null
         } */}
         {viewkey.length > 0
-          // ? viewkey === "course"
-          //   ? <GroupOfVisualizations views={COURSE_VIEWS} viewkey={viewkey} />
-          //   : viewkey === "individual" 
-          //     ? <GroupOfVisualizations views={INDIVIDUAL_VIEW} viewkey={viewkey}/>
-          //     : <Container className="view-container">
-          //       {VIEWS.find(view => view.key === viewkey).microfrontend}
-          //     </Container>
-          // : null
           ? (viewkey !== "course" && viewkey !== "individual")
             ? <Container className="view-container">
               {VIEWS.find(view => view.key === viewkey).microfrontend}

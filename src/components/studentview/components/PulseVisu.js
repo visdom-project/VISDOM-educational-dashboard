@@ -138,8 +138,6 @@ const PulseVisu = () => {
     }
   }, [state.timescale]); //eslint-disable-line
 
-  // console.log(state)
-
   return (
     <div className="" style={{ minHeight: "700px" }}>
       <h2>Pulse Visualization</h2>
