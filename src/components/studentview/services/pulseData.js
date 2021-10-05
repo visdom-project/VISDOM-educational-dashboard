@@ -10,7 +10,7 @@ const courseId = process.env.REACT_APP_COURSE_ID;
 // );
 
 const getAllStudentData = () => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}adapter/usernames?courseId=${courseId}`
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseId}`
   const request = axios
     .get(baseUrl, {
       // Accept: "application/json",

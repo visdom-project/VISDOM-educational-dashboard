@@ -35,6 +35,10 @@ export const fetchStudentData = async (studentId, expectGrade = 1) => {
     }).then(response => response.data.results)
     .then(data => data[0]);
 
+    if (!studentData){
+        return [];
+    }
+    
     const commits = {};
     studentData.commits.forEach(week => {
             try {

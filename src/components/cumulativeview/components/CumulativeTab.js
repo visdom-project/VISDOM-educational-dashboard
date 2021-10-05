@@ -130,9 +130,10 @@ const CumulativeTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
 
-  const setDisplayedStudents = (instances) => dispatch({ ...state, instances: instances});
+
+  // const setDisplayedStudents = (instances) => dispatch({ ...state, instances: instances});
   const setTimescale = (timescale) => dispatch({ ...state, timescale: timescale });
-  const setMode = (newMode) => dispatch({ ...state, mode: newMode});
+  const setSelectedMode = (newMode) => dispatch({ ...state, mode: newMode});
 
   // const [client, setClient] = useState(null);
 
@@ -140,13 +141,14 @@ const CumulativeTab = () => {
   const [studentsData, setStudentsData] = useState({});
   const [courseData, setCourseData] = useState([]);
   const [maxlength, setMaxlength] = useState(0);
-  
+  const [displayedStudents, setDisplayedStudents] = useState([]);
+
   // TODO: maybe a constant file for this
   const modes = ["points", "exercises", "commits", "submissions"];
     // TODO: change this to use context
-  const [selectedMode, setSelectedMode] = useState(modes[0]);
+  // const [selectedMode, setSelectedMode] = useState(modes[0]);
 
-  const selectableModes = modes.filter((mode) => mode !== selectedMode);
+  const selectableModes = modes.filter((mode) => mode !== state.mode);
 
   const grades = [0, 1, 2, 3, 4, 5];
   const initialGradeGroup = new Array(grades.length + 2).fill(true); // for > max point option & "all students" option
@@ -204,8 +206,6 @@ const CumulativeTab = () => {
   }, []);
   
 
-  // TODO: consider this to use Context ?
-  // const [displayedStudents, setDisplayedStudents] = useState([]);
 
   const showableLines = ["Average", "Expected"];
   const [showOptions, setShowOptions] = useState({
@@ -249,38 +249,39 @@ const CumulativeTab = () => {
   const [displayedData, setDisplayedData] = useState([]);
 
   useEffect(() => {
+    if (!state.mode) {
+      setSelectedMode(modes[0]);
+      return;
+    }
     //average goes here ...
-
-    //helper function
     
     const avgData = {
-      [avgDataKey]: getAverageData(studentsData, selectedMode),
+      [avgDataKey]: getAverageData(studentsData, state.mode),
     };
 
-    //helper
-    
-
-    const expectData = getExpectData(courseData, selectedMode).reduce( (obj, currentValue, currentIndex) => {
+    const expectData = getExpectData(courseData, state.mode).reduce( (obj, currentValue, currentIndex) => {
            obj[`avg_expect_${currentIndex}`] = currentValue;
            return obj;
          }, {});
-    const newData = studentsDataMappingToChartData({...studentsData}, selectedMode);
+    const newData = studentsDataMappingToChartData({...studentsData}, state.mode);
+
     Object.entries({...avgData, ...expectData}).forEach(([dataKey, data]) => {
       newData.forEach((weekData, index) => weekData[dataKey] = data[index]);
     });
 
     setDisplayedData(newData);
   }, 
-  [selectedMode, studentIds, studentsData, courseData]
+  [state.mode, studentIds, studentsData, courseData]
   );
 
-  useEffect(() => {
-    if (!state.instances || !state.instances[0]) {
-      setDisplayedStudents(studentIds);
-      return;
-    }
-    // setDisplayedStudents(state.instances);
-  }, [state.instances]); //eslint-disable-line
+  // useEffect(() => {
+  //   if (!state.instances || !state.instances[0]) {
+  //     // setDisplayedStudents(studentIds);
+  //     return;
+  //   }
+  //   // setDisplayedStudents(state.instances);
+  // }, [state.instances]); //eslint-disable-line
+
 
   // Toggle selection of a student that is clicked in the student list:
   const handleListClick = (id) => {
@@ -303,12 +304,12 @@ const CumulativeTab = () => {
   // Hide student that was clicked from the chart:
   const handleStudentLineClick = (id) => {
     setDisplayedStudents(
-      state.instances.filter((student) => !student.includes(id))
+      displayedStudents.filter((student) => student !== id)
     );
   };
 
   const handleModeClick = (newMode) => {
-    if (selectedMode === newMode) {
+    if (state.mode === newMode) {
       return;
     }
     setSelectedMode(newMode);
@@ -329,7 +330,6 @@ const CumulativeTab = () => {
       if (!newGroup.slice(0, newGroup.length - 1).some((e) => e === false)) {
         newGroup[newGroup.length - 1] = true;
       }
-
       setGradeGroup(newGroup);
 
       const targetData =
@@ -340,10 +340,10 @@ const CumulativeTab = () => {
       const pointMinimum =
         targetGrade < 1
           ? 0
-          : targetData[`avg_cum_${selectedMode}_grade_${targetGrade - 1}`];
+          : targetData[`avg_cum_${state.mode}_grade_${targetGrade - 1}`];
       const pointMaximum =
         targetGrade < 6
-          ? targetData[`avg_cum_${selectedMode}_grade_${targetGrade}`]
+          ? targetData[`avg_cum_${state.mode}_grade_${targetGrade}`]
           : 2000;
 
       // Select students that belong to given point range:
@@ -368,19 +368,23 @@ const CumulativeTab = () => {
 
       // Toggle the visibility of students by selecting correct group of students to be displayed:
       const disp = groupState
-        ? state.instances.concat(
+        ? displayedStudents.concat(
             targetStudents.filter((student) => !student.startsWith("avg_"))
           )
-        : state.instances.filter(
+        : displayedStudents.filter(
             (student) =>
               !targetStudents.includes(student) && !student.startsWith("avg_")
           );
       setDisplayedStudents(disp);
     }
   };
+  if (!state.mode) {
+    return null;
+  }
+
   return (
     <div className="chart" style={{ paddingTop: "30px" }}>
-      <h2>{`Weekly ${selectedMode}`}</h2>
+      <h2>{`Weekly ${state.mode}`}</h2>
       
       <ConfigDialog
         title={{
@@ -402,7 +406,7 @@ const CumulativeTab = () => {
           <Controls
             handleClick={handleModeClick}
             modes={selectableModes}
-            selectedMode={selectedMode}
+            selectedMode={state.mode}
             showableLines={showableLines}
             showOptions={showOptions}
             setShowOptions={setShowOptions}
@@ -426,7 +430,7 @@ const CumulativeTab = () => {
           />
           <YAxis
             label={{
-              value: `${selectedMode}`,
+              value: `${state.mode}`,
               angle: -90,
               position: "left",
               offset: -10,
@@ -455,10 +459,10 @@ const CumulativeTab = () => {
             ))
           }
 
-          {state.instances.map((student) => (
+          {displayedStudents.map((student) => (
             <Line
               key={student}
-              onClick={() => console.log(student)}
+              // onClick={(id) => handleStudentLineClick(id)}
               className="hoverable"
               type="linear"
               dot={false}

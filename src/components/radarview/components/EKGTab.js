@@ -88,7 +88,7 @@ const EKGTab = () => {
   }, [state.timescale, maxlength]); //eslint-disable-line
 
   useEffect(() => {
-    if (state.instances.length){
+    if (state.instances.length && state.instances[0].length){
       fetchStudentData(state.instances[0])
         .then(data => {
           setDisplayData(data);
