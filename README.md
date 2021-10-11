@@ -2,6 +2,44 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Build instructions
+
+Note, using a docker registry the building process can be done locally.
+
+- Backup any previous setting files (mainly `.env`).
+- Login to the Docker registry if you have not done so on the building machine before with command: `docker login <REGISTRY_HOST>` where `<REGISTRY_HOST>` is the host address of the Docker registry.
+- Create a new `.env` file from the template by running command: `cp .env.template .env`
+- Add proper values for the environment variables in the created `.env` file.
+    - Some variables are only used in the building process: `ELASTICSEARCH_HOST,
+CONFIG_HOST, ADAPTER_HOST, ADAPTER_TOKEN, COURSE_ID`
+    - Docker image name is used both in build and deployment processes: `EDU_DASHBOARD_IMAGE`
+    - The port number is not required in the deployment process: `HOST_PORT`
+- Build Docker image with command: `docker-compose build`
+- Push Docker image to the registry: `docker push <EDU_DASHBOARD_IMAGE>` where `<EDU_DASHBOARD_IMAGE>` is the Docker image name you had used in the `.env` file.
+
+## Deployment instructions
+
+Do all of the following in the deployment server.
+
+- Login to the Docker registry if you have not done so on the deployment server before with command: `docker login <REGISTRY_HOST>` where `<REGISTRY_HOST>` is the host address of the Docker registry.
+- Get the following files from the repository to a new folder:
+    - nginx.conf
+    - docker-compose.yml
+    - .env.template.env
+- Create a new `.env` file from the template by running command: `cp .env.template .env`
+- Add proper values for the environment variables in the created `.env` file.
+    - Only the Docker image name, `EDU_DASHBOARD_IMAGE`, and the port number, `HOST_PORT`, are required in the deployment server.
+    - You must use the same Docker image name that you used when pushing the image to the Docker registry.
+- Create `.htpasswd` file by running command: `htpasswd -c .htpasswd <USERNAME>` where `<USERNAME>` is the the username for the webpage. You will be asked for the password that you want to use.
+    - Install htpasswd with `sudo apt install apache2-utils` if needed.
+- Pull the build Docker image to the deployment server with command: `docker pull <EDU_DASHBOARD_IMAGE>` where `<EDU_DASHBOARD_IMAGE>` is the Docker image name you had used in the `.env` file.
+- Deploy the dashboard with command: `docker-compose up --no-build -d`
+
+## Removal instructions
+
+- Stop the running service with command: `docker-compose down --remove-orphans`
+- Remove the used Docker image with command: `docker rmi <EDU_DASHBOARD_IMAGE>` where `<EDU_DASHBOARD_IMAGE>` is the used Docker image name.
+
 ## Available Scripts
 
 In the project directory, you can run:

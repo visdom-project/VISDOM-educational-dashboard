@@ -1,11 +1,18 @@
 version: "3"
 
-services: 
+services:
   edu-dashboard:
+    image: ${EDU_DASHBOARD_IMAGE}
     build:
       dockerfile: Dockerfile
       context: .
+      args:
+        ELASTICSEARCH_HOST: ${ELASTICSEARCH_HOST}
+        CONFIG_HOST: ${CONFIG_HOST}
+        ADAPTER_HOST: ${ADAPTER_HOST}
+        ADAPTER_TOKEN: ${ADAPTER_TOKEN}
+        COURSE_ID: ${COURSE_ID}
     ports:
-      - 8000:3000
-    env_file:
-      - .env
+      - ${HOST_PORT:-8000}:3000
+    volumes:
+      - .htpasswd:/etc/nginx/.htpasswd:ro
