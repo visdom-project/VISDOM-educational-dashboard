@@ -449,13 +449,13 @@ const formatProgressData = (pData) => {
 const getCommitData = () => {
   const request = axios
     .get(baseUrl, {
-      // Accept: "application/json",
-      // "Content-Type": "application/json",
-      headers:{
-        Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      }
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      // headers:{
+      //   Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+      //   Accept: "application/json",
+      //   "Content-Type": "application/json",
+      // }
     }).then(respone => respone.data.results)
     .then(response => {
 
@@ -466,6 +466,9 @@ const getCommitData = () => {
       // console.log("statusData", response)
 
       // Parse fetched commit data into proper format and fill in missing data:
+      // response.data.hits.hits.forEach((hit) => {
+      //   hit._source.results.forEach((result) => {
+
       response.forEach(result => {
           // Which exercises the student has passed:
           const passedExercises = result.points.modules
@@ -556,7 +559,7 @@ const getCommitData = () => {
           });
         });
       // return helpers.orderCountData(results);
-      // console.log("result", results)
+      console.log("result", results)
       return results
     })
     .catch(() => [[], []]);

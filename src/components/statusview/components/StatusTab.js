@@ -16,7 +16,7 @@ import ConfigDialog from "./ConfigDialog";
 import helpers from "../services/helpers";
 
 // eslint-disable-next-line max-lines-per-function
-const StatusTab = ({ allowSync }) => {
+const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
   // const [client, setClient] = useState(null);
@@ -39,7 +39,7 @@ const StatusTab = ({ allowSync }) => {
   const [treshold, setTreshold] = useState(0.4);
   const [studentsBelowTreshold, setStudentsBelowTreshold] = useState(-99);
 
-  const [sortConfig, setSortConfig] = useState({});
+  const [sortConfig, setSortConfig] = useState(sortProps);
 
   const allKeys = {
     points: {
@@ -183,8 +183,8 @@ const StatusTab = ({ allowSync }) => {
     let newCountData = undefined;
 
     if (mode === "submissions") {
-      if (submissions !== undefined) {
-        newCountData = submissions[newWeek - 1]["data"];
+      if (submissions !== undefined && submissions[newWeek - 1] !== undefined) {
+        newCountData = submissions[newWeek - 1].data;
         setSelectedCountData(newCountData);
       }
     } else {
@@ -196,13 +196,14 @@ const StatusTab = ({ allowSync }) => {
             : weekStr !== "14"
             ? weekStr
             : "01-14";
-        newCountData =
-          commitData[commitData.findIndex(module => module.week === key)].data;
+        newCountData = commitData.find(module => module.week === key) !== undefined
+          ? commitData.find(module => module.week === key).data
+          : []
         setSelectedCountData(newCountData);
       }
     }
 
-    if (newCountData !== undefined) {
+    if (newCountData !== undefined && data[newWeek - 1] !== undefined) {
       updateTreshold(treshold, data[newWeek - 1].data, newCountData);
     }
   };
@@ -248,6 +249,40 @@ const StatusTab = ({ allowSync }) => {
     }
   };
 
+  const updateSorting = () => {
+    if (progressData.length && submissionData.length && commitData.length) {
+      const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
+      setProgressData(result.sortedProgress);
+      setCommitData(result.sortedCommit);
+      setSubmissionData(result.sortedSubmission);
+
+      const key = selectedMode === "commits" 
+        ? selectedWeek.toString().length < 2
+          ? `0${selectedWeek}`
+          : selectedWeek !== "14"
+            ? selectedWeek.toString()
+            : "01-14"
+        : selectedWeek.toString();
+
+      if (selectedMode === "commits") {
+        const selected = result.sortedCommit !== undefined && result.sortedCommit.length > 0
+            ? result.sortedCommit.find(module => module.week === key).data
+            : [];
+        setSelectedCountData(selected);
+      } else if (selectedMode === "submissions") {
+        const selected = result.sortedSubmission !== undefined && result.sortedSubmission.length > 0
+          ? result.sortedSubmission.find(module => module.week === key).data
+          : [];
+        setSelectedCountData(selected);
+      } else {
+        const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
+          ? result.sortedProgress.find(module => module.week === key).data
+          : [];
+        setSelectedWeekData(selected)
+      }
+    }
+  }
+
   useEffect(() => {
     dataService.getData().then(response => {
       const [pData, commons, submissions] = response;
@@ -269,7 +304,9 @@ const StatusTab = ({ allowSync }) => {
       // Select count data from correct week:
       const selected =
         commits !== undefined && commits.length > 0
-          ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
+          ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)) !== undefined
+            ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
+            : []
           : [];
       setSelectedCountData(selected);
 
@@ -296,6 +333,9 @@ const StatusTab = ({ allowSync }) => {
   // }, [state.instances]);
 
   useEffect(() => {
+    if (sameSortProps) {
+      setSortProps(sortConfig)
+    }
     if (progressData.length && submissionData.length && commitData.length) {
       const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
       setProgressData(result.sortedProgress);
@@ -328,6 +368,14 @@ const StatusTab = ({ allowSync }) => {
       }
     }
   }, [sortConfig]) //eslint-disable-line
+
+  useEffect(() => {
+    if (JSON.stringify(sortConfig) !== JSON.stringify(sortProps)) {
+      setSortConfig(sortProps);
+    }
+  }, [sortProps, sameSortProps])
+
+  // console.log(selectedWeekData)
   return (
     <>
       <ControlAccordion 
@@ -345,6 +393,9 @@ const StatusTab = ({ allowSync }) => {
         sortConfig={sortConfig}
         setSortConfig={setSortConfig}
         modes={modes}
+        sortProps={sortProps}
+        setSortProps={setSortProps}
+        sameSortProps={sameSortProps}
       />
 
       <MultiChart

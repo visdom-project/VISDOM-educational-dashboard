@@ -2,16 +2,22 @@ import { Accordion, Card, Button, useAccordionButton } from "react-bootstrap";
 import DropdownMenu from "./DropdownMenu";
 import CheckBoxMenu from "./CheckBoxMenu";
 
-const CustomToggleAccordion = ({ children, eventKey, sortConfig, setSortConfig }) => {
-  const decoratedOnClick = useAccordionButton(eventKey, () => 
-    Object.keys(sortConfig).length === 0 && setSortConfig({    
+const CustomToggleAccordion = ({ children, eventKey, sortConfig, setSortConfig, setSortProps, sameSortProps }) => {
+  const decoratedOnClick = useAccordionButton(eventKey, () => {
+    const initProps = {    
       mode: "points",
       pointMode: "gain points",
       exerciseMode: "complete",
       week: "1",
       order: "ascending"
-    })
-  );
+    }
+    if (Object.keys(sortConfig).length === 0) {
+      setSortConfig(initProps);
+      if (sameSortProps) {
+        setSortProps(initProps)
+      }
+    }
+  });
 
   return (
     <Button
@@ -139,7 +145,10 @@ const ControlAccordion = ({
   weeks,
   selectedWeek,
   sortConfig,
-  setSortConfig
+  setSortConfig,
+  sortProps,
+  setSortProps,
+  sameSortProps
 }) => {
   return (
     <Accordion flush>
@@ -164,6 +173,9 @@ const ControlAccordion = ({
               eventKey="0" 
               setSortConfig={setSortConfig}
               sortConfig={sortConfig}
+              sortProps={sortProps}
+              setSortProps={setSortProps}
+              sameSortProps={sameSortProps}
             >
               Sort
             </CustomToggleAccordion>
