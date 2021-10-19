@@ -449,13 +449,13 @@ const formatProgressData = (pData) => {
 const getCommitData = () => {
   const request = axios
     .get(baseUrl, {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      // headers:{
-      //   Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
-      //   Accept: "application/json",
-      //   "Content-Type": "application/json",
-      // }
+      // Accept: "application/json",
+      // "Content-Type": "application/json",
+      headers:{
+        Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      }
     }).then(respone => respone.data.results)
     .then(response => {
 
