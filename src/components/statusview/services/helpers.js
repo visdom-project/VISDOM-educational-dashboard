@@ -43,6 +43,11 @@ const sortOrder = (progressData, commitData, submissionData, sortConfig) => {
 
 const dataSorting = (progressData, commitData, submissionData, sortConfig) => {
   const sortingOrder = sortOrder(progressData, commitData, submissionData, sortConfig);
+
+  if (sortingOrder === null) {
+    return { sortedProgress: undefined, sortedCommit: undefined, sortedSubmission: undefined }
+  }
+
   const sortedProgress = progressData.map(week => ({...week, data: sortingOrder.map(s => week.data.find(w => w.id === s))}));
   const sortedCommit = commitData.map(week => ({...week, data: sortingOrder.map(s => week.data.find(w => w.id === s))}));
   const sortedSubmission = submissionData.map(week => ({...week, data: sortingOrder.map(s => week.data.find(w => w.id === s))}));

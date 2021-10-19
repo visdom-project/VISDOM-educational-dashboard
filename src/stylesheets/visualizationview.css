@@ -81,7 +81,8 @@
   cursor: pointer;
   border: 1px solid #000;
   z-index: 1030;
-  min-width: 2vw;
+  width: 40px;
+  height: 40px;
 }
 
 #back-to-top:hover {
@@ -102,4 +103,24 @@
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
   margin: 30px;
   padding: 1rem;
+}
+
+.student-range-slider {
+  padding: 30px;
+}
+
+#off-canvas-btn {
+  margin: 0 30px 0 10px; 
+  vertical-align: middle;
+  color: inherit;
+  outline: none;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  line-height: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }

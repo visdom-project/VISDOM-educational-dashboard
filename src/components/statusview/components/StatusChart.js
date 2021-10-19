@@ -10,6 +10,7 @@ import {
   Cell,
   ReferenceLine,
   ResponsiveContainer,
+  Tooltip
 } from "recharts";
 import "../stylesheets/studentbar.css";
 import TresholdSelector from "./TresholdSelector";
@@ -30,6 +31,17 @@ const CustomLabel = (props) => {
   );
 };
 
+const StudentTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{ backgroundColor: "#FFF", padding: "3px", border: "1px solid rgba(0, 0, 0, .5)" }}>
+        {label}
+      </div>
+    );
+  }
+
+  return null;
+}
 /** Chooses a fitting color code for given exercise and student.
  *
  * For commit data:
@@ -160,7 +172,7 @@ const MultiChart = (props) => {
 
     return (
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <ResponsiveContainer minWidth="300px" minHeight="500px">
+        <ResponsiveContainer minWidth="900px" minHeight="500px">
           <ComposedChart
             width={chartWidth}
             height={chartHeight}
@@ -185,6 +197,7 @@ const MultiChart = (props) => {
               domain={["dataMin", "dataMax"]}
               ticks={submissionTicks}
             />
+            <Tooltip content={<StudentTooltip />}/>
 
             {submissionMapping.reverse().map((bar) => (
               <Bar
@@ -323,7 +336,7 @@ const MultiChart = (props) => {
 
   return (
     <div className="intendedChart">
-      <ResponsiveContainer minWidth="300px" minHeight="500px">
+      <ResponsiveContainer minWidth="900px" minHeight="500px">
         <ComposedChart
           width={chartWidth}
           height={chartHeight}
@@ -332,7 +345,7 @@ const MultiChart = (props) => {
           barGap={-barWidth}
         >
           <XAxis
-            dataKey="id"
+            dataKey="username"
             tick={false}
             padding={{ left: 0, right: 0 }}
             label={{ value: axisNames[0], position: "bottom" }}
@@ -348,6 +361,8 @@ const MultiChart = (props) => {
             domain={["dataMin", "dataMax"]}
             ticks={ticks}
           />
+
+          <Tooltip content={<StudentTooltip />} />
 
           <Area
             type="monotone"

@@ -13,7 +13,28 @@ import {
 } from "../../../contexts/messageContext";
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 import ConfigDialog from "./ConfigDialog";
+import DropdownMenu from "./DropdownMenu";
 import helpers from "../services/helpers";
+import { Modal, Spinner } from "react-bootstrap";
+import { TwoThumbInputRange } from "react-two-thumb-input-range";
+
+const InputRange = ({ values, maxlength, setStudentRange }) => {
+  if (maxlength === 0) return null;
+
+  return (
+    <div className="student-range-slider">
+      <p>Student range:</p>
+      <TwoThumbInputRange
+        values={values}
+        min={1}
+        trackColor="#caf0f8"
+        max={maxlength}
+        onChange={newValue => setStudentRange(newValue.sort((a, b) => a-b))}
+        style={{ marginBottom: "20px" }}
+      />
+    </div>
+  )
+}
 
 // eslint-disable-next-line max-lines-per-function
 const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
@@ -40,6 +61,9 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   const [studentsBelowTreshold, setStudentsBelowTreshold] = useState(-99);
 
   const [sortConfig, setSortConfig] = useState(sortProps);
+  const [studentRange, setStudentRange] = useState([1,0]);
+  const [maxlength, setMaxlength] = useState(0)
+  const [courseID, setCourseID] = useState(90);
 
   const allKeys = {
     points: {
@@ -249,42 +273,8 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
     }
   };
 
-  const updateSorting = () => {
-    if (progressData.length && submissionData.length && commitData.length) {
-      const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
-      setProgressData(result.sortedProgress);
-      setCommitData(result.sortedCommit);
-      setSubmissionData(result.sortedSubmission);
-
-      const key = selectedMode === "commits" 
-        ? selectedWeek.toString().length < 2
-          ? `0${selectedWeek}`
-          : selectedWeek !== "14"
-            ? selectedWeek.toString()
-            : "01-14"
-        : selectedWeek.toString();
-
-      if (selectedMode === "commits") {
-        const selected = result.sortedCommit !== undefined && result.sortedCommit.length > 0
-            ? result.sortedCommit.find(module => module.week === key).data
-            : [];
-        setSelectedCountData(selected);
-      } else if (selectedMode === "submissions") {
-        const selected = result.sortedSubmission !== undefined && result.sortedSubmission.length > 0
-          ? result.sortedSubmission.find(module => module.week === key).data
-          : [];
-        setSelectedCountData(selected);
-      } else {
-        const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
-          ? result.sortedProgress.find(module => module.week === key).data
-          : [];
-        setSelectedWeekData(selected)
-      }
-    }
-  }
-
   useEffect(() => {
-    dataService.getData().then(response => {
+    dataService.getData(courseID).then(response => {
       const [pData, commons, submissions] = response;
 
       // Fetch needed data:
@@ -297,7 +287,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
       handleWeekSwitch(1, pData, commons, undefined, submissions);
     });
 
-    dataService.getCommitData().then((response) => {
+    dataService.getCommitData(courseID).then((response) => {
       const commits = response;
 
       setCommitData(commits);
@@ -311,8 +301,13 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
       setSelectedCountData(selected);
 
       updateTreshold(treshold, undefined, commits);
+
+      if (commits !== undefined && commits.length > 0) {
+        setStudentRange([1, commits[0].data.length]);
+        setMaxlength(commits[0].data.length);
+      }
     });
-  }, []); //eslint-disable-line
+  }, [courseID]); //eslint-disable-line
 
   // useEffect(() => {
   //   MQTTConnect(dispatch).then((newClient) => setClient(newClient));
@@ -320,9 +315,11 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   // }, []);
 
   useEffect(() => {
-    const _mode = determineMode(state);
-    if (selectedMode !== _mode) {
-      handleModeSwitchClick(_mode);
+    if (allowSync) {
+      const _mode = determineMode(state);
+      if (selectedMode !== _mode) {
+        handleModeSwitchClick(_mode);
+      }
     }
   }, [state.mode]); //eslint-disable-line
 
@@ -336,35 +333,37 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
     if (sameSortProps) {
       setSortProps(sortConfig)
     }
-    if (progressData.length && submissionData.length && commitData.length) {
-      const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
-      setProgressData(result.sortedProgress);
-      setCommitData(result.sortedCommit);
-      setSubmissionData(result.sortedSubmission);
+    if (progressData && submissionData && commitData){
+      if (progressData.length && submissionData.length && commitData.length) {
+        const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
+        setProgressData(result.sortedProgress);
+        setCommitData(result.sortedCommit);
+        setSubmissionData(result.sortedSubmission);
 
-      const key = selectedMode === "commits" 
-        ? selectedWeek.toString().length < 2
-          ? `0${selectedWeek}`
-          : selectedWeek !== "14"
-            ? selectedWeek.toString()
-            : "01-14"
-        : selectedWeek.toString();
+        const key = selectedMode === "commits" 
+          ? selectedWeek.toString().length < 2
+            ? `0${selectedWeek}`
+            : selectedWeek !== "14"
+              ? selectedWeek.toString()
+              : "01-14"
+          : selectedWeek.toString();
 
-      if (selectedMode === "commits") {
-        const selected = result.sortedCommit !== undefined && result.sortedCommit.length > 0
-            ? result.sortedCommit.find(module => module.week === key).data
+        if (selectedMode === "commits") {
+          const selected = result.sortedCommit !== undefined && result.sortedCommit.length > 0
+              ? result.sortedCommit.find(module => module.week === key).data
+              : [];
+          setSelectedCountData(selected);
+        } else if (selectedMode === "submissions") {
+          const selected = result.sortedSubmission !== undefined && result.sortedSubmission.length > 0
+            ? result.sortedSubmission.find(module => module.week === key).data
             : [];
-        setSelectedCountData(selected);
-      } else if (selectedMode === "submissions") {
-        const selected = result.sortedSubmission !== undefined && result.sortedSubmission.length > 0
-          ? result.sortedSubmission.find(module => module.week === key).data
-          : [];
-        setSelectedCountData(selected);
-      } else {
-        const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
-          ? result.sortedProgress.find(module => module.week === key).data
-          : [];
-        setSelectedWeekData(selected)
+          setSelectedCountData(selected);
+        } else {
+          const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
+            ? result.sortedProgress.find(module => module.week === key).data
+            : [];
+          setSelectedWeekData(selected)
+        }
       }
     }
   }, [sortConfig]) //eslint-disable-line
@@ -375,72 +374,86 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
     }
   }, [sortProps, sameSortProps])
 
-  // console.log(selectedWeekData)
+  // console.log(selectedWeekData.length)
   return (
-    <>
-      <ControlAccordion 
-        handleModeClick={handleModeSwitchClick}
-        selectedMode={selectedMode}
-        showableLines={showableLines}
-        handleToggleRefLineVisibilityClick={
-          handleToggleRefLineVisibilityClick
-        }
-        showAvg={showAvg}
-        showExpected={showExpected}
-        handleWeekClick={handleWeekSwitch}
-        weeks={weeks}
-        selectedWeek={selectedWeek}
-        sortConfig={sortConfig}
-        setSortConfig={setSortConfig}
-        modes={modes}
-        sortProps={sortProps}
-        setSortProps={setSortProps}
-        sameSortProps={sameSortProps}
-      />
-
-      <MultiChart
-        chartWidth={chartWidth}
-        chartHeight={chartHeight}
-        data={selectedWeekData}
-        dataKeys={dataKeys}
-        commonData={commonDataToDisplay}
-        commonKeys={commonKeys}
-        axisNames={axisNames[selectedMode]}
-        max={max}
-        handleClick={handleStudentClick}
-        visuMode={selectedMode}
-        countData={selectedCountData}
-        studentsBelowTreshold={studentsBelowTreshold}
-        updateTreshold={updateTreshold}
-        treshold={treshold}
-      />
-      {/* {allowSync && <button
-        onClick={() => {
-          const instances = selectedStudent ? [selectedStudent] : [];
-          dispatch({...state,
-            mode: selectedMode,
-            instances: instances,
-          });
-        }}
-      >
-        Sync
-      </button>} */}
-
-      <ConfigDialog
-        title={{
-          button: "Show student detail",
-          dialog: "Commit details",
-          confirm: "Close",
-        }}
-        openDialog={openStatusDialog}
-        setOpenDialog={ openState => setOpenStatusDialog(openState) }
-      >
-        <StudentDetailView
-          selectedStudentID={selectedStudent}
-          selectedWeek={selectedWeek}
+    (selectedCountData.length === 0 || selectedWeekData.length === 0)
+      ? <Modal show={true} size="sm" centered >
+        <Modal.Body style={{ paddingLeft: "45%"}}>
+          <Spinner animation="border" />
+        </Modal.Body>
+      </Modal>
+      : <>
+        <DropdownMenu
+          handleClick={setCourseID}
+          options={allowSync ? [90] : [40, 90]}
+          selectedOption={courseID}
+          title="Course ID: " 
         />
-      </ConfigDialog>
-    </>
+        <ControlAccordion 
+          handleModeClick={handleModeSwitchClick}
+          selectedMode={selectedMode}
+          showableLines={showableLines}
+          handleToggleRefLineVisibilityClick={
+            handleToggleRefLineVisibilityClick
+          }
+          showAvg={showAvg}
+          showExpected={showExpected}
+          handleWeekClick={handleWeekSwitch}
+          weeks={weeks}
+          selectedWeek={selectedWeek}
+          sortConfig={sortConfig}
+          setSortConfig={setSortConfig}
+          modes={modes}
+          sortProps={sortProps}
+          setSortProps={setSortProps}
+          sameSortProps={sameSortProps}
+        />
+
+        <MultiChart
+          chartWidth={chartWidth}
+          chartHeight={chartHeight}
+          data={selectedWeekData.slice(studentRange[0] - 1, studentRange[1])}
+          dataKeys={dataKeys}
+          commonData={commonDataToDisplay}
+          commonKeys={commonKeys}
+          axisNames={axisNames[selectedMode]}
+          max={max}
+          handleClick={handleStudentClick}
+          visuMode={selectedMode}
+          countData={selectedCountData.slice(studentRange[0] - 1, studentRange[1])}
+          studentsBelowTreshold={studentsBelowTreshold}
+          updateTreshold={updateTreshold}
+          treshold={treshold}
+        />
+        <InputRange values={studentRange} maxlength={maxlength} setStudentRange={setStudentRange} />
+        {/* {allowSync && <button
+          onClick={() => {
+            const instances = selectedStudent ? [selectedStudent] : [];
+            dispatch({...state,
+              mode: selectedMode,
+              instances: instances,
+            });
+          }}
+        >
+          Sync
+        </button>} */}
+
+        <ConfigDialog
+          title={{
+            button: "Show student detail",
+            dialog: "Commit details",
+            confirm: "Close",
+          }}
+          openDialog={openStatusDialog}
+          setOpenDialog={ openState => setOpenStatusDialog(openState) }
+        >
+          <StudentDetailView
+            selectedStudentID={selectedStudent}
+            selectedWeek={selectedWeek}
+            courseID={courseID}
+          />
+        </ConfigDialog>
+      </>
   );
 };
 
