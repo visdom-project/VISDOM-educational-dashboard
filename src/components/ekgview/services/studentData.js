@@ -4,7 +4,7 @@ import { getAgregateData } from "./courseData";
 
 // TODO: fix base URL and courseId, parameter in request
 const courseId = process.env.REACT_APP_COURSE_ID;
-
+const MAXPOINTS90 = [10, 170, 120, 85, 60, 90, 55, 70,90, 40, 55, 140, 105, 50, 0];
 export const getAllStudentsData = () => {
     const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseId}`
 
@@ -74,7 +74,7 @@ export const fetchStudentData = async (studentId, expectGrade = 1) => {
         expectedCommit: expectedValues[index] ? expectedValues[index]["avg_commits"] : 0,
 
         points: module.points,
-        expectedPoints: expectedValues[index] ? expectedValues[index]["avg_points"] : 0,
+        expectedPoints: expectedValues[index] ? expectedValues[index]["avg_points"]*MAXPOINTS90[index] : 0,
 
         numberOfExercises: module.exercises.length,
         //new
