@@ -3,15 +3,15 @@ import axios from "axios";
 // import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 import { EXERCISE_INDICES } from "./constant";
 
-const courseId = process.env.REACT_APP_COURSE_ID;
+// const courseId = process.env.REACT_APP_COURSE_ID;
 
-const getStudentData = studentID => {
+const getStudentData = (studentID, courseID) => {
   if (!studentID) return {};
 
   // const baseUrl = ElasticSearchConfiguration.createUrl(
   //   "gitlab-course-40-commit-data-anonymized/_search"
   // );
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID.username}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentID.username}`;
   const request = axios
     .get(baseUrl, {
       // Accept: "application/json",

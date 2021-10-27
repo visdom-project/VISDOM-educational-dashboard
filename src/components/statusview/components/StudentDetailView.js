@@ -142,12 +142,12 @@ const PointsDisplay = ({ data, selectedWeek}) => {
   );
 };
 
-const StudentDetailView = ({ selectedStudentID, selectedWeek }) => {
+const StudentDetailView = ({ selectedStudentID, selectedWeek, courseID }) => {
   const [student, setStudent] = useState({});
 
   useEffect(() => {
     dataService
-      .getStudentData(selectedStudentID)
+      .getStudentData(selectedStudentID, courseID)
       .then(response => response && setStudent(response));
   }, [selectedStudentID]); // eslint-disable-line
 
@@ -156,7 +156,7 @@ const StudentDetailView = ({ selectedStudentID, selectedWeek }) => {
       <div style={{ marginBottom: document.documentElement.clientHeight * 0.1 }}>
         <h2>Exercise completion details</h2>
         <h3>
-          <strong>Student: {student.personal_information.email}</strong>
+          <strong>Student: {student.personal_information.username}</strong>
         </h3>
         <PointsDisplay data={student.modules} selectedWeek={selectedWeek} />
       </div>

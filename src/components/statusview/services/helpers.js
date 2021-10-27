@@ -25,7 +25,7 @@ const sortOrder = (progressData, commitData, submissionData, sortConfig) => {
       : sortConfig.week !== "14"
         ? sortConfig.week
         : "01-14"
-    : sortConfig.week.toString();
+    : sortConfig.week && sortConfig.week.toString();
   let data = []
   if (["points", "exercises"].includes(sortConfig.mode)) {
     data = [...progressData]
@@ -38,11 +38,16 @@ const sortOrder = (progressData, commitData, submissionData, sortConfig) => {
   const result = data.find(d => d.week === key) 
     ? data.find(d => d.week === key).data.sort(getOrder(sortConfig)).map(s => s.id)
     : null;
-  return sortConfig.order === "ascending" ? result : result.reverse();
+  return result !== null ? sortConfig.order === "ascending" ? result : result.reverse() : null;
 }
 
 const dataSorting = (progressData, commitData, submissionData, sortConfig) => {
   const sortingOrder = sortOrder(progressData, commitData, submissionData, sortConfig);
+
+  if (sortingOrder === null) {
+    return { sortedProgress: undefined, sortedCommit: undefined, sortedSubmission: undefined }
+  }
+
   const sortedProgress = progressData.map(week => ({...week, data: sortingOrder.map(s => week.data.find(w => w.id === s))}));
   const sortedCommit = commitData.map(week => ({...week, data: sortingOrder.map(s => week.data.find(w => w.id === s))}));
   const sortedSubmission = submissionData.map(week => ({...week, data: sortingOrder.map(s => week.data.find(w => w.id === s))}));

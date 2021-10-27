@@ -65,11 +65,12 @@ const VisualizationView = () => {
       <div className="content-wrap">
         <Navbar className="visualization-navbar">
           <Button 
-            variant="light" 
-            onClick={() => setOpenOffCanvas(true)}
-            style={{ margin: "0 30px 0 10px" }}
+            // variant="light"
+            id="off-canvas-btn"
+            onClick={() => setOpenOffCanvas(!openOffCanvas)}
+            // style={{ margin: "0 30px 0 10px" }}
           >
-            <AiOutlineMenu />
+            {!openOffCanvas ? <AiOutlineMenu /> : <AiOutlineClose />}
           </Button>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Brand href="">VISDOM</Navbar.Brand>
@@ -83,13 +84,6 @@ const VisualizationView = () => {
         >
           <Offcanvas.Header >
             <Offcanvas.Title bg="light">
-              <Button 
-              variant="light"
-              onClick={() => setOpenOffCanvas(false)}
-              style={{ margin: "0 30px 0 10px" }}
-              >
-                <AiOutlineClose />
-              </Button>
               VISDOM
             </Offcanvas.Title>
           </Offcanvas.Header>
@@ -119,21 +113,13 @@ const VisualizationView = () => {
               </Nav>
             </Offcanvas.Body>
         </Offcanvas>
-        {/* {viewkey.length > 0 
-          ? viewkey === "course"
-            ? <GroupOfVisualizations views={COURSE_VIEWS.filter(v => v.key !== "course")} />
-            : viewkey === "individual"
-              ? <GroupOfVisualizations views={INDIVIDUAL_VIEW.filter(v => v.key !== "individual")} />
+        {viewkey.length > 0
+          ? (viewkey !== "course" && viewkey !== "individual")
+            ? viewkey === "statusview"
+              ? VIEWS.find(view => view.key === viewkey).microfrontend
               : <Container className="view-container">
                 {VIEWS.find(view => view.key === viewkey).microfrontend}
               </Container>
-          : null
-        } */}
-        {viewkey.length > 0
-          ? (viewkey !== "course" && viewkey !== "individual")
-            ? <Container className="view-container">
-              {VIEWS.find(view => view.key === viewkey).microfrontend}
-            </Container>
             : VIEWS.find(view => view.key === viewkey).microfrontend 
           : null
         }

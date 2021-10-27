@@ -7,8 +7,9 @@ import { PROJECT_MAPPING } from "./constant";
 // const baseUrl = ElasticSearchConfiguration.createUrl(
 //   "gitlab-course-40-commit-data-anonymized/_search"
 // );
-const courseId = process.env.REACT_APP_COURSE_ID;
-const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}`
+// const courseId = process.env.REACT_APP_COURSE_ID;
+// const courseId = 40;
+// const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}`
 
 const getWeeklyPoints = (modules, mapping) => {
   const weeklyPts = {};
@@ -115,7 +116,8 @@ const formatSubmissionData = (data) => {
   });
 };
 
-const getData = () => {
+const getData = courseID => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}`
   const request = axios
     .get(baseUrl, {
       // Accept: "application/json",
@@ -446,7 +448,8 @@ const formatProgressData = (pData) => {
   return [dataByWeeks(data), commonData]
 };
 
-const getCommitData = () => {
+const getCommitData = courseID => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}`
   const request = axios
     .get(baseUrl, {
       // Accept: "application/json",
@@ -466,6 +469,9 @@ const getCommitData = () => {
       // console.log("statusData", response)
 
       // Parse fetched commit data into proper format and fill in missing data:
+      // response.data.hits.hits.forEach((hit) => {
+      //   hit._source.results.forEach((result) => {
+
       response.forEach(result => {
           // Which exercises the student has passed:
           const passedExercises = result.points.modules
@@ -556,7 +562,6 @@ const getCommitData = () => {
           });
         });
       // return helpers.orderCountData(results);
-      // console.log("result", results)
       return results
     })
     .catch(() => [[], []]);
