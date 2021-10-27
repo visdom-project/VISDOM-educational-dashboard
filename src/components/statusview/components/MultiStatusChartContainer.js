@@ -58,7 +58,7 @@ const MultiStatusChartContainer = () => {
       <div id="multistatus" style={ displayMode === "list" ? listView : blockView}>
       {Array(graphNum)
         .fill(0)
-        .map((_, item) => <div className="status-chart" key={`status-chart-${item}-container`} style={{ width: displayMode === "list" ? "95%" : "48%" }}>
+        .map((_, item) => <div className="status-chart" key={`status-chart-${item}-container`} style={{ width: displayMode === "list" ? "95%" : "50%" }}>
           <StatusTab 
             key={`status-chart-${item}`} 
             allowSync={item === 0} 

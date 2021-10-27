@@ -172,7 +172,7 @@ const MultiChart = (props) => {
 
     return (
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <ResponsiveContainer minWidth="900px" minHeight="500px">
+        <ResponsiveContainer minWidth="800px" minHeight="500px">
           <ComposedChart
             width={chartWidth}
             height={chartHeight}
@@ -336,7 +336,7 @@ const MultiChart = (props) => {
 
   return (
     <div className="intendedChart">
-      <ResponsiveContainer minWidth="900px" minHeight="500px">
+      <ResponsiveContainer minWidth="800px" minHeight="500px">
         <ComposedChart
           width={chartWidth}
           height={chartHeight}

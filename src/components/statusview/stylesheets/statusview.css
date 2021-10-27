@@ -41,6 +41,7 @@ h3 {
 .fit-row {
   display: flex;
   margin-bottom: 0 !important;
+  margin-left: 0 !important;
   margin-right: 0;
   flex-wrap: wrap;
   align-items: center;
@@ -56,7 +57,7 @@ h3 {
 }
 
 #showGradesButton {
-  min-width: 10em;
+  min-width: 7em;
   display: block;
   border: 1px solid lightgrey;
   border-radius: 0.25em;

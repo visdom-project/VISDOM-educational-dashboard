@@ -5,7 +5,7 @@ import "../stylesheets/dropdown.css";
 const DropdownMenu = ({ handleClick, options, selectedOption, title }) => {
   return (
     <div className="dropdown-menu">
-      <label style={{ margin: "auto 1em", height: "1.2em" }}>{title}</label>
+      <label style={{ margin: ".5em", height: "1.2em" }}>{title}</label>
       <div className="dropdown">
         <button className="dropdown-title-button">{selectedOption}</button>
         <div 
