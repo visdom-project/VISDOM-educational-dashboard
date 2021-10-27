@@ -63,7 +63,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   const [sortConfig, setSortConfig] = useState(sortProps);
   const [studentRange, setStudentRange] = useState([1,0]);
   const [maxlength, setMaxlength] = useState(0)
-  const [courseID, setCourseID] = useState(90);
+  const [courseID, setCourseID] = useState(parseInt(process.env.REACT_APP_COURSE_ID));
 
   const allKeys = {
     points: {
@@ -340,12 +340,10 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
         setCommitData(result.sortedCommit);
         setSubmissionData(result.sortedSubmission);
 
-        const key = selectedMode === "commits" 
+        const key = selectedMode === "commits"
           ? selectedWeek.toString().length < 2
             ? `0${selectedWeek}`
-            : selectedWeek !== "14"
-              ? selectedWeek.toString()
-              : "01-14"
+            : selectedWeek.toString()
           : selectedWeek.toString();
 
         if (selectedMode === "commits") {
@@ -385,11 +383,11 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
       : <>
         <DropdownMenu
           handleClick={setCourseID}
-          options={allowSync ? [90] : [40, 90]}
+          options={allowSync ? [parseInt(process.env.REACT_APP_COURSE_ID)] : [40, 90, 117]}
           selectedOption={courseID}
-          title="Course ID: " 
+          title="Course ID: "
         />
-        <ControlAccordion 
+        <ControlAccordion
           handleModeClick={handleModeSwitchClick}
           selectedMode={selectedMode}
           showableLines={showableLines}

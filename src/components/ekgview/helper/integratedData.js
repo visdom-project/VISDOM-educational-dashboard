@@ -114,6 +114,7 @@ export const extractData = (data, configs, relativeTimescale=false, pulseRatio=1
                 shape: shape,
                 color: color,
                 colorFilled: colorFilled,
+                dataType: dataType
             };
         });
         const index = week.index;
@@ -186,6 +187,7 @@ export const extractData = (data, configs, relativeTimescale=false, pulseRatio=1
             lastX += weekLength;
             return newSegments;
         });
+        // console.log(augumentedSegmentsNotTimeRelative);
         return augumentedSegmentsNotTimeRelative.flat();
     }
 };
