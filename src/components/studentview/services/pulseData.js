@@ -3,14 +3,14 @@
 
 import axios from "axios";
 // import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
-const courseId = process.env.REACT_APP_COURSE_ID;
+// const courseId = process.env.REACT_APP_COURSE_ID;
 // TODO: fix this
 // const baseUrl = ElasticSearchConfiguration.createUrl(
 //   "gitlab-course-40-commit-data-anonymized/_search"
 // );
 
-const getAllStudentData = () => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseId}`
+const getAllStudentData = (courseID) => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseID}`
   const request = axios
     .get(baseUrl, {
       // Accept: "application/json",
@@ -27,8 +27,8 @@ const getAllStudentData = () => {
   return request;
 };
 
-const getStudentInfo = async studentID => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
+const getStudentInfo = async (studentID, courseID) => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentID}`;
   const studentData = await axios.get(baseUrl, {
     headers:{
         Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,
@@ -46,8 +46,8 @@ const getStudentInfo = async studentID => {
   }
 };
 
-const getData = (studentId) => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentId}`;
+const getData = (studentId, courseID) => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentId}`;
   const CheckCommitDate = (deadline, date) => {
     if (deadline - date === 1) return "IN-TIME";
     if (deadline - date > 1) return "EARLY";

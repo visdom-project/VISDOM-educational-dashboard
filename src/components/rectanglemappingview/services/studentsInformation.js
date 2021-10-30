@@ -2,7 +2,7 @@ import axios from 'axios'
 // import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 
 // const baseUrl = ElasticSearchConfiguration.createUrl('gitlab-course-40-commit-data-anonymized/_search');
-const courseId = process.env.REACT_APP_COURSE_ID;
+// const courseId = process.env.REACT_APP_COURSE_ID;
 
 // const studentsInformation = () => {
 //   const request = axios
@@ -25,8 +25,8 @@ const courseId = process.env.REACT_APP_COURSE_ID;
 //   return request;
 // }
 
-const getAllStudentData = async() => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseId}`
+const getAllStudentData = async(courseID) => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseID}`
   const request = await axios
     .get(baseUrl, {
       // Accept: "application/json",
@@ -43,8 +43,8 @@ const getAllStudentData = async() => {
   return request;
 };
 
-const getStudentInfo = async studentID => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
+const getStudentInfo = async (studentID, courseID) => {
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentID}`;
   const studentData = await axios.get(baseUrl, {
     headers:{
       Authorization: `Basic ${process.env.REACT_APP_TOKEN}`,

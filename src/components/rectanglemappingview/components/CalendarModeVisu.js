@@ -101,7 +101,8 @@ const Day = ({
 }
 
 const CalendarModeVisu = ({ 
-  studentID, 
+  studentID,
+  courseID,
   radarConfigProps,
   configProps,
   radarMode
@@ -123,14 +124,14 @@ const CalendarModeVisu = ({
 
   useEffect(() => {
     if (studentID) {
-      dataForCalendarMode(studentID)
+      dataForCalendarMode(studentID, courseID)
         .then(res => {
           setData(res)
           if (res) {
             setDomain(domainDetermination(res, radarConfigProps.dayMode));
           }
         })
-      studentData(studentID)
+      studentData(studentID, courseID)
         .then(res => {
           const rangeD = rangeDetermination(res, typeX)[1] > rangeDetermination(res, typeY)[1] 
             ? rangeDetermination(res, typeX) 
@@ -138,7 +139,7 @@ const CalendarModeVisu = ({
           setRange({...range, rangeX: rangeD, rangeY: rangeD})
         })
     }
-  }, [studentID, configProps, radarMode, radarConfigProps]) //eslint-disable-line
+  }, [studentID, configProps, radarMode, radarConfigProps, courseID]) //eslint-disable-line
 
   if (!data) return <div>No data to show</div>
 

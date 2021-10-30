@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from "react"
 
+import { DropdownMenu } from "./StudentSelector";
 import { 
   _NUMBER_OF_WEEKS_,
   _COLOR_PALETTES_ 
@@ -22,7 +23,6 @@ const RectangleVisu = () => {
   // const [client, setClient] = useState([]);
   const [graphKey, graphShouldUpdate] = useState(0);
 
-  const [studentID, setStudentID] = useState("");
   const [data, setData] = useState([]);
   const [configProps, setConfigProps] = useState({
     dayMode: "summary",
@@ -96,15 +96,26 @@ const RectangleVisu = () => {
         end: (time[1] - 1) * 7 -1
       }
     })
-  }
+  };
+
+  // handle course ID selection
+  const handleCourseDataSelected = option => {
+    if (option !== state.courseID) {
+      dispatch({
+        ...state,
+        instances: [],
+        courseID: option
+      });
+    }
+  };
 
   useEffect(() => {
     if (state.instances.length && state.instances[0].length !== 0) {
-      studentData(state.instances[0])
+      studentData(state.instances[0], state.courseID)
         .then(res => setData(res))
         .catch(err => console.log(err))
     }
-  },[state.instances]) //eslint-disable-lisapsane
+  },[state.instances, state.courseID]) //eslint-disable-lisapsane
 
   useEffect(() => {
     if (!state.timescale) {
@@ -131,11 +142,18 @@ const RectangleVisu = () => {
   return(
     <div className="rectangle-visu">
       <h2>Rectangle Mapping Visualization</h2>
+      <DropdownMenu
+        handleClick={handleCourseDataSelected}
+        options={[40, 90, 117]}
+        selectedOption={state.courseID}
+        title="Course ID: "
+      />
       <StudentSelector 
         studentID={state.instances[0] || ""} 
-        setStudentID={setStudentInstance} 
+        setStudentID={setStudentInstance}
+        courseID={state.courseID}
       />
-      {studentID.length && <ConfigurationTable 
+      {state.instances[0] && <ConfigurationTable 
         configProps={configProps} 
         setConfigProps={setConfigProps}
         mode={mode}
@@ -158,14 +176,15 @@ const RectangleVisu = () => {
       >
         sync
       </button>} */}
-      {data.length > 0 && !mode && <AllWeeksVisu 
+      {state.instances.length > 0 && !mode && <AllWeeksVisu 
         rawData={data} 
         configProps={configProps} 
         weekDisplay={weekDisplay}
         setTimescale={handleTimeChange}
       />}
-      {data.length > 0 && mode && <CalendarModeVisu
-        studentID={studentID}
+      {state.instances.length > 0 && mode && <CalendarModeVisu
+        studentID={state.instances[0] || ""}
+        courseID={state.courseID}
         radarConfigProps={radarConfigProps}
         configProps={configProps}
         radarMode={radarMode}

@@ -163,12 +163,13 @@ const MultiChart = (props) => {
     if (countData !== undefined && countData.length > 0) {
       let i = 0;
       // eslint-disable-next-line no-unused-vars
-      submissionMapping = countData[0][key].map(() => {
+      submissionMapping = !countData[0][key] ? [] : countData[0][key].map(() => {
         i += 1;
         submissionTicks.push(i);
         return { key: "exercise-".concat(i), stackId: alphabets[i - 1] };
       });
     }
+    console.log("count", countData)
 
     return (
       <div style={{ display: "flex", flexDirection: "column" }}>
@@ -205,7 +206,7 @@ const MultiChart = (props) => {
                 key={bar.key}
                 dataKey={bar.key}
                 stackId={bar.stackId}
-                fill="#c1ff9e69"
+                // fill="#c1ff9e69"
                 stroke="#00000045"
               >
                 {countData !== undefined

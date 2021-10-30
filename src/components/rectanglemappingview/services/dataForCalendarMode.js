@@ -9,7 +9,7 @@ import {
 } from "./helpers"
 
 // const baseUrl = ElasticSearchConfiguration.createUrl('gitlab-course-40-commit-data-anonymized/_search');
-const courseId = process.env.REACT_APP_COURSE_ID;
+// const courseId = process.env.REACT_APP_COURSE_ID;
 
 const getTimeFrame = date => {
   let startDate = new Date(date);
@@ -32,10 +32,10 @@ const getTimeFrame = date => {
   return days
 }
 
-const dataForCalendarMode = studentID => {
-  if (!studentID) return null;
+const dataForCalendarMode = (studentID, courseID) => {
+  if (!studentID || !courseID) return null;
 
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentID}`;
 
   const request =
     axios

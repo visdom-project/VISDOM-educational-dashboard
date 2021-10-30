@@ -4,6 +4,7 @@ import getTimeframe from "../services/timeframe";
 import { getTimePeriod } from "../services/studentData";
 import StudentSelector from "./StudentSelector";
 import TimeSelection from "./TimeSelection";
+import DropdownMenu from "./DropdownMenu";
 
 import {
   useMessageDispatch,
@@ -67,26 +68,37 @@ const CalendarTab = () => {
       instances: newInstances,
     })
     return;
-  }
+  };
+
+    // handle course ID selection
+  const handleCourseDataSelected = option => {
+    if (option !== state.courseID) {
+      dispatch({
+        ...state,
+        instances: [],
+        courseID: option
+      });
+    }
+  };
 
   useEffect(() => {
     if (state.instances.length && state.instances[0].length !== 0) {
-      getTimePeriod(state.instances[0])
+      getTimePeriod(state.instances[0], state.courseID)
         .then(res => res && setTimePeriod(res))
         .catch(error => console.log(error)) 
     }
-  },[state.instances])
+  },[state.instances, state.courseID])
 
   useEffect(() => {
     if (timePeriod.startDate && timePeriod.endDate) {
-      getTimeframe(timePeriod.startDate, timePeriod.endDate, studentID)
+      getTimeframe(timePeriod.startDate, timePeriod.endDate, studentID, state.courseID)
       .then(frame => 
         // console.log(frame)
         setTimeframe(frame)
       )
       .catch(error => console.log(error))
     }
-  }, [timePeriod]) // eslint-disable-line
+  }, [timePeriod, state.courseID]) // eslint-disable-line
 
   useEffect(() => {
     // if empty array then render nothing, if more than one intance(s), render first one;
@@ -117,9 +129,16 @@ const CalendarTab = () => {
   return (
     <div className="calendar-tab">
       <h2>Sprint Calendar Visualization</h2>
+      <DropdownMenu
+        handleClick={handleCourseDataSelected}
+        options={[40, 90, 117]}
+        selectedOption={state.courseID}
+        title="Course ID: "
+      />
       <StudentSelector 
         studentID={state.instances[0] || ""} 
-        setStudentID={setStudentInstance} 
+        setStudentID={setStudentInstance}
+        courseID={state.courseID}
       />
       {studentID && 
       <>

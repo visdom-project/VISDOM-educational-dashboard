@@ -3,10 +3,10 @@ import axios from "axios";
 import { getAgregateData } from "./courseData";
 
 // TODO: fix base URL and courseId, parameter in request
-const courseId = process.env.REACT_APP_COURSE_ID;
+// const courseId = process.env.REACT_APP_COURSE_ID;
 const MAXPOINTS90 = [10, 170, 120, 85, 60, 90, 55, 70,90, 40, 55, 140, 105, 50, 0];
-export const getAllStudentsData = () => {
-    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseId}`
+export const getAllStudentsData = courseID => {
+    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseID}`
 
     const request = axios
         .get(baseUrl, {
@@ -23,8 +23,8 @@ export const getAllStudentsData = () => {
 };
 
 
-export const fetchStudentData = async (studentId, expectGrade = 1) => {
-    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentId}`;
+export const fetchStudentData = async (studentId, courseID, expectGrade = 1) => {
+    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentId}`;
     // get student document
     const studentData = await axios.get(baseUrl, {
         headers:{
@@ -89,8 +89,8 @@ export const fetchStudentData = async (studentId, expectGrade = 1) => {
     }));
 };
 
-export const fetchStudentsData = async () => {
-    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}`
+export const fetchStudentsData = async (courseID) => {
+    const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}`
     const studentsData = {};
     // get students document
     await axios.get(baseUrl, {

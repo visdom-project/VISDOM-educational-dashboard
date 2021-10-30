@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import axios from "axios";
 // import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
-import { EXERCISE_INDICES } from "./constant";
+import { EXERCISE_INDICES, EXERCISE_INDICES_40 } from "./constant";
 
 // const courseId = process.env.REACT_APP_COURSE_ID;
 
@@ -11,7 +11,7 @@ const getStudentData = (studentID, courseID) => {
   // const baseUrl = ElasticSearchConfiguration.createUrl(
   //   "gitlab-course-40-commit-data-anonymized/_search"
   // );
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentID.username}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentID}`;
   const request = axios
     .get(baseUrl, {
       // Accept: "application/json",
@@ -60,7 +60,9 @@ const getStudentData = (studentID, courseID) => {
         const commitModule = studentData.modules[moduleIndex];
 
         module.projects.forEach(project => {
-          const exerciseIndex = EXERCISE_INDICES[project.name.toLowerCase()];
+          const exerciseIndex = courseID === 40
+            ? EXERCISE_INDICES_40[project.name.toLowerCase()]
+            : EXERCISE_INDICES[project.name.toLowerCase()];
           
           if (exerciseIndex !== undefined) {
             const exercise = commitModule.exercises[exerciseIndex]

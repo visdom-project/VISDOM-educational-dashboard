@@ -4,23 +4,23 @@ import DropdownMenu from "./DropdownMenu";
 import { getAllStudentData, getStudentInfo } from "../services/studentData";
 import { Card } from "react-bootstrap";
 
-const StudentSelector = ({ studentID, setStudentID }) => {
+const StudentSelector = ({ studentID, setStudentID, courseID }) => {
   const [studentData, setStudentData] = useState([]);
   const [student, setStudent] = useState({});
   // const student = studentData.find((item) => item.student_id === studentID);
 
   useEffect(() => {
-    getAllStudentData()
+    getAllStudentData(courseID)
       .then((res) => {
         setStudentData(res)
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [courseID]);
 
   useEffect(() => {
-    getStudentInfo(studentID)
+    getStudentInfo(studentID, courseID)
       .then(res => setStudent(res))
-  }, [studentID]) //eslint-disable-line
+  }, [studentID, courseID]) //eslint-disable-line
 
   if (!studentData || !student)
     return (

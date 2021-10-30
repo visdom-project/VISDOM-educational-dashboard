@@ -2,7 +2,7 @@
 /* eslint-disable camelcase */
 import axios from "axios";
 // import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
-import { PROJECT_MAPPING } from "./constant";
+import { PROJECT_MAPPING, PROJECT_MAPPING_40 } from "./constant";
 
 // const baseUrl = ElasticSearchConfiguration.createUrl(
 //   "gitlab-course-40-commit-data-anonymized/_search"
@@ -449,7 +449,8 @@ const formatProgressData = (pData) => {
 };
 
 const getCommitData = courseID => {
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}`
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}`;
+  const project_map = courseID === 40 ? PROJECT_MAPPING_40 : PROJECT_MAPPING;
   const request = axios
     .get(baseUrl, {
       // Accept: "application/json",
@@ -462,7 +463,7 @@ const getCommitData = courseID => {
     }).then(respone => respone.data.results)
     .then(response => {
 
-      const results = Object.keys(PROJECT_MAPPING).map(moduleName => {
+      const results = Object.keys(project_map).map(moduleName => {
         return { week: moduleName, data: [] };
       });
 
@@ -489,10 +490,10 @@ const getCommitData = courseID => {
               }, 0);
           });
           // Start with a data stucture with proper default values:
-          const newCommits = Object.keys(PROJECT_MAPPING).map(moduleName => {
+          const newCommits = Object.keys(project_map).map(moduleName => {
             return {
               module_name: moduleName,
-              projects: PROJECT_MAPPING[moduleName].map((projectName) => {
+              projects: project_map[moduleName].map((projectName) => {
                 return { name: projectName, commit_count: 0, commit_meta: [] };
               }),
             };

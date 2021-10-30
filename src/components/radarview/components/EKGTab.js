@@ -62,9 +62,20 @@ const EKGTab = () => {
 
   const [maxlength, setMaxlength] = useState(0);
 
+  // handle course ID selection
+  const handleCourseDataSelected = option => {
+    if (option !== state.courseID) {
+      dispatch({
+        ...state,
+        instances: [],
+        courseID: option
+      });
+    }
+  };
+
   useEffect(() => {
-    getAllStudentsData().then(list => setStudentList(list));
-  }, []);
+    getAllStudentsData(state.courseID).then(list => setStudentList(list));
+  }, [state.courseID]);
   
   useEffect(() => {
     if (!state.timescale) {
@@ -89,13 +100,13 @@ const EKGTab = () => {
 
   useEffect(() => {
     if (state.instances.length && state.instances[0].length){
-      fetchStudentData(state.instances[0])
+      fetchStudentData(state.instances[0], state.courseID)
         .then(data => {
           setDisplayData(data);
           setMaxlength(data.length * 7);
       });
     }
-  }, [state.instances]);
+  }, [state.instances, state.courseID]);
 
   // useEffect(() => {
   //   if (!state.instances.length)
@@ -112,6 +123,12 @@ const EKGTab = () => {
   return (
     <div className="container-body">
       <h2>Radar Visualization</h2>
+      <DropdownMenu
+        handleClick={handleCourseDataSelected}
+        options={[40, 90, 117]}
+        selectedOption={state.courseID}
+        title="Course ID: "
+      />
         <DropdownMenu
           options={studentList}
           selectedOption={ state.instances[0] || ""}

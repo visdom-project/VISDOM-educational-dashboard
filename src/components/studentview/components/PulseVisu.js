@@ -26,15 +26,15 @@ import {
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 import moment from "moment";
 
-export const StudentList = ({ setStudentID, studentID }) => {
+export const StudentList = ({ setStudentID, studentID, courseID }) => {
   const [studentData, setStudentData] = useState([]);
   const [student, setStudent] = useState({});
   // const student = studentData.find((item) => item.student_id === studentID);
 
   useEffect(() => {
     pulseData
-      .getAllStudentData()
-      .then((res) => {
+      .getAllStudentData(courseID)
+      .then(res => {
         setStudentData(res)
       })
       .catch((err) => console.log(err));
@@ -42,9 +42,9 @@ export const StudentList = ({ setStudentID, studentID }) => {
 
   useEffect(() => {
     pulseData
-      .getStudentInfo(studentID)
+      .getStudentInfo(studentID, courseID)
       .then(res => setStudent(res))
-  }, [studentID]) //eslint-disable-line
+  }, [studentID, courseID]) //eslint-disable-line
 
   if (!studentData || !student)
     return (
@@ -83,7 +83,7 @@ const PulseVisu = () => {
   const dispatch = useMessageDispatch();
 
   // const [client, setClient] = useState(null);
-  const [studentID, setStudentID] = useState("");
+  // const [studentID, setStudentID] = useState("");
   const [data, setData] = useState([]);
 
   const [graphKey, graphShouldUpdate] = useState(0);
@@ -94,6 +94,17 @@ const PulseVisu = () => {
     start: 0,
     end: maxlength - 1,
   });
+
+  // handle course ID selection
+  const handleCourseDataSelected = option => {
+    if (option !== state.courseID) {
+      dispatch({
+        ...state,
+        instances: [],
+        courseID: option
+      });
+    }
+  };
 
   const setStudentInstance = currentInstance => {
     if (state.instances.length === 0) {
@@ -125,17 +136,17 @@ const PulseVisu = () => {
   useEffect(() => {
     if (state.instances.length && state.instances[0].length !== 0) {
     pulseData
-      .getData(state.instances[0])
+      .getData(state.instances[0], state.courseID)
       .then((response) => setData(response[0]))
       .catch((err) => console.log(err));
     }
-  }, [state.instances]);
+  }, [state.instances, state.courseID]);
 
-  useEffect(() => {
-    // if empty array then render nothing, if more than one intance(s), render first one;
-    const currentIntance = state.instances[0] || "";
-    setStudentID(currentIntance);
-  }, [state.instances]); //eslint-disable-line
+  // useEffect(() => {
+  //   // if empty array then render nothing, if more than one intance(s), render first one;
+  //   const currentIntance = state.instances[0] || "";
+  //   setStudentID(currentIntance);
+  // }, [state.instances]); //eslint-disable-line
 
   // useEffect(() => {
   //   dispatch({...state,
@@ -167,11 +178,18 @@ const PulseVisu = () => {
     <div className="" style={{ minHeight: "700px" }}>
       <h2>Pulse Visualization</h2>
       <h3>Student Commits Status</h3>
+      <DropdownMenu
+        handleClick={handleCourseDataSelected}
+        options={[40, 90, 117]}
+        selectedOption={state.courseID}
+        title="Course ID: "
+      />
       <StudentList 
         studentID={state.instances[0] || ""} 
         setStudentID={setStudentInstance}
+        courseID={state.courseID}
       />
-      {studentID && data && 
+      {state.instances.length > 0 && data && 
       <>
         <ResponsiveContainer minWidth="300px" minHeight="700px">
           <BarChart

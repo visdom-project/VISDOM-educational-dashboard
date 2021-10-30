@@ -27,25 +27,25 @@ export const DropdownMenu = ({ handleClick, options, selectedOption, title }) =>
   );
 };
   
-const StudentSelector = ({ studentID, setStudentID }) => {
+const StudentSelector = ({ studentID, setStudentID, courseID }) => {
   const [students, setStudents] = useState([]);
   const [student, setStudent] = useState({});
 
   useEffect(() => {
     studentsInformationService
-      .getAllStudentData()
+      .getAllStudentData(courseID)
       .then(res => {setStudents(res)})
       .catch(err => console.log(err))
-  },[]); //eslint-disable-line
+  },[courseID]); //eslint-disable-line
 
   useEffect(() => {
     if (studentID && students) {
       studentsInformationService
-        .getStudentInfo(studentID)
+        .getStudentInfo(studentID, courseID)
         .then(res => setStudent(res))
         .catch(err => console.log(err))
     }
-  },[studentID]) //eslint-disable-line
+  },[studentID, courseID]) //eslint-disable-line
 
   return (
     <div className="fit-row">

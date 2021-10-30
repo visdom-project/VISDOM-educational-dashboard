@@ -123,19 +123,42 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
     return modes[0];
   };
 
+  const handleCourseDataSelected = option => {
+    if (allowSync) {
+      if (option !== state.courseID) {
+        dispatch({
+          ...state,
+          instances: [],
+          courseID: option
+        });
+      } 
+    } else {
+      if (option !== courseID) {
+        setCourseID(option);
+      }
+    }
+  };
+
   // eslint-disable-next-line no-unused-vars
   const handleStudentClick = (data, barIndex) => {
     if (data !== undefined) {
-      // const newSelected = data;
-      const instances = data.username ? [data.username] : [];
-      dispatch({...state,
-        // mode: selectedMode,
-        instances: instances,
-      });
-      setSelectedStudent(data);
+      if (allowSync) {
+        const instances = data.username ? [data.username] : [];
+        dispatch({...state,
+          // mode: selectedMode,
+          instances: instances,
+        });
+      } 
+      dispatch({
+        ...state,
+        statusDialogProps: {
+          studentID: data.username,
+          courseID: allowSync ? state.courseID : courseID,
+          mode: selectedMode
+        }
+      })
       setOpenStatusDialog(true);
     }
-
   };
 
   const handleModeSwitchClick = (newMode) => {
@@ -274,7 +297,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   };
 
   useEffect(() => {
-    dataService.getData(courseID).then(response => {
+    dataService.getData(allowSync ? state.courseID : courseID).then(response => {
       const [pData, commons, submissions] = response;
 
       // Fetch needed data:
@@ -287,7 +310,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
       handleWeekSwitch(1, pData, commons, undefined, submissions);
     });
 
-    dataService.getCommitData(courseID).then((response) => {
+    dataService.getCommitData(allowSync ? state.courseID : courseID).then((response) => {
       const commits = response;
 
       setCommitData(commits);
@@ -307,7 +330,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
         setMaxlength(commits[0].data.length);
       }
     });
-  }, [courseID]); //eslint-disable-line
+  }, [allowSync ? state.courseID : courseID]); //eslint-disable-line
 
   // useEffect(() => {
   //   MQTTConnect(dispatch).then((newClient) => setClient(newClient));
@@ -382,9 +405,9 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
       </Modal>
       : <>
         <DropdownMenu
-          handleClick={setCourseID}
-          options={allowSync ? [parseInt(process.env.REACT_APP_COURSE_ID)] : [40, 90, 117]}
-          selectedOption={courseID}
+          handleClick={handleCourseDataSelected}
+          options={[40, 90, 117]}
+          selectedOption={allowSync ? state.courseID : courseID}
           title="Course ID: "
         />
         <ControlAccordion
@@ -446,9 +469,9 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
           setOpenDialog={ openState => setOpenStatusDialog(openState) }
         >
           <StudentDetailView
-            selectedStudentID={selectedStudent}
+            selectedStudentID={state.statusDialogProps.studentID}
             selectedWeek={selectedWeek}
-            courseID={courseID}
+            courseID={state.statusDialogProps.courseID}
           />
         </ConfigDialog>
       </>

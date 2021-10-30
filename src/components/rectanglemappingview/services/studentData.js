@@ -2,13 +2,14 @@ import axios from 'axios'
 // import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 import { 
   EXERCISE_INDICES,
+  EXERCISE_INDICES_40,
   timeDiff,
   _DAYS_OF_WEEK_,
   _NUMBER_OF_WEEKS_
 } from "./helpers";
 
 // const baseUrl = ElasticSearchConfiguration.createUrl('gitlab-course-40-commit-data-anonymized/_search');
-const courseId = process.env.REACT_APP_COURSE_ID;
+// const courseId = process.env.REACT_APP_COURSE_ID;
 
 const timeframe = date => {
   let startDate = new Date(date);
@@ -38,11 +39,11 @@ const timeframe = date => {
 
 }
 
-const studentData = async studentID => {
-  console.log(studentID)
-  if (!studentID) return [];
+const studentData = async (studentID, courseID) => {
+  const exercise_map = courseID === 40 ? EXERCISE_INDICES_40: EXERCISE_INDICES;
+  if (!studentID || !courseID) return [];
 
-  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}&username=${studentID}`;
+  const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentID}`;
 
   const request = await
     axios
@@ -104,7 +105,7 @@ const studentData = async studentID => {
             const commitModule = studentModules[moduleIndex];
 
             module.projects.forEach(project => {
-              const exerciseIndex = EXERCISE_INDICES[project.name.toLowerCase()];
+              const exerciseIndex = exercise_map[project.name.toLowerCase()];
 
               if (exerciseIndex !== undefined) {
                 const commitExercise = commitModule.exercises[exerciseIndex];

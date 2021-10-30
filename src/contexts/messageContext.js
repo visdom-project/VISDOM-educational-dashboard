@@ -7,7 +7,13 @@ const MessageProvider = ({ children }) => {
   const [state, dispatch] = React.useState({
     mode: null,
     instances: [],
-    timescale: null
+    timescale: null,
+    courseID: parseInt(process.env.REACT_APP_COURSE_ID),
+    statusDialogProps: {
+      studentID: "",
+      courseID: parseInt(process.env.REACT_APP_COURSE_ID),
+      mode: null
+    }
   });
 
   return (

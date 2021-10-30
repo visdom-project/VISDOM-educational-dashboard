@@ -189,7 +189,7 @@ const CumulativeTab = () => {
       // .then(() => setStudentsData(studentDataObj));
     // });
     // fetch whole data at once
-    fetchStudentsData().then(data => {
+    fetchStudentsData(state.courseID).then(data => {
       setStudentsData(data);
       setStudentIds(Object.keys(data));
       setDisplayedStudents(Object.keys(data));
@@ -203,7 +203,7 @@ const CumulativeTab = () => {
       }         
     });
     Promise.all( grades.map(grade => getAgregateData(grade)) ).then(expectValues => setCourseData(expectValues));
-  }, []);
+  }, [state.courseID]);
   
 
 
@@ -282,6 +282,16 @@ const CumulativeTab = () => {
   //   // setDisplayedStudents(state.instances);
   // }, [state.instances]); //eslint-disable-line
 
+  // handle course ID selection
+  const handleCourseDataSelected = option => {
+    if (option !== state.courseID) {
+      dispatch({
+        ...state,
+        instances: [],
+        courseID: option
+      });
+    }
+  };
 
   // Toggle selection of a student that is clicked in the student list:
   const handleListClick = (id) => {
@@ -385,6 +395,12 @@ const CumulativeTab = () => {
   return (
     <div className="chart" style={{ paddingTop: "30px" }}>
       <h1>Cumulative Visualization</h1>
+      <DropdownMenu
+        handleClick={handleCourseDataSelected}
+        options={[40, 90, 117]}
+        selectedOption={state.courseID}
+        title="Course ID: "
+      />
       <h2>{`Weekly ${state.mode}`}</h2>
       
       <ConfigDialog

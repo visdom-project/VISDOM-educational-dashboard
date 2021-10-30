@@ -189,7 +189,7 @@ const ProgressTab = () => {
       // .then(() => setStudentsData(studentDataObj));
     // });
     // fetch whole data at once
-    fetchStudentsData().then(data => {
+    fetchStudentsData(state.courseID).then(data => {
       setStudentsData(data);
       setStudentIds(Object.keys(data));
       setDisplayedStudents(Object.keys(data));
@@ -203,7 +203,7 @@ const ProgressTab = () => {
       }         
     });
     Promise.all( grades.map(grade => getAgregateData(grade)) ).then(expectValues => setCourseData(expectValues));
-  }, []);
+  }, [state.courseID]);
   
 
 
@@ -281,6 +281,17 @@ const ProgressTab = () => {
   //   }
   //   // setDisplayedStudents(state.instances);
   // }, [state.instances]); //eslint-disable-line
+
+  // handle course ID selection
+  const handleCourseDataSelected = option => {
+    if (option !== state.courseID) {
+      dispatch({
+        ...state,
+        instances: [],
+        courseID: option
+      });
+    }
+  };
 
 
   // Toggle selection of a student that is clicked in the student list:
@@ -385,6 +396,12 @@ const ProgressTab = () => {
   return (
     <div className="chart" style={{ paddingTop: "30px" }}>
       <h1>Progress Visualization</h1>
+      <DropdownMenu
+        handleClick={handleCourseDataSelected}
+        options={[40, 90, 117]}
+        selectedOption={state.courseID}
+        title="Course ID: "
+      />
       <h2>{`Weekly ${state.mode}`}</h2>
       
       <ConfigDialog
