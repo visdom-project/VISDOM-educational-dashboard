@@ -169,7 +169,6 @@ const MultiChart = (props) => {
         return { key: "exercise-".concat(i), stackId: alphabets[i - 1] };
       });
     }
-    console.log("count", countData)
 
     return (
       <div style={{ display: "flex", flexDirection: "column" }}>

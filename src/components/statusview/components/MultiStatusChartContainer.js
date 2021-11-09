@@ -6,13 +6,20 @@ import StatusTab from "./StatusTab";
 import { Alert, Form, Button } from "react-bootstrap";
 import { IoGridSharp, IoListOutline } from "react-icons/io5";
 
+import {
+  useMessageState,
+  useMessageDispatch,
+} from "../../../contexts/messageContext";
+
 const MAX_GRAPH = 4;
 
 const MultiStatusChartContainer = () => {
-  const [graphNum, setGraphNum] = useState(1);
+  const state = useMessageState();
+  const dispatch = useMessageDispatch();
+
+  const [graphNum, setGraphNum] = useState(Object.keys(state.statusProps.props).length || 1);
   const [sameSortProps, setSameSortProps] = useState(true);
   const [sortProps, setSortProps] = useState({});
-  const [displayMode, setdisplayMode] = useState("list")
 
   const listView =  {
     margin: " 0 calc(70px + 3vw) 5vw calc(70px + 3vw)",
@@ -23,12 +30,29 @@ const MultiStatusChartContainer = () => {
     justifyContent: "space-between",
     display: "flex",
     flexWrap: "wrap"
-  }
+  };
+
+  const handleDisplayBtnClick = () => {
+    dispatch({
+      ...state,
+      statusProps: {
+        ...state.statusProps,
+        displayMode: state.statusProps.displayMode === "list" ? "grid" : "list"
+      }
+    });
+  };
+  
 
   useEffect(() => {
     if (graphNum === 1) {
-      setdisplayMode("list");
-    }
+      dispatch({
+        ...state,
+        statusProps: {
+          ...state.statusProps,
+          displayMode: "list"
+        }
+      });
+    };
   }, [graphNum])
 
   return (
@@ -51,17 +75,17 @@ const MultiStatusChartContainer = () => {
         {graphNum > 1 && <Alert variant="warning">
           <i>Only <strong>first</strong> chart configuration allows synchronization with other visualizations!</i>
         </Alert>}
-        {graphNum > 1 && <Button id="display-btn" onClick={() => setdisplayMode(displayMode === "list" ? "grid" : "list")}>
-          {displayMode === "list" ? <IoListOutline /> : <IoGridSharp />}
+        {graphNum > 1 && <Button id="display-btn" onClick={handleDisplayBtnClick}>
+          {state.statusProps.displayMode === "list" ? <IoListOutline /> : <IoGridSharp />}
         </Button>}
       </div>
-      <div id="multistatus" style={ displayMode === "list" ? listView : blockView}>
+      <div id="multistatus" style={ state.statusProps.displayMode === "list" ? listView : blockView}>
       {Array(graphNum)
         .fill(0)
-        .map((_, item) => <div className="status-chart" key={`status-chart-${item}-container`} style={{ width: displayMode === "list" ? "95%" : "50%" }}>
+        .map((_, item) => <div className="status-chart" key={`status-chart-${item}-container`} style={{ width: state.statusProps.displayMode === "list" ? "95%" : "50%" }}>
           <StatusTab 
-            key={`status-chart-${item}`} 
-            allowSync={item === 0} 
+            key={`status-chart-${item}`}
+            graphIndex={item}
             sortProps={sortProps} 
             setSortProps={setSortProps}
             sameSortProps={sameSortProps}

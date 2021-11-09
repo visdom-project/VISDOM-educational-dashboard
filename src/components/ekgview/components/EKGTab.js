@@ -218,7 +218,7 @@ const EKGTab = ({onlyRead=false}) => {
           selectAllOption={false}
         />
           <ConfigDialog
-          showButton={state.instances.length !== 0}
+          showButton={onlyRead ? state.statusDialogProps.studentID : state.instances.length !== 0}
           title={{
             button: "Show view configuration",
             dialog: "Modify show configuration",
