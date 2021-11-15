@@ -37,7 +37,7 @@ const InputRange = ({ values, maxlength, setStudentRange }) => {
 }
 
 // eslint-disable-next-line max-lines-per-function
-const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
+const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
   // const [client, setClient] = useState(null);
@@ -63,7 +63,9 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   const [sortConfig, setSortConfig] = useState(sortProps);
   const [studentRange, setStudentRange] = useState([1,0]);
   const [maxlength, setMaxlength] = useState(0)
-  const [courseID, setCourseID] = useState(parseInt(process.env.REACT_APP_COURSE_ID));
+  const [courseID, setCourseID] = useState(Object.keys(state.statusProps.props).length > graphIndex
+    ? state.statusProps.props[graphIndex.toString()].courseID 
+    : parseInt(process.env.REACT_APP_COURSE_ID));
 
   const allKeys = {
     points: {
@@ -107,7 +109,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   const [showAvg, setShowAvg] = useState(true);
   const [showExpected, setShowExpected] = useState(true);
 
-  const [selectedStudent, setSelectedStudent] = useState("");
+  // const [selectedStudent, setSelectedStudent] = useState("");
 
   const boundingDiv = document.getElementsByClassName("card")[0];
   const chartWidth =
@@ -124,7 +126,21 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   };
 
   const handleCourseDataSelected = option => {
-    if (allowSync) {
+    const graphIndexStr = graphIndex.toString();
+    dispatch({
+      ...state,
+      statusProps: {
+        ...state.statusProps,
+        props: {
+          ...state.statusProps.props,
+          [graphIndexStr]: {
+            ...state.statusProps.props[graphIndexStr],
+            courseID: graphIndex === 0 ? state.courseID : option,
+          }
+        }
+      }
+    })
+    if (graphIndex === 0) {
       if (option !== state.courseID) {
         dispatch({
           ...state,
@@ -142,7 +158,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   // eslint-disable-next-line no-unused-vars
   const handleStudentClick = (data, barIndex) => {
     if (data !== undefined) {
-      if (allowSync) {
+      if (graphIndex === 0) {
         const instances = data.username ? [data.username] : [];
         dispatch({...state,
           // mode: selectedMode,
@@ -153,7 +169,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
         ...state,
         statusDialogProps: {
           studentID: data.username,
-          courseID: allowSync ? state.courseID : courseID,
+          courseID: graphIndex === 0 ? state.courseID : courseID,
           mode: selectedMode
         }
       })
@@ -164,7 +180,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   const handleModeSwitchClick = (newMode) => {
     setSelectedMode(newMode);
 
-    if (allowSync) {
+    if (graphIndex === 0) {
       dispatch({...state,
         mode: newMode,
       });
@@ -211,6 +227,21 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
     }
 
     setSelectedWeek(newWeek);
+    const graphIndexStr = graphIndex.toString();
+    dispatch({
+      ...state,
+      statusProps: {
+        ...state.statusProps,
+        props: {
+          ...state.statusProps.props,
+          [graphIndexStr]: {
+            ...state.statusProps.props[graphIndexStr],
+            week: newWeek,
+            mode: mode
+          }
+        }
+      }
+    });
 
     if (
       ["exercises", "points"].includes(mode) &&
@@ -297,7 +328,34 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   };
 
   useEffect(() => {
-    dataService.getData(allowSync ? state.courseID : courseID).then(response => {
+    const graphIndexStr = graphIndex.toString();
+    if (Object.keys(state.statusProps.props).includes(graphIndexStr)) {
+      const graphProps = state.statusProps.props[graphIndexStr];
+      setCourseID(graphProps.courseID);
+      setSelectedMode(graphProps.mode);
+      setSelectedWeek(graphProps.week);
+    } 
+    else {
+      const newGraphProps = {
+        [graphIndexStr]: {
+          courseID: courseID,
+          mode: selectedMode,
+          week: selectedWeek
+        }
+      };
+      dispatch({...state,
+        statusProps: {
+          ...state.statusProps,
+          props: Object.assign(state.statusProps.props, newGraphProps)}
+      })
+    }
+  },[]);
+
+  useEffect(() => {
+    const courseData = Object.keys(state.statusProps.props).length > graphIndex
+    ? state.statusProps.props[graphIndex.toString()].courseID
+    : courseID
+    dataService.getData(graphIndex === 0 ? state.courseID : courseData).then(response => {
       const [pData, commons, submissions] = response;
 
       // Fetch needed data:
@@ -307,10 +365,20 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
       setWeeks(pData.map(week => week.week));
 
       // Set initial UI state:
-      handleWeekSwitch(1, pData, commons, undefined, submissions);
+      handleWeekSwitch(
+        Object.keys(state.statusProps.props).length 
+          ? state.statusProps.props[graphIndex.toString()].week 
+          : selectedWeek, 
+        pData, 
+        commons, 
+        undefined, 
+        submissions,
+        Object.keys(state.statusProps.props).length 
+          ? state.statusProps.props[graphIndex.toString()].mode 
+          : selectedMode);
     });
 
-    dataService.getCommitData(allowSync ? state.courseID : courseID).then((response) => {
+    dataService.getCommitData(graphIndex === 0 ? state.courseID : courseData).then((response) => {
       const commits = response;
 
       setCommitData(commits);
@@ -325,12 +393,12 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
 
       updateTreshold(treshold, undefined, commits);
 
-      if (commits !== undefined && commits.length > 0) {
+      if (commits !== undefined && commits.length > 0 && commits[0].data) {
         setStudentRange([1, commits[0].data.length]);
         setMaxlength(commits[0].data.length);
       }
     });
-  }, [allowSync ? state.courseID : courseID]); //eslint-disable-line
+  }, [graphIndex === 0 ? state.courseID : courseID]); //eslint-disable-line
 
   // useEffect(() => {
   //   MQTTConnect(dispatch).then((newClient) => setClient(newClient));
@@ -338,7 +406,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
   // }, []);
 
   useEffect(() => {
-    if (allowSync) {
+    if (graphIndex === 0) {
       const _mode = determineMode(state);
       if (selectedMode !== _mode) {
         handleModeSwitchClick(_mode);
@@ -395,7 +463,6 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
     }
   }, [sortProps, sameSortProps])
 
-  // console.log(selectedWeekData.length)
   return (
     (selectedCountData.length === 0 || selectedWeekData.length === 0)
       ? <Modal show={true} size="sm" centered >
@@ -407,7 +474,7 @@ const StatusTab = ({ allowSync, sortProps, setSortProps, sameSortProps }) => {
         <DropdownMenu
           handleClick={handleCourseDataSelected}
           options={[40, 90, 117]}
-          selectedOption={allowSync ? state.courseID : courseID}
+          selectedOption={graphIndex === 0 ? state.courseID : courseID}
           title="Course ID: "
         />
         <ControlAccordion

@@ -13,6 +13,11 @@ const MessageProvider = ({ children }) => {
       studentID: "",
       courseID: parseInt(process.env.REACT_APP_COURSE_ID),
       mode: null
+    },
+    statusProps: {
+      sortProps: {},
+      displayMode: "list",
+      props: {}
     }
   });
 

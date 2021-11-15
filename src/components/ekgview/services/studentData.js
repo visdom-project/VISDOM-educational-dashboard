@@ -4,7 +4,12 @@ import { getAgregateData } from "./courseData";
 
 // TODO: fix base URL and courseId, parameter in request
 // const courseId = process.env.REACT_APP_COURSE_ID;
-const MAXPOINTS90 = [10, 170, 120, 85, 60, 90, 55, 70,90, 40, 55, 140, 105, 50, 0];
+const MAXPOINTS = {
+    "40": [30, 100, 110, 95, 60, 90, 55, 70, 90, 40, 55, 120, 105, 30, 0],
+    "90": [10, 170, 120, 85, 60, 90, 55, 70, 90, 40, 55, 140, 105, 50, 0],
+    "117": [10, 160, 120, 85, 60, 90, 55, 70, 90, 40, 55, 140, 5, 50, 0]
+}
+// const MAXPOINTS90 = [10, 170, 120, 85, 60, 90, 55, 70,90, 40, 55, 140, 105, 50, 0];
 export const getAllStudentsData = courseID => {
     const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseID}`
 
@@ -25,6 +30,7 @@ export const getAllStudentsData = courseID => {
 
 export const fetchStudentData = async (studentId, courseID, expectGrade = 1) => {
     const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentId}`;
+    console.log(MAXPOINTS[courseID.toString()])
     // get student document
     const studentData = await axios.get(baseUrl, {
         headers:{
@@ -74,7 +80,7 @@ export const fetchStudentData = async (studentId, courseID, expectGrade = 1) => 
         expectedCommit: expectedValues[index] ? expectedValues[index]["avg_commits"] : 0,
 
         points: module.points,
-        expectedPoints: expectedValues[index] ? expectedValues[index]["avg_points"]*MAXPOINTS90[index] : 0,
+        expectedPoints: expectedValues[index] ? expectedValues[index]["avg_points"]*MAXPOINTS[courseID.toString()][index] : 0,
 
         numberOfExercises: module.exercises.length,
         //new
