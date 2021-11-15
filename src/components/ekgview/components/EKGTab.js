@@ -88,6 +88,7 @@ const EKGTab = ({onlyRead=false}) => {
   const grades = [0, 1, 2, 3, 4, 5];
 
   const displayError = err => alert(err.response.data.error);
+  const [displayConfigurationDialog, setDisplayConfigurationDialog] = useState(false);
 
   const init = {
     type: "Points",
@@ -357,6 +358,9 @@ const EKGTab = ({onlyRead=false}) => {
               dialog: "Storing Configuration",
               confirm: "Cancel"
             }}
+            openDialog={displayConfigurationDialog}
+            setOpenDialog={setDisplayConfigurationDialog}
+
             additionalFooter={
               (currentConfiguration !== configName.current || currentConfiguration.length === 0) 
                 ? <Button
@@ -375,6 +379,7 @@ const EKGTab = ({onlyRead=false}) => {
                       newConfigurationList.push(configName.current);
                       setConfigurationList(newConfigurationList);
                       setConfigName(configName.current);
+                      setDisplayConfigurationDialog(false);
                     }).catch(displayError);
                   }}
                   >
@@ -391,7 +396,9 @@ const EKGTab = ({onlyRead=false}) => {
                       relativeTimescale: relativeTimescale.current,
                       pulseRatio: pulseRatio.current,
                     };
-                    modifyConfig(currentConfiguration, publishConfiguration).catch(displayError);
+                    modifyConfig(currentConfiguration, publishConfiguration)
+                    .then( () => setDisplayConfigurationDialog(false))
+                    .catch(displayError);
                   }}
                   >
                   Modify this config

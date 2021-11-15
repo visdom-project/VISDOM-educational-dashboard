@@ -33,7 +33,8 @@ const ConfigDialog = ({ title, children, openDialog, setOpenDialog, showButton=t
       setOpen(openDialog);
     }
   }, [openDialog]);
-  return (
+  
+  return  (
     <div>
       {
         showButton &&
@@ -41,23 +42,27 @@ const ConfigDialog = ({ title, children, openDialog, setOpenDialog, showButton=t
           {title.button}
         </Button>
       }
-      <Modal
-        show={open}
-        onHide={handleClose}
-        size="xl"
-        centered
-      >
-        <Modal.Header id="alert-dialog-title">
-          <Modal.Title>{title.dialog}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ maxHeight: "500px", overflow: "scroll" }}>{children}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-success" onClick={handleClose}>
-            {title.confirm}
-          </Button>
-          {additionalFooter}
-        </Modal.Footer>
-      </Modal>
+      {
+        !open ? null : (
+          <Modal
+            show={open}
+            onHide={handleClose}
+            size="xl"
+            centered
+          >
+            <Modal.Header id="alert-dialog-title">
+              <Modal.Title>{title.dialog}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ maxHeight: "500px", overflow: "scroll" }}>{children}</Modal.Body>
+            <Modal.Footer>
+              <Button variant="outline-success" onClick={handleClose}>
+                {title.confirm}
+              </Button>
+              {additionalFooter}
+            </Modal.Footer>
+          </Modal>
+        )
+      }
     </div>
   );
 };
