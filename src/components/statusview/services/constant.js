@@ -14,17 +14,17 @@ export const EXERCISE_INDICES = {
   "valgrind": 0, "calculator": 1, "reverse": 2,
   "directories": 0, "feedback3": 1,
   "zoo": 0, "colorpicker_designer": 1, "find_dialog": 2, "grading_gui": 3, "timer": 4, "bmi": 5,
-  "13": 0, "feedback4": 1,
+  "minesweeper_gui": 0, "minesweeper_bonus": 1, "feedback4": 2,
   "command_line": 0, ".gitignore": 1,
   "": 0,
   "gdpr": 0,
   "projects": 0
 };
 
+// for course with id == 90
 export const PROJECT_MAPPING = {
   "01": ["first_submission"],
   "02": ["beginning", "typing", "temperature", "number_series_game", "grading", "cube", "lotto", "encryption", "errors"],
-  // "02": ["beginning", "typing", "temperature", "number_series_game", "factors", "cube", "lotto", "encryption", "errors"],  // this for the period 2 course
   "03": ["swap", "random_numbers", "bank_account", "simple_library", "molkky"],
   "04": ["container", "split", "tictactoe", "feedback1"],
   "05": ["line_numbers", "mixing_alphabets", "points", "wordcount"],
@@ -35,30 +35,38 @@ export const PROJECT_MAPPING = {
   "10": ["valgrind", "calculator", "reverse"],
   "11": ["directories", "feedback3"],
   "12": ["zoo", "colorpicker_designer", "find_dialog", "grading_gui", "timer", "bmi"],
-  "13": ["13", "feedback4"],
+  "13": ["minesweeper_gui", "minesweeper_bonus", "feedback4"],
   "14": ["command_line", ".gitignore"],
   "15": [],
   "16": ["gdpr"],
   "17": ["projects"]
 };
 
+// course with id 117 is almost the same as course with id 90
+export const PROJECT_MAPPING_117 = Object.assign(
+  {},
+  PROJECT_MAPPING,
+  {
+    "02": ["beginning", "typing", "temperature", "number_series_game", "factors", "cube", "lotto", "encryption", "errors"]
+  }
+);
 
 // Hardcoded exercise names for implementation at Summer 2021 (courseID 40)
 export const EXERCISE_INDICES_40 = {
   "first_submission": 0, "gitignore": 1,
-  "beginning": 0, "typing": 1, "tyypitys": 1, "temperature": 2, "number_series_game": 3, "mean": 4, "cube": 5, 
-  "lotto": 0, "swap": 1, "encryption": 2, "errors": 3, "molkky": 4, 
-  "container": 0, "split": 1, "random_numbers": 2, "game15": 3, "feedback1": 4, 
+  "beginning": 0, "typing": 1, "tyypitys": 1, "temperature": 2, "number_series_game": 3, "mean": 4, "cube": 5,
+  "lotto": 0, "swap": 1, "encryption": 2, "errors": 3, "molkky": 4,
+  "container": 0, "split": 1, "random_numbers": 2, "game15": 3, "feedback1": 4,
   "line_numbers": 0, "mixing_alphabets": 1, "points": 2, "wordcount": 3,
-  "palindrome": 0, "sum": 1, "vertical": 2, "network": 3, 
+  "palindrome": 0, "sum": 1, "vertical": 2, "network": 3,
   "library": 0, "shopping": 0, "feedback2": 1, // library == shopping?
-  "pointers": 0, "student_register": 1, "arrays": 2, "reverse_polish": 3, 
-  "cards": 0, "traffic": 1, "task_list": 2, 
-  "valgrind": 0, "calculator": 1, "reverse": 2, 
+  "pointers": 0, "student_register": 1, "arrays": 2, "reverse_polish": 3,
+  "cards": 0, "traffic": 1, "task_list": 2,
+  "valgrind": 0, "calculator": 1, "reverse": 2,
   "family": 0, "university": 0, "feedback3": 1, // family == university?
   "zoo": 0, "colorpicker_designer": 1, "find_dialog": 2, "timer": 3, "bus_timetables": 3, "bmi": 4,
-  "hanoi": 0, "tetris": 1, "feedback4": 2, 
-  "command_line": 0, 
+  "hanoi": 0, "tetris": 1, "feedback4": 2,
+  "command_line": 0,
   "": 0,
   "gdpr": 0
 };
