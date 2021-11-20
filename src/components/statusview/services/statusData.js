@@ -2,7 +2,7 @@
 /* eslint-disable camelcase */
 import axios from "axios";
 // import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
-import { PROJECT_MAPPING, PROJECT_MAPPING_40 } from "./constant";
+import { PROJECT_MAPPING, PROJECT_MAPPING_117, PROJECT_MAPPING_40 } from "./constant";
 
 // const baseUrl = ElasticSearchConfiguration.createUrl(
 //   "gitlab-course-40-commit-data-anonymized/_search"
@@ -450,7 +450,11 @@ const formatProgressData = (pData) => {
 
 const getCommitData = courseID => {
   const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}`;
-  const project_map = courseID === 40 ? PROJECT_MAPPING_40 : PROJECT_MAPPING;
+  const project_map = courseID === 40
+    ? PROJECT_MAPPING_40
+    : courseID === 117
+      ? PROJECT_MAPPING_117
+      : PROJECT_MAPPING;
   const request = axios
     .get(baseUrl, {
       // Accept: "application/json",
@@ -481,7 +485,7 @@ const getCommitData = courseID => {
             );
 
           const modulePoints = result.points.modules.map(module => module.points);
-          
+
           const cumulativePoints = Object.keys(modulePoints).map(key => {
             return modulePoints
               .slice(0, parseInt(key) + 1)
