@@ -455,7 +455,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
         }
       }
     }
-  }, [sortConfig]) //eslint-disable-line
+  }, [sortConfig, graphIndex === 0 ? state.courseID : courseID]) //eslint-disable-line
 
   useEffect(() => {
     if (JSON.stringify(sortConfig) !== JSON.stringify(sortProps)) {
@@ -464,13 +464,14 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   }, [sortProps, sameSortProps])
 
   return (
-    (selectedCountData.length === 0 || selectedWeekData.length === 0)
-      ? <Modal show={true} size="sm" centered >
-        <Modal.Body style={{ paddingLeft: "45%"}}>
-          <Spinner animation="border" />
-        </Modal.Body>
-      </Modal>
-      : <>
+    // (graphIndex !== 0 && selectedCountData.length === 0 || selectedWeekData.length === 0)
+    //   ? <Modal show={true} size="sm" centered >
+    //     <Modal.Body style={{ paddingLeft: "45%"}}>
+    //       <Spinner animation="border" />
+    //     </Modal.Body>
+    //   </Modal>
+    //   : 
+      <>
         <DropdownMenu
           handleClick={handleCourseDataSelected}
           options={[40, 90, 117]}
