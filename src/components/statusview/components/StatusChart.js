@@ -31,11 +31,26 @@ const CustomLabel = (props) => {
   );
 };
 
-const StudentTooltip = ({ active, payload, label }) => {
+const StudentTooltip = ({ active, payload, label, mode }) => {
   if (active && payload && payload.length) {
     return (
       <div style={{ backgroundColor: "#FFF", padding: "3px", border: "1px solid rgba(0, 0, 0, .5)" }}>
-        {label}
+        {label} <br/>
+        {
+          (mode === "submissions" || mode === "commit_counts") &&
+            <ul style={{ listStyle: "none" }}>
+              {
+                payload.reverse().map(data => {
+                  const index = parseInt(data.dataKey.split("-")[1]) - 1;
+                  return (
+                    <li key={`${mode}-${data.payload.username}-${data.dataKey}`}>
+                      {data.dataKey}: {mode === "submissions" ? data.payload.submissions[index] : data.payload.commit_counts[index]}
+                    </li>
+                  )
+                })
+              }
+            </ul>
+        }
       </div>
     );
   }
@@ -197,16 +212,17 @@ const MultiChart = (props) => {
               domain={["dataMin", "dataMax"]}
               ticks={submissionTicks}
             />
-            <Tooltip content={<StudentTooltip />}/>
+            <Tooltip content={<StudentTooltip mode={key} />}/>
 
-            {submissionMapping.reverse().map((bar) => (
+            {submissionMapping.map((bar) => (
               <Bar
-                className={"hoverable-bar"}
+                className="hoverable-bar"
                 key={bar.key}
                 dataKey={bar.key}
-                stackId={bar.stackId}
-                // fill="#c1ff9e69"
+                stackId="a"
+                fill="#c1ff9e69"
                 stroke="#00000045"
+                barSize={barWidth*2}
               >
                 {countData !== undefined
                   ? countData.map((entry, index) => {

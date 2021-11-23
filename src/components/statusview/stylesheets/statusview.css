@@ -109,3 +109,10 @@ svg {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
+
+student-range-selector {
+  vertical-align: middle;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+}

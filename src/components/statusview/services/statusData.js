@@ -106,7 +106,7 @@ const formatSubmissionData = (data) => {
       // eslint-disable-next-line no-unused-vars
       student.weeklySubmissions[week.week].forEach((submissionCount) => {
         const attributeName = "exercise-".concat(i + 1);
-        newStudent[attributeName] = i + 1;
+        newStudent[attributeName] = 1;
         i += 1;
       });
 
@@ -556,7 +556,7 @@ const getCommitData = courseID => {
             // let i = 1;
             // eslint-disable-next-line no-unused-vars
             student.commit_counts.forEach((commit_count, i) => {
-              student[`exercise-${i + 1}`] = i + 1;
+              student[`exercise-${i + 1}`] = 1;
               // i += 1;
             });
 

@@ -15,24 +15,47 @@ import {
 import ConfigDialog from "./ConfigDialog";
 import DropdownMenu from "./DropdownMenu";
 import helpers from "../services/helpers";
-import { Modal, Spinner } from "react-bootstrap";
 import { TwoThumbInputRange } from "react-two-thumb-input-range";
 
 const InputRange = ({ values, maxlength, setStudentRange }) => {
   if (maxlength === 0) return null;
 
   return (
-    <div className="student-range-slider">
-      <p>Student range:</p>
-      <TwoThumbInputRange
-        values={values}
-        min={1}
-        trackColor="#caf0f8"
-        max={maxlength}
-        onChange={newValue => setStudentRange(newValue.sort((a, b) => a-b))}
-        style={{ marginBottom: "20px" }}
-      />
-    </div>
+    <>
+      <div className="student-range-slider">
+        <p>Student range:</p>
+        <TwoThumbInputRange
+          values={values}
+          min={1}
+          trackColor="#caf0f8"
+          max={maxlength}
+          onChange={newValue => setStudentRange(newValue.sort((a, b) => a-b))}
+          style={{ marginBottom: "20px" }}
+        />
+      </div>
+      <div 
+        className="student-range-selector"
+        style={{ paddingLeft: "43%" }}
+      >
+        <input 
+          type="number" 
+          min="1"
+          max={values[1]}
+          value={values[0]}
+          onChange={e => setStudentRange(values.map((v, i) => i === 0 ? e.target.value : v))}
+          required
+        />
+        <span> - </span>
+        <input
+          type="number"
+          min={values[0]}
+          max={maxlength}
+          value={values[1]}
+          onChange={e => setStudentRange(values.map((v, i) => i === 1 ? e.target.value : v))}
+          required
+        />
+      </div>
+    </>
   )
 }
 
