@@ -73,12 +73,16 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   const [max, setMax] = useState(1);
 
   const [weeks, setWeeks] = useState(["1"]);
-  const [selectedWeek, setSelectedWeek] = useState("1");
+  const [selectedWeek, setSelectedWeek] = useState(Object.keys(state.statusProps.props).includes(graphIndex.toString())
+    ? state.statusProps.props[graphIndex.toString()].week
+    : "1");
   const [selectedWeekData, setSelectedWeekData] = useState([]);
   const [selectedCountData, setSelectedCountData] = useState([]);
 
   const modes = ["points", "exercises", "submissions", "commits"];
-  const [selectedMode, setSelectedMode] = useState(modes[0]);
+  const [selectedMode, setSelectedMode] = useState(Object.keys(state.statusProps.props).includes(graphIndex.toString())
+    ? state.statusProps.props[graphIndex.toString()].mode
+    : modes[0]);
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [treshold, setTreshold] = useState(0.4);
   const [studentsBelowTreshold, setStudentsBelowTreshold] = useState(-99);
@@ -86,7 +90,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   const [sortConfig, setSortConfig] = useState(sortProps);
   const [studentRange, setStudentRange] = useState([1,0]);
   const [maxlength, setMaxlength] = useState(0)
-  const [courseID, setCourseID] = useState(Object.keys(state.statusProps.props).length > graphIndex
+  const [courseID, setCourseID] = useState(Object.keys(state.statusProps.props).includes(graphIndex.toString())
     ? state.statusProps.props[graphIndex.toString()].courseID 
     : parseInt(process.env.REACT_APP_COURSE_ID));
 
@@ -202,12 +206,12 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
 
   const handleModeSwitchClick = (newMode) => {
     setSelectedMode(newMode);
-
-    if (graphIndex === 0) {
-      dispatch({...state,
-        mode: newMode,
-      });
-    }
+    // if (graphIndex === 0) {
+    //   console.log(newMode)
+    //   dispatch({...state,
+    //     mode: newMode,
+    //   });
+    // }
 
     const newKeys = allKeys[newMode];
     setDataKeys(newKeys);
@@ -253,6 +257,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     const graphIndexStr = graphIndex.toString();
     dispatch({
       ...state,
+      mode: graphIndex === 0 ? mode : state.mode,
       statusProps: {
         ...state.statusProps,
         props: {
@@ -352,13 +357,13 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
 
   useEffect(() => {
     const graphIndexStr = graphIndex.toString();
-    if (Object.keys(state.statusProps.props).includes(graphIndexStr)) {
-      const graphProps = state.statusProps.props[graphIndexStr];
-      setCourseID(graphProps.courseID);
-      setSelectedMode(graphProps.mode);
-      setSelectedWeek(graphProps.week);
-    } 
-    else {
+    if (!Object.keys(state.statusProps.props).includes(graphIndexStr)) {
+    //   const graphProps = state.statusProps.props[graphIndexStr];
+    //   setSelectedMode(graphProps.mode);
+    //   setSelectedWeek(graphProps.week);
+    //   setCourseID(graphProps.courseID);
+    // } 
+    // else {
       const newGraphProps = {
         [graphIndexStr]: {
           courseID: courseID,
@@ -370,7 +375,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
         statusProps: {
           ...state.statusProps,
           props: Object.assign(state.statusProps.props, newGraphProps)}
-      })
+      });
     }
   },[]);
 
@@ -486,6 +491,8 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     }
   }, [sortProps, sameSortProps])
 
+  // console.log(selectedWeek, selectedMode)
+  console.log(state)
   return (
     // (graphIndex !== 0 && selectedCountData.length === 0 || selectedWeekData.length === 0)
     //   ? <Modal show={true} size="sm" centered >

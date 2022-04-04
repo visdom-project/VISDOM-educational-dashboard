@@ -1,10 +1,10 @@
 /* eslint-disable no-unreachable */
 import axios from "axios";
-import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+import { ElasticSearchConfiguration, AdapterConfiguration } from "../../../services/serviceConfiguration";
 
-const baseUrl = ElasticSearchConfiguration.createUrl("gitlab-course-30-aggregate-data/_search");
 const MAXPOINTS = [30, 100, 110, 95, 60, 90, 55, 70, 90, 40, 55, 120, 105, 30, 0];
 export const getAgregateData = (grade = 1) => {
+    const baseUrl = ElasticSearchConfiguration.createUrl("gitlab-course-30-aggregate-data/_search");
     const previousCourseData = axios.get(baseUrl, {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -23,4 +23,18 @@ export const getAgregateData = (grade = 1) => {
     });
 
     return previousCourseData;
+};
+
+export const getCourseIDs = () => {
+    const baseUrl = AdapterConfiguration.createUrl(`general/metadata?type=course`);
+    const courseIDs = axios.get(baseUrl, {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    }).then(response => {
+        const coursesData = response.data.results.map(course => course.data.course_id);
+        return coursesData
+    })
+    .catch(error => console.log(error))
+
+    return courseIDs
 };

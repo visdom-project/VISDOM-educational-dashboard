@@ -10,7 +10,9 @@ import {
 import { TwoThumbInputRange } from "react-two-thumb-input-range";
 import VisGraph from "./VisGraph";
 
+import { getAllStudentsIDs, getStudentData } from "../services/studentData";
 import { getAllStudentsData, fetchStudentData } from "../services/studentData";
+import { getCourseIDs } from "../services/courseData";
 import { getConfigurationsList, getConfiguration, createConfig, modifyConfig } from "../services/configurationStoring";
 import { useMessageDispatch, useMessageState } from "../../../contexts/messageContext";
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
@@ -103,6 +105,8 @@ const EKGTab = ({onlyRead=false}) => {
   const [configs, setConfigs] = useReferredState([init]);
   const [configName, setConfigName] = useReferredState("");
 
+  const [courseIDs, setCourseIDs] = useState([]);
+
   // handle course ID selection
   const handleCourseDataSelected = option => {
     if (option !== state.courseID) {
@@ -115,9 +119,14 @@ const EKGTab = ({onlyRead=false}) => {
   };
 
   useEffect(() => {
-    getAllStudentsData(state.courseID).then(list => setStudentList(list));
+    getCourseIDs().then(data => setCourseIDs(data));
+  }, [])
+
+  useEffect(() => {
+    getAllStudentsIDs(state.courseID).then(data => setStudentList(data));
+    // getAllStudentsData(state.courseID).then(list => setStudentList(list));
     getConfigurationsList().then(list => setConfigurationList(list)).catch(displayError);
-  }, [state.courseID]);
+  }, [state.courseID, courseIDs]);
 
   useEffect(() => {
     if (!currentConfiguration.length) {
@@ -173,19 +182,29 @@ const EKGTab = ({onlyRead=false}) => {
   useEffect(() => {
     if (onlyRead) {
       if (state.statusDialogProps.studentID.length !== 0 && state.statusDialogProps.mode) {
-        fetchStudentData(state.statusDialogProps.studentID, state.statusDialogProps.courseID, expectedGrade)
+        getStudentData(state.statusDialogProps.studentID, state.statusDialogProps.courseID, expectedGrade)
           .then(data => {
             setDisplayData(data);
             setMaxlength(data.length * 7);
         });
+        // fetchStudentData(state.statusDialogProps.studentID, state.statusDialogProps.courseID, expectedGrade)
+        //   .then(data => {
+        //     setDisplayData(data);
+        //     setMaxlength(data.length * 7);
+        // });
       }
     } else {
       if (state.instances.length && state.instances[0].length !== 0){
-        fetchStudentData(state.instances[0], state.courseID, expectedGrade)
+        getStudentData(state.instances[0], state.courseID, expectedGrade)
           .then(data => {
             setDisplayData(data);
             setMaxlength(data.length * 7);
         });
+        // fetchStudentData(state.instances[0], state.courseID, expectedGrade)
+        //   .then(data => {
+        //     setDisplayData(data);
+        //     setMaxlength(data.length * 7);
+        // });
       }
     }
   }, [state.instances, expectedGrade, state.courseID, state.statusDialogProps]);
@@ -195,7 +214,7 @@ const EKGTab = ({onlyRead=false}) => {
       <h2>EKG Visualization</h2>
         <DropdownMenu
           handleClick={handleCourseDataSelected}
-          options={onlyRead ? [state.statusDialogProps.courseID] : [40, 90, 117]}
+          options={onlyRead ? [state.statusDialogProps.courseID] : courseIDs}
           selectedOption={onlyRead ? state.statusDialogProps.courseID : state.courseID}
           title="Course ID: "
         />
