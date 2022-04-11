@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 const elasticsearchHost = process.env.REACT_APP_ELASTICSEARCH_HOST;
 const configurationHost = process.env.REACT_APP_CONFIG_HOST;
+const adapterHost = process.env.REACT_APP_ADAPTER_HOST;
 
 export const ElasticSearchConfiguration = {
   host: elasticsearchHost,
@@ -15,3 +16,11 @@ export const configConfiguration = {
     return configurationHost + "/" + url;
   },
 };
+
+export const AdapterConfiguration = {
+  host: adapterHost,
+  createUrl: function (url) {
+    return adapterHost + "/" + url;
+  },
+};
+

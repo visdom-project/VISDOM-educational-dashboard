@@ -1,8 +1,20 @@
 /* eslint-disable no-unreachable */
 import axios from "axios";
-import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+import { ElasticSearchConfiguration, } from "../../../services/serviceConfiguration";
 
 const baseUrl = ElasticSearchConfiguration.createUrl("gitlab-course-30-aggregate-data/_search");
+
+export const getCourseIds = async () => {
+    const adapterUrl = `${process.env.REACT_APP_ADAPTER_HOST}/general/metadata?type=course&data=course_id`
+    const courseIds = [] 
+    await axios.get(adapterUrl).then(response => response.data.results)
+    .then(data => {
+        data.forEach((course) => {
+            courseIds.push(course.data.course_id)
+        })
+    })
+    return courseIds;
+}
 
 export const getAgregateData = (grade = 1) => {
     const previousCourseData = axios.get(baseUrl, {
@@ -21,3 +33,4 @@ export const getAgregateData = (grade = 1) => {
 
     return previousCourseData;
 };
+
