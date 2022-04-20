@@ -185,6 +185,8 @@ const MultiChart = (props) => {
       });
     }
 
+    // console.log("countdata", countData)
+
     return (
       <div style={{ display: "flex", flexDirection: "column" }}>
         <ResponsiveContainer minWidth="800px" minHeight="500px">

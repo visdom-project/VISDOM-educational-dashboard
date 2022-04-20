@@ -3,7 +3,8 @@ import { Form} from "react-bootstrap";
 import { TwoThumbInputRange } from "react-two-thumb-input-range"
 import VisGraph from "./VisGraph";
 
-import { getAllStudentsData, fetchStudentData } from "../services/studentData";
+import { getCourseIDs } from "../services/courseData";
+import { fetchStudentData, getAllStudentsIDs, getStudentData } from "../services/studentData";
 import { useMessageDispatch, useMessageState } from "../../../contexts/messageContext";
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 
@@ -41,7 +42,7 @@ const EKGTab = () => {
     dispatch({
       ...state,
       instances: newInstances,
-    })
+    });
     return;
   }
   const setTimescale = (timescale) => dispatch({...state, timescale: timescale});
@@ -61,6 +62,8 @@ const EKGTab = () => {
   const [configs, setConfigs] = useState(selectableFields);
 
   const [maxlength, setMaxlength] = useState(0);
+  
+  const [courseIDs, setCourseIDs] = useState([]);
 
   // handle course ID selection
   const handleCourseDataSelected = option => {
@@ -74,8 +77,16 @@ const EKGTab = () => {
   };
 
   useEffect(() => {
-    getAllStudentsData(state.courseID).then(list => setStudentList(list));
-  }, [state.courseID]);
+    getCourseIDs().then(data => setCourseIDs(data));
+  }, [])
+
+  useEffect(() => {
+    getAllStudentsIDs(state.courseID).then(data => setStudentList(data));
+  }, [state.courseID, courseIDs]);
+
+  // useEffect(() => {
+  //   getAllStudentsData(state.courseID).then(list => setStudentList(list));
+  // }, [state.courseID]);
   
   useEffect(() => {
     if (!state.timescale) {
@@ -100,12 +111,17 @@ const EKGTab = () => {
 
   useEffect(() => {
     if (state.instances.length && state.instances[0].length){
-      fetchStudentData(state.instances[0], state.courseID)
+      // fetchStudentData(state.instances[0], state.courseID)
+      //   .then(data => {
+      //     setDisplayData(data);
+      //     setMaxlength(data.length * 7);
+      // });
+      getStudentData(state.instances[0], state.courseID)
         .then(data => {
           setDisplayData(data);
           setMaxlength(data.length * 7);
-      });
-    }
+        });
+    };
   }, [state.instances, state.courseID]);
 
   // useEffect(() => {
@@ -125,7 +141,7 @@ const EKGTab = () => {
       <h2>Radar Visualization</h2>
       <DropdownMenu
         handleClick={handleCourseDataSelected}
-        options={[40, 90, 117]}
+        options={courseIDs}
         selectedOption={state.courseID}
         title="Course ID: "
       />

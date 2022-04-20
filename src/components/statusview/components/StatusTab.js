@@ -16,6 +16,8 @@ import ConfigDialog from "./ConfigDialog";
 import DropdownMenu from "./DropdownMenu";
 import helpers from "../services/helpers";
 import { TwoThumbInputRange } from "react-two-thumb-input-range";
+import { getCourseIDs } from "../services/courseData";
+import { getStatusData } from "../services/statusGraphData";
 
 const InputRange = ({ values, maxlength, setStudentRange }) => {
   if (maxlength === 0) return null;
@@ -90,6 +92,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   const [sortConfig, setSortConfig] = useState(sortProps);
   const [studentRange, setStudentRange] = useState([1,0]);
   const [maxlength, setMaxlength] = useState(0)
+  const [courseIDs, setCourseIDs] = useState([]);
   const [courseID, setCourseID] = useState(Object.keys(state.statusProps.props).includes(graphIndex.toString())
     ? state.statusProps.props[graphIndex.toString()].courseID 
     : parseInt(process.env.REACT_APP_COURSE_ID));
@@ -291,21 +294,24 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     if (mode === "submissions") {
       if (submissions !== undefined && submissions[newWeek - 1] !== undefined) {
         newCountData = submissions[newWeek - 1].data;
-        setSelectedCountData(newCountData);
+        // setSelectedCountData(newCountData);
       }
     } else {
       if (commitData !== undefined && commitData.length > 1) {
-        const weekStr = newWeek.toString();
-        const key =
-          weekStr.length < 2
-            ? `0${weekStr}`
-            : weekStr !== "14"
-            ? weekStr
-            : "01-14";
-        newCountData = commitData.find(module => module.week === key) !== undefined
-          ? commitData.find(module => module.week === key).data
+        // const weekStr = newWeek.toString();
+        // const key =
+        //   weekStr.length < 2
+        //     ? `0${weekStr}`
+        //     : weekStr !== "14"
+        //     ? weekStr
+        //     : "01-14";
+        // console.log(newWeek)
+        // console.log(commitData)
+        newCountData = commitData.find(module => parseInt(module.week) === parseInt(newWeek)) !== undefined
+          ? commitData.find(module => parseInt(module.week) === parseInt(newWeek)).data
           : []
-        setSelectedCountData(newCountData);
+        // console.log(newCountData)
+        // setSelectedCountData(newCountData);
       }
     }
 
@@ -356,14 +362,12 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   };
 
   useEffect(() => {
+    getCourseIDs().then(data => setCourseIDs(data))
+  }, []);
+
+  useEffect(() => {
     const graphIndexStr = graphIndex.toString();
     if (!Object.keys(state.statusProps.props).includes(graphIndexStr)) {
-    //   const graphProps = state.statusProps.props[graphIndexStr];
-    //   setSelectedMode(graphProps.mode);
-    //   setSelectedWeek(graphProps.week);
-    //   setCourseID(graphProps.courseID);
-    // } 
-    // else {
       const newGraphProps = {
         [graphIndexStr]: {
           courseID: courseID,
@@ -380,11 +384,14 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   },[]);
 
   useEffect(() => {
+    if ((graphIndex === 0 && isNaN(state.courseID)) || (graphIndex !== 0 && isNaN(courseID))) return;
     const courseData = Object.keys(state.statusProps.props).length > graphIndex
     ? state.statusProps.props[graphIndex.toString()].courseID
     : courseID
     dataService.getData(graphIndex === 0 ? state.courseID : courseData).then(response => {
       const [pData, commons, submissions] = response;
+
+      console.log(response);
 
       // Fetch needed data:
       setProgressData(pData);
@@ -417,6 +424,8 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
             ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
             : []
           : [];
+
+      // console.log("selected", selected)
       setSelectedCountData(selected);
 
       updateTreshold(treshold, undefined, commits);
@@ -486,13 +495,23 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   }, [sortConfig, graphIndex === 0 ? state.courseID : courseID]) //eslint-disable-line
 
   useEffect(() => {
+    if ((graphIndex === 0 && isNaN(state.courseID)) || (graphIndex !== 0 && isNaN(courseID))) return;
+
+    getStatusData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
+      // console.log(res);
+      setSelectedCountData(res ? res.data : []);
+    });
+  }, [graphIndex === 0 ? state.courseID : courseID, selectedWeek, graphIndex === 0 ? state.mode : selectedMode])
+
+  useEffect(() => {
     if (JSON.stringify(sortConfig) !== JSON.stringify(sortProps)) {
       setSortConfig(sortProps);
     }
   }, [sortProps, sameSortProps])
 
   // console.log(selectedWeek, selectedMode)
-  console.log(state)
+  // console.log(state)
+  // console.log("selectedCountData", selectedCountData)
   return (
     // (graphIndex !== 0 && selectedCountData.length === 0 || selectedWeekData.length === 0)
     //   ? <Modal show={true} size="sm" centered >
@@ -504,7 +523,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
       <>
         <DropdownMenu
           handleClick={handleCourseDataSelected}
-          options={[40, 90, 117]}
+          options={courseIDs}
           selectedOption={graphIndex === 0 ? state.courseID : courseID}
           title="Course ID: "
         />

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 import axios from "axios";
+import { AdapterConfiguration } from "../../../services/serviceConfiguration";
 // import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 import { PROJECT_MAPPING, PROJECT_MAPPING_117, PROJECT_MAPPING_40 } from "./constant";
 
@@ -10,7 +11,6 @@ import { PROJECT_MAPPING, PROJECT_MAPPING_117, PROJECT_MAPPING_40 } from "./cons
 // const courseId = process.env.REACT_APP_COURSE_ID;
 // const courseId = 40;
 // const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}`
-
 const getWeeklyPoints = (modules, mapping) => {
   const weeklyPts = {};
   const weeklyMaxes = [];
@@ -180,8 +180,6 @@ const getData = courseID => {
       //     });
       //   }
       // });
-
-      // console.log("mapping", moduleMapping)
 
       const results = response.map(result => {
         if (!result) return {};
@@ -444,6 +442,7 @@ const formatProgressData = (pData) => {
   const [data, commonData] = calcCommonData(
     calcCumulativeScoresForStudents(pData)
   );
+  console.log(pData)
   // return [helpers.orderData(dataByWeeks(data)), commonData];
   return [dataByWeeks(data), commonData]
 };
@@ -493,6 +492,7 @@ const getCommitData = courseID => {
                 return sum + val;
               }, 0);
           });
+
           // Start with a data stucture with proper default values:
           const newCommits = Object.keys(project_map).map(moduleName => {
             return {
@@ -567,6 +567,7 @@ const getCommitData = courseID => {
           });
         });
       // return helpers.orderCountData(results);
+      // console.log(results)
       return results
     })
     .catch(() => [[], []]);

@@ -51,33 +51,8 @@ export const getStudentData = async (studentID, courseID, expectGrade = 1) => {
             id: singleExercisePoint.id,
             moduleID: singleExercisePoint.related_constructs.find(obj => obj.type === "module_points").id || "",
             submissions: singleExercisePoint.data.submission_count,
-        }
-    }));
-
-    const submissionIDs = studentData.related_events.filter(e => e.type === "submission");
-    const submissionDetails = await Promise.all(submissionIDs.map(async s => {
-        const submissionUrl = singleObjectQueryUrl(s.type, s.id);
-        const singleSubmission = await axios.get(submissionUrl, {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-        }).then(response => response.data);
-        const exID = singleSubmission.related_constructs.find(e => e.type === "exercise_points").id || "";
-        const moduleID = exercisePointsDetails.find(e => e.id === exID);
-        
-        const file = singleSubmission.related_constructs.find(e => e.type === "file");
-
-        if (!file) return {}
-
-        const fileUrl = singleObjectQueryUrl(file.type, file.id);
-        const singleFile = await axios.get(fileUrl, {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-        }).then(response => response.data);
-
-        return {
-            moduleID: moduleID ? moduleID.moduleID : "", 
-            commit: singleFile.related_events.filter(e => e.type === "commit").length,
-        }
+            commit: singleExercisePoint.data.commit_count,
+        };
     }));
 
     const moduleDataIDs = studentData.related_constructs.filter(construct => construct.type === "module_points");
@@ -111,7 +86,7 @@ export const getStudentData = async (studentID, courseID, expectGrade = 1) => {
                 maxPoints: parentModule.data.max_points,
                 pointsToPass: parentModule.data.points_to_pass,
 
-                commit: submissionDetails.filter(s => s.moduleID === module.id).map(s => s.commit).reduce((a,b) => a + b, 0),
+                commit: exercisePointsDetails.filter(s => s.moduleID === module.id).map(s => s.commit).reduce((a,b) => a + b, 0),
 
                 numberOfExercises: parentModule.data.exercises.length,
                 numberOfExercisesAttemped: exercisePointsDetails.filter(ex => ex.moduleID === module.id && ex.submissions > 0).length,

@@ -120,7 +120,7 @@ const EKGTab = ({onlyRead=false}) => {
 
   useEffect(() => {
     getCourseIDs().then(data => setCourseIDs(data));
-  }, [])
+  }, []);
 
   useEffect(() => {
     getAllStudentsIDs(state.courseID).then(data => setStudentList(data));
