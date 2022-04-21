@@ -430,14 +430,14 @@ const CumulativeTab = () => {
   return (
     <div className="chart" style={{ paddingTop: "30px" }}>
       <h1>Cumulative Visualization</h1>
-      {selectedCourseId && 
+      
       <DropdownMenu
         handleClick={handleCourseDataSelected}
         options={courseIds}
         selectedOption={selectedCourseId}
         title="Course ID: "
       />
-    }
+    
       <h2>{`Weekly ${state.mode}`}</h2>
       
       <ConfigDialog

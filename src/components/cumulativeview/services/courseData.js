@@ -6,6 +6,7 @@ const baseUrl = ElasticSearchConfiguration.createUrl("gitlab-course-30-aggregate
 
 export const getCourseIds = async () => {
     const adapterUrl = `${process.env.REACT_APP_ADAPTER_HOST}/general/metadata?type=course&data=course_id`
+    // const adapterUrl = `${process.env.REACT_APP_ADAPTER_HOST}/metadata?type=course&data=course_id`
     const courseIds = [] 
     await axios.get(adapterUrl).then(response => response.data.results)
     .then(data => {
