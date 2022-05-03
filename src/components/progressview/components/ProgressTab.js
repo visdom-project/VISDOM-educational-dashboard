@@ -207,7 +207,7 @@ const ProgressTab = () => {
     // });
 
      // fetch whole data at once new code
-    fetchStudentsDataNewAdp(40).then(data => {
+    fetchStudentsDataNewAdp(selectedCourseId).then(data => {
       setStudentsData(data);
       setStudentIds(Object.keys(data));
       setDisplayedStudents(Object.keys(data));

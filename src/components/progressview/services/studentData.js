@@ -179,7 +179,6 @@ export const fetchStudentsDataNewAdp = async (courseID) => {
                     Accept: "application/json",
                     "Content-Type": "application/json",
                 }).then(response => {
-                    console.log(response.data.results)
                     return response.data.results
                 })
                 .catch(error => console.log(error))
