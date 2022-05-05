@@ -41,7 +41,7 @@ const MultiStatusChartContainer = () => {
       }
     });
   };
-  
+
 
   useEffect(() => {
     if (graphNum === 1) {
@@ -53,6 +53,7 @@ const MultiStatusChartContainer = () => {
         }
       });
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graphNum])
 
   return (
@@ -83,10 +84,10 @@ const MultiStatusChartContainer = () => {
       {Array(graphNum)
         .fill(0)
         .map((_, item) => <div className="status-chart" key={`status-chart-${item}-container`} style={{ width: state.statusProps.displayMode === "list" ? "95%" : "50%" }}>
-          <StatusTab 
+          <StatusTab
             key={`status-chart-${item}`}
             graphIndex={item}
-            sortProps={sortProps} 
+            sortProps={sortProps}
             setSortProps={setSortProps}
             sameSortProps={sameSortProps}
           />

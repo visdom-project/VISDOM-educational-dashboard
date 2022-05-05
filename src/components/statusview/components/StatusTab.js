@@ -35,12 +35,12 @@ const InputRange = ({ values, maxlength, setStudentRange }) => {
           style={{ marginBottom: "20px" }}
         />
       </div>
-      <div 
+      <div
         className="student-range-selector"
         style={{ paddingLeft: "43%" }}
       >
-        <input 
-          type="number" 
+        <input
+          type="number"
           min="1"
           max={values[1]}
           value={values[0]}
@@ -94,7 +94,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   const [maxlength, setMaxlength] = useState(0)
   const [courseIDs, setCourseIDs] = useState([]);
   const [courseID, setCourseID] = useState(Object.keys(state.statusProps.props).includes(graphIndex.toString())
-    ? state.statusProps.props[graphIndex.toString()].courseID 
+    ? state.statusProps.props[graphIndex.toString()].courseID
     : parseInt(process.env.REACT_APP_COURSE_ID));
 
   const allKeys = {
@@ -177,7 +177,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
           instances: [],
           courseID: option
         });
-      } 
+      }
     } else {
       if (option !== courseID) {
         setCourseID(option);
@@ -194,7 +194,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
           // mode: selectedMode,
           instances: instances,
         });
-      } 
+      }
       dispatch({
         ...state,
         statusDialogProps: {
@@ -381,6 +381,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
           props: Object.assign(state.statusProps.props, newGraphProps)}
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
 
   useEffect(() => {
@@ -401,15 +402,15 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
 
       // Set initial UI state:
       handleWeekSwitch(
-        Object.keys(state.statusProps.props).length 
-          ? state.statusProps.props[graphIndex.toString()].week 
-          : selectedWeek, 
-        pData, 
-        commons, 
-        undefined, 
+        Object.keys(state.statusProps.props).length
+          ? state.statusProps.props[graphIndex.toString()].week
+          : selectedWeek,
+        pData,
+        commons,
+        undefined,
         submissions,
-        Object.keys(state.statusProps.props).length 
-          ? state.statusProps.props[graphIndex.toString()].mode 
+        Object.keys(state.statusProps.props).length
+          ? state.statusProps.props[graphIndex.toString()].mode
           : selectedMode);
     });
 
@@ -501,12 +502,14 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
       // console.log(res);
       setSelectedCountData(res ? res.data : []);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graphIndex === 0 ? state.courseID : courseID, selectedWeek, graphIndex === 0 ? state.mode : selectedMode])
 
   useEffect(() => {
     if (JSON.stringify(sortConfig) !== JSON.stringify(sortProps)) {
       setSortConfig(sortProps);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortProps, sameSortProps])
 
   // console.log(selectedWeek, selectedMode)
@@ -519,7 +522,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     //       <Spinner animation="border" />
     //     </Modal.Body>
     //   </Modal>
-    //   : 
+    //   :
       <>
         <DropdownMenu
           handleClick={handleCourseDataSelected}

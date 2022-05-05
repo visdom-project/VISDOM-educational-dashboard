@@ -24,11 +24,12 @@ const GroupOfVisualizations = ({ views, viewkey }) => {
     if (viewkey.length > 0) {
       updateVisualizations(views)
     }
-  }, [viewkey]) 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewkey])
 
   return (
     <>
-    <Form 
+    <Form
       id="drap-drop-mode-switch"
       style={{ backgroundColor: dragMode ? "#d8f3dc" : "#e9ecef" }}
     >

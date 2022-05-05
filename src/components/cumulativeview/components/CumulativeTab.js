@@ -14,12 +14,12 @@ import DropdownMenu from "./DropdownMenu";
 import CheckBoxMenu from "./CheckBoxMenu";
 import ConfigDialog from "./ConfigDialog";
 import GroupDisplay from "./GroupDisplay.js";
-import StudentSelector from "./StudentSelector";
+// import StudentSelector from "./StudentSelector";
 
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
-import { 
-  // getAllStudentsData, 
-  // fetchStudentData, 
+import {
+  // getAllStudentsData,
+  // fetchStudentData,
   fetchStudentsData } from "../services/studentData";
 import { getAgregateData } from "../services/courseData";
 
@@ -160,7 +160,7 @@ const CumulativeTab = () => {
   useEffect(() => {
     if (!state.timescale) {
       if (maxlength !== 0) {
-        setTimescale({
+    setTimescale({
           start: 0,
           end: maxlength - 1,
         });
@@ -169,14 +169,14 @@ const CumulativeTab = () => {
     }
 
     if (state.timescale.end > maxlength - 1 && maxlength - 1 > 0){
-      setTimescale({
+    setTimescale({
         ...state.timescale,
         end: maxlength - 1,
       });
-      return;      
+      return;
     }
     // setLineChartShouldUpdate(linechartShouldUpdate+1);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.timescale, maxlength]);
 
   useEffect(() => {
@@ -200,11 +200,12 @@ const CumulativeTab = () => {
       }
       catch (err){
         // Do nothing
-      }         
+      }
     });
     Promise.all( grades.map(grade => getAgregateData(grade)) ).then(expectValues => setCourseData(expectValues));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.courseID]);
-  
+
 
 
   const showableLines = ["Average", "Expected"];
@@ -212,8 +213,9 @@ const CumulativeTab = () => {
     Average: true,
     Expected: true,
   });
-  
-  const [displayedCumulativeData, setDisplayedCumulativeData] = useState([
+
+    // eslint-disable-next-line no-unused-vars
+    const [displayedCumulativeData, setDisplayedCumulativeData] = useState([
     { name: "init" },
   ]);
   // hard coding const without metadata
@@ -254,7 +256,7 @@ const CumulativeTab = () => {
       return;
     }
     //average goes here ...
-    
+
     const avgData = {
       [avgDataKey]: getAverageData(studentsData, state.mode),
     };
@@ -270,7 +272,8 @@ const CumulativeTab = () => {
     });
 
     setDisplayedData(newData);
-  }, 
+  },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   [state.mode, studentIds, studentsData, courseData]
   );
 
@@ -294,6 +297,7 @@ const CumulativeTab = () => {
   };
 
   // Toggle selection of a student that is clicked in the student list:
+  // eslint-disable-next-line no-unused-vars
   const handleListClick = (id) => {
     const targetNode = document.querySelector(`#li-${id}`);
 
@@ -402,7 +406,7 @@ const CumulativeTab = () => {
         title="Course ID: "
       />
       <h2>{`Weekly ${state.mode}`}</h2>
-      
+
       <ConfigDialog
         title={{
           button: "Show view configuration",
@@ -507,7 +511,7 @@ const CumulativeTab = () => {
               const newTimescale = {
                 start: e.startIndex * 7,
                 end: (e.endIndex + 1) * 7 - 1,
-              }             
+              }
 
               if (state.timescale.start !== newTimescale.start ||
                 state.timescale.end !== newTimescale.end) {

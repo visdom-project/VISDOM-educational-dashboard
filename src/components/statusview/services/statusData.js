@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 import axios from "axios";
-import { AdapterConfiguration } from "../../../services/serviceConfiguration";
+// import { AdapterConfiguration } from "../../../services/serviceConfiguration";
 // import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 import { PROJECT_MAPPING, PROJECT_MAPPING_117, PROJECT_MAPPING_40 } from "./constant";
 
@@ -189,7 +189,9 @@ const getData = courseID => {
             weeklyMaxes,
             weeklyExercises,
             weeklyExerciseMaxes,
+            // eslint-disable-next-line no-unused-vars
             weeklySubmissions,
+            // eslint-disable-next-line no-unused-vars
             weeklyPassed,
           ] = getWeeklyPoints(result.points.modules, moduleMapping);
           const formattedResult = {
@@ -208,6 +210,7 @@ const getData = courseID => {
           };
           return formattedResult;
         }
+        return {};
       });
 
       const submissionData = response.map(result => {
@@ -215,8 +218,11 @@ const getData = courseID => {
         if (!result.username.includes("redacted")) {
           const [
             weeklies,
+            // eslint-disable-next-line no-unused-vars
             weeklyMaxes,
+            // eslint-disable-next-line no-unused-vars
             weeklyExercises,
+            // eslint-disable-next-line no-unused-vars
             weeklyExerciseMaxes,
             weeklySubmissions,
             weeklyPassed,
@@ -235,6 +241,7 @@ const getData = courseID => {
           };
           return formattedData;
         }
+        return {};
       });
 
       const [progress, commons] = formatProgressData(results);

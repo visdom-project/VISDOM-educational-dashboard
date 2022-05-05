@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+// import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 import { getAgregateData } from "./courseData";
 
 // TODO: fix base URL and courseId, parameter in request
@@ -46,7 +46,7 @@ export const fetchStudentData = async (studentId, courseID, expectGrade = 1) => 
             }
     });
     const expectedValues = await getAgregateData(expectGrade);
-    
+
 
     // metadata has 15 weeks but students have 16 weeks;
     studentData.points.modules.splice(15, 1);
@@ -108,7 +108,7 @@ export const fetchStudentsData = async (courseID) => {
             catch (err) {
             }
         });
-    
+
         // metadata has 15 weeks but students have 16 weeks;
         //TODO: change this when change to new course data / maybe its okay to set max = 15
         studentData.points.modules.splice(15, 1);
@@ -118,30 +118,30 @@ export const fetchStudentsData = async (courseID) => {
             index: index,
             name: module.name,
             passed: module.passed, // true/false
-    
+
             pointsToPass: module.points_to_pass,
             maxPoints: module.max_points,
-    
+
             notPassedPoints: module.max_points - module.points,
-    
+
             submission: module.submission_count,
-    
+
             commit: commits[index] === undefined ? 0 : commits[index],
-    
+
             points: module.points,
-    
+
             numberOfExercises: module.exercises.length,
             //new
             numberOfExercisesAttemped: module.exercises.reduce((attempt, exercise ) => exercise.points === 0 ? attempt : attempt +1, 0),
-    
+
             pointRatio: module.max_points === 0 ? 1 : module.points/module.max_points,
-    
+
             notPassedRatio: module.max_points === 0 ? 0 : 1 - module.points/module.max_points,
         }));
     }));
 
     // cumulative Data:
-    
+
     Object.values(studentsData).forEach(student => {
         student.forEach((week, index) => {
             if (index === 0) {

@@ -21,7 +21,7 @@ import axios from 'axios'
 //       ))
 //     ))
 //     .catch(someErrors => console.log(someErrors))
-  
+
 //   return request;
 // }
 
@@ -62,4 +62,5 @@ const getStudentInfo = async (studentID, courseID) => {
   }
 };
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default { getAllStudentData, getStudentInfo }

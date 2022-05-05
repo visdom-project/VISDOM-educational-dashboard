@@ -4,7 +4,7 @@ import { TwoThumbInputRange } from "react-two-thumb-input-range"
 import VisGraph from "./VisGraph";
 
 import { getCourseIDs } from "../services/courseData";
-import { fetchStudentData, getAllStudentsIDs, getStudentData } from "../services/studentData";
+import { getAllStudentsIDs, getStudentData } from "../services/studentData";
 import { useMessageDispatch, useMessageState } from "../../../contexts/messageContext";
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 
@@ -62,7 +62,7 @@ const EKGTab = () => {
   const [configs, setConfigs] = useState(selectableFields);
 
   const [maxlength, setMaxlength] = useState(0);
-  
+
   const [courseIDs, setCourseIDs] = useState([]);
 
   // handle course ID selection
@@ -87,7 +87,7 @@ const EKGTab = () => {
   // useEffect(() => {
   //   getAllStudentsData(state.courseID).then(list => setStudentList(list));
   // }, [state.courseID]);
-  
+
   useEffect(() => {
     if (!state.timescale) {
       if (maxlength !== 0) {
@@ -104,7 +104,7 @@ const EKGTab = () => {
         ...state.timescale,
         end: maxlength - 1,
       });
-      return;      
+      return;
     }
     setDisplayedWeek([Math.floor(state.timescale.start / 7) + 1, Math.ceil(state.timescale.end / 7)]);
   }, [state.timescale, maxlength]); //eslint-disable-line
@@ -172,8 +172,8 @@ const EKGTab = () => {
           state.instances[0] && maxlength !== 0 &&
           <>
             <div>
-              <VisGraph 
-                data={displayData} 
+              <VisGraph
+                data={displayData}
                 displayedWeek={displayedWeek}
                 configs={configs}
               />

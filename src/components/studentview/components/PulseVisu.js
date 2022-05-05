@@ -38,6 +38,7 @@ export const StudentList = ({ setStudentID, studentID, courseID }) => {
         setStudentData(res)
       })
       .catch((err) => console.log(err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -184,12 +185,12 @@ const PulseVisu = () => {
         selectedOption={state.courseID}
         title="Course ID: "
       />
-      <StudentList 
-        studentID={state.instances[0] || ""} 
+      <StudentList
+        studentID={state.instances[0] || ""}
         setStudentID={setStudentInstance}
         courseID={state.courseID}
       />
-      {state.instances.length > 0 && data && 
+      {state.instances.length > 0 && data &&
       <>
         <ResponsiveContainer minWidth="300px" minHeight="700px">
           <BarChart

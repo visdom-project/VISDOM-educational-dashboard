@@ -4,11 +4,11 @@ import { Button, Modal } from "react-bootstrap";
 
 const ConfigDialog = ({ title, children, openDialog, setOpenDialog }) => {
   const [open, setOpen] = useState(false);
-  const handleClickOpen = () =>
-  {
-    setOpen(true);
-    setOpenDialog(true);
-  };
+  // const handleClickOpen = () =>
+  // {
+  //   setOpen(true);
+  //   setOpenDialog(true);
+  // };
 
   const handleClose = () => {
     setOpen(false);
