@@ -19,8 +19,8 @@ build_image:
         CONFIGURATION_HOST: $(CONFIGURATION_HOST)
     extends:
         - .docker_registry
-    only:
-        - master
+    # only:
+    #     - master
     script:
         - docker pull $DOCKER_REGISTRY_IMAGE:latest || true
         - docker build
@@ -28,7 +28,7 @@ build_image:
           --cache-from $DOCKER_REGISTRY_IMAGE:latest
           --tag $DOCKER_REGISTRY_IMAGE:latest
           .
-        - docker push $DOCKER_REGISTRY_IMAGE:latest
+        # - docker push $DOCKER_REGISTRY_IMAGE:latest
 
 deploy_latest:
     stage: Deploy
