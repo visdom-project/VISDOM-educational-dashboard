@@ -26,7 +26,7 @@ export const getAgregateData = (grade = 1) => {
 };
 
 export const getCourseIDs = () => {
-    const baseUrl = AdapterConfiguration.createUrl(`general/metadata?type=course`);
+    const baseUrl = AdapterConfiguration.createUrl(`general/metadata?type=course&data=course_id&links=none`);
     const courseIDs = axios.get(baseUrl, {
         Accept: "application/json",
         "Content-Type": "application/json",

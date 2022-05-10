@@ -21,3 +21,17 @@ export const getAgregateData = (grade = 1) => {
 
     return previousCourseData;
 };
+
+
+export const getCourseIds = async () => {
+    const adapterUrl = `${process.env.REACT_APP_ADAPTER_HOST}/general/metadata?type=course&data=course_id`
+    // const adapterUrl = `${process.env.REACT_APP_ADAPTER_HOST}/metadata?type=course&data=course_id`
+    const courseIds = [] 
+    await axios.get(adapterUrl).then(response => response.data.results)
+    .then(data => {
+        data.forEach((course) => {
+            courseIds.push(course.data.course_id)
+        })
+    })
+    return courseIds;
+}

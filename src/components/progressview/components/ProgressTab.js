@@ -20,8 +20,8 @@ import StudentSelector from "./StudentSelector";
 import { 
   // getAllStudentsData, 
   // fetchStudentData, 
-  fetchStudentsData } from "../services/studentData";
-import { getAgregateData } from "../services/courseData";
+  fetchStudentsData, fetchStudentsDataNewAdp } from "../services/studentData";
+import { getAgregateData, getCourseIds } from "../services/courseData";
 
 import {
   useMessageState,
@@ -138,6 +138,8 @@ const ProgressTab = () => {
   // const [client, setClient] = useState(null);
 
   const [studentIds, setStudentIds] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState();
+  const [courseIds, setCourseIds] = useState([]);
   const [studentsData, setStudentsData] = useState({});
   const [courseData, setCourseData] = useState([]);
   const [maxlength, setMaxlength] = useState(0);
@@ -188,11 +190,28 @@ const ProgressTab = () => {
       // const studentDataPromise = Promise.all(studentsDtataList).then(data => data.map( (studentData,index) => studentDataObj[list[index]]= studentData))
       // .then(() => setStudentsData(studentDataObj));
     // });
-    // fetch whole data at once
-    fetchStudentsData(state.courseID).then(data => {
+    // fetch whole data at once old code
+    // fetchStudentsData(state.courseID).then(data => {
+    //   setStudentsData(data);
+    //   setStudentIds(Object.keys(data));
+    //   setDisplayedStudents(Object.keys(data));
+
+
+    //   // setup timescale
+    //   try {
+    //     setMaxlength((Object.values(data)[0].length) * 7);
+    //   }
+    //   catch (err){
+    //     // Do nothing
+    //   }         
+    // });
+
+     // fetch whole data at once new code
+    fetchStudentsDataNewAdp(selectedCourseId).then(data => {
       setStudentsData(data);
       setStudentIds(Object.keys(data));
       setDisplayedStudents(Object.keys(data));
+
 
       // setup timescale
       try {
@@ -326,6 +345,20 @@ const ProgressTab = () => {
     setSelectedMode(newMode);
   };
 
+  useEffect(() => {
+    const fetchCourseIds = async () => {
+      const courseIdsList = await getCourseIds()
+      setCourseIds(courseIdsList)
+    };
+    fetchCourseIds()
+  },[])
+
+  useEffect(() => {
+    if (courseIds.length > 0) {
+      setSelectedCourseId(courseIds[0])
+    }
+  },[courseIds])
+
   const handleToggleStudentGroupClick = (groupIdentifier, groupState) => {
     if (groupIdentifier === "all") {
       setDisplayedStudents(groupState ? studentIds : []);
@@ -398,8 +431,8 @@ const ProgressTab = () => {
       <h1>Progress Visualization</h1>
       <DropdownMenu
         handleClick={handleCourseDataSelected}
-        options={[40, 90, 117]}
-        selectedOption={state.courseID}
+        options={courseIds}
+        selectedOption={selectedCourseId}
         title="Course ID: "
       />
       <h2>{`Weekly ${state.mode}`}</h2>
