@@ -17,7 +17,7 @@ import DropdownMenu from "./DropdownMenu";
 import helpers from "../services/helpers";
 import { TwoThumbInputRange } from "react-two-thumb-input-range";
 import { getCourseIDs } from "../services/courseData";
-import { getStatusData } from "../services/statusGraphData";
+import { getExerciseData, getStatusData, getStatusDataNew } from "../services/statusGraphData";
 
 const InputRange = ({ values, maxlength, setStudentRange }) => {
   if (maxlength === 0) return null;
@@ -88,6 +88,8 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [treshold, setTreshold] = useState(0.4);
   const [studentsBelowTreshold, setStudentsBelowTreshold] = useState(-99);
+  const [pointExerciseData, setPointExerciseData] = useState([]);
+  const [commitSubmissionData, setCommitSubmissionData] = useState([]);
 
   const [sortConfig, setSortConfig] = useState(sortProps);
   const [studentRange, setStudentRange] = useState([1,0]);
@@ -229,7 +231,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     );
   };
 
-  const handleWeekSwitch = (
+  const handleWeekSwitch = async(
     newWeek,
     data,
     commons,
@@ -274,50 +276,58 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
       }
     });
 
-    if (
-      ["exercises", "points"].includes(mode) &&
-      data[newWeek - 1] !== undefined &&
-      data[newWeek - 1]["data"] !== undefined
-    ) {
-      setMax(data[newWeek - 1]["data"][0][keys.max]);
-      setSelectedWeekData(data[newWeek - 1].data);
-
+    if(data.length > 0) {
+      setMax(data[0][keys.max]);
+      setSelectedWeekData(data);
       setcommonDataToDisplay({
-        avg: commons[keys.cumulativeAvgs][newWeek - 1],
-        mid: commons[keys.cumulativeMidExpected][newWeek - 1],
-        min: commons[keys.cumulativeMinExpected][newWeek - 1],
+          // avg: commons[keys.cumulativeAvgs][newWeek - 1],
+          mid: commons[keys.cumulativeMidExpected],
+          min: commons[keys.cumulativeMinExpected],
       });
     }
+    // OLD ADAPTER KEY
+    // if (
+    //   ["exercises", "points"].includes(mode) &&
+    //   data[newWeek - 1] !== undefined &&
+    //   data[newWeek - 1]["data"] !== undefined
+    // ) {
+      
+     
+    //   setMax(data[newWeek - 1]["data"][0][keys.max]);
+    //   setSelectedWeekData(data[newWeek - 1].data);
+     
+   
+    // }
 
-    let newCountData = undefined;
+    // let newCountData = undefined;
 
-    if (mode === "submissions") {
-      if (submissions !== undefined && submissions[newWeek - 1] !== undefined) {
-        newCountData = submissions[newWeek - 1].data;
-        // setSelectedCountData(newCountData);
-      }
-    } else {
-      if (commitData !== undefined && commitData.length > 1) {
-        // const weekStr = newWeek.toString();
-        // const key =
-        //   weekStr.length < 2
-        //     ? `0${weekStr}`
-        //     : weekStr !== "14"
-        //     ? weekStr
-        //     : "01-14";
-        // console.log(newWeek)
-        // console.log(commitData)
-        newCountData = commitData.find(module => parseInt(module.week) === parseInt(newWeek)) !== undefined
-          ? commitData.find(module => parseInt(module.week) === parseInt(newWeek)).data
-          : []
-        // console.log(newCountData)
-        // setSelectedCountData(newCountData);
-      }
-    }
+    // if (mode === "submissions") {
+    //   if (submissions !== undefined && submissions[newWeek - 1] !== undefined) {
+    //     newCountData = submissions[newWeek - 1].data;
+    //     // setSelectedCountData(newCountData);
+    //   }
+    // } else {
+    //   if (commitData !== undefined && commitData.length > 1) {
+    //     // const weekStr = newWeek.toString();
+    //     // const key =
+    //     //   weekStr.length < 2
+    //     //     ? `0${weekStr}`
+    //     //     : weekStr !== "14"
+    //     //     ? weekStr
+    //     //     : "01-14";
+    //     // console.log(newWeek)
+    //     // console.log(commitData)
+    //     newCountData = commitData.find(module => parseInt(module.week) === parseInt(newWeek)) !== undefined
+    //       ? commitData.find(module => parseInt(module.week) === parseInt(newWeek)).data
+    //       : []
+    //     // console.log(newCountData)
+    //     // setSelectedCountData(newCountData);
+    //   }
+    // }
 
-    if (newCountData !== undefined && data[newWeek - 1] !== undefined) {
-      updateTreshold(treshold, data[newWeek - 1].data, newCountData);
-    }
+    // if (newCountData !== undefined && data[newWeek - 1] !== undefined) {
+    //   updateTreshold(treshold, data[newWeek - 1].data, newCountData);
+    // }
   };
 
   const handleToggleRefLineVisibilityClick = (targetLine) => {
@@ -383,59 +393,80 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     }
   },[]);
 
-  useEffect(() => {
-    if ((graphIndex === 0 && isNaN(state.courseID)) || (graphIndex !== 0 && isNaN(courseID))) return;
-    const courseData = Object.keys(state.statusProps.props).length > graphIndex
-    ? state.statusProps.props[graphIndex.toString()].courseID
-    : courseID
-    dataService.getData(graphIndex === 0 ? state.courseID : courseData).then(response => {
-      const [pData, commons, submissions] = response;
+  // OLD ADAPTER CODE
+  // useEffect(() => {
+  //   if ((graphIndex === 0 && isNaN(state.courseID)) || (graphIndex !== 0 && isNaN(courseID))) return;
+  //   const courseData = Object.keys(state.statusProps.props).length > graphIndex
+  //   ? state.statusProps.props[graphIndex.toString()].courseID
+  //   : courseID
+  //   dataService.getData(graphIndex === 0 ? state.courseID : courseData).then(response => {
+  //     const [pData, commons, submissions] = response;
+      
+  //     setProgressData(pData);
+  //     setCommonData(commons);
+     
+  //     setSubmissionData(submissions);
+  //     setWeeks(pData.map(week => week.week));
 
-      console.log(response);
+  //     // Set initial UI state:
+  //     handleWeekSwitch(
+  //       Object.keys(state.statusProps.props).length 
+  //         ? state.statusProps.props[graphIndex.toString()].week 
+  //         : selectedWeek, 
+  //       pData, 
+  //       commons, 
+  //       undefined, 
+  //       submissions,
+  //       Object.keys(state.statusProps.props).length 
+  //         ? state.statusProps.props[graphIndex.toString()].mode 
+  //         : selectedMode);
+  //   });
 
-      // Fetch needed data:
-      setProgressData(pData);
-      setCommonData(commons);
-      setSubmissionData(submissions);
-      setWeeks(pData.map(week => week.week));
+  //   getStatusData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
+  //     const commits = res ? res.data : [];
+  //     setCommitData(commits);
+  //     // Select count data from correct week:
+  //     const selected =
+  //       commits !== undefined && commits.length > 0
+  //         ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)) !== undefined
+  //           ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
+  //           : []
+  //         : [];
 
-      // Set initial UI state:
-      handleWeekSwitch(
-        Object.keys(state.statusProps.props).length 
-          ? state.statusProps.props[graphIndex.toString()].week 
-          : selectedWeek, 
-        pData, 
-        commons, 
-        undefined, 
-        submissions,
-        Object.keys(state.statusProps.props).length 
-          ? state.statusProps.props[graphIndex.toString()].mode 
-          : selectedMode);
-    });
+  //     // console.log("selected", selected)
+  //     setSelectedCountData(selected);
 
-    dataService.getCommitData(graphIndex === 0 ? state.courseID : courseData).then((response) => {
-      const commits = response;
+  //     updateTreshold(treshold, undefined, commits);
 
-      setCommitData(commits);
-      // Select count data from correct week:
-      const selected =
-        commits !== undefined && commits.length > 0
-          ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)) !== undefined
-            ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
-            : []
-          : [];
+  //     if (commits !== undefined && commits.length > 0 && commits[0].data) {
+  //       setStudentRange([1, commits[0].data.length]);
+  //       setMaxlength(commits[0].data.length);
+  //     } 
+  //   });
 
-      // console.log("selected", selected)
-      setSelectedCountData(selected);
+  //   dataService.getCommitData(graphIndex === 0 ? state.courseID : courseData).then((response) => {
+  //     const commits = response;
+     
+  //     setCommitData(commits);
+  //     // Select count data from correct week:
+  //     const selected =
+  //       commits !== undefined && commits.length > 0
+  //         ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)) !== undefined
+  //           ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
+  //           : []
+  //         : [];
 
-      updateTreshold(treshold, undefined, commits);
+  //     setSelectedCountData(selected);
 
-      if (commits !== undefined && commits.length > 0 && commits[0].data) {
-        setStudentRange([1, commits[0].data.length]);
-        setMaxlength(commits[0].data.length);
-      }
-    });
-  }, [graphIndex === 0 ? state.courseID : courseID]); //eslint-disable-line
+  //     updateTreshold(treshold, undefined, commits);
+
+  //     if (commits !== undefined && commits.length > 0 && commits[0].data) {
+  //       setStudentRange([1, commits[0].data.length]);
+  //       setMaxlength(commits[0].data.length);
+  //     }
+  //   });
+
+  // }, [graphIndex === 0 ? state.courseID : courseID, selectedWeek]); //eslint-disable-line
 
   // useEffect(() => {
   //   MQTTConnect(dispatch).then((newClient) => setClient(newClient));
@@ -457,49 +488,76 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   //   setSelectedStudent(currentIntance);
   // }, [state.instances]);
 
+
   useEffect(() => {
     if (sameSortProps) {
       setSortProps(sortConfig)
     }
-    if (progressData && submissionData && commitData){
-      if (progressData.length && submissionData.length && commitData.length) {
-        const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
-        setProgressData(result.sortedProgress);
-        setCommitData(result.sortedCommit);
-        setSubmissionData(result.sortedSubmission);
-
-        const key = selectedMode === "commits"
-          ? selectedWeek.toString().length < 2
-            ? `0${selectedWeek}`
-            : selectedWeek.toString()
-          : selectedWeek.toString();
-
-        if (selectedMode === "commits") {
-          const selected = result.sortedCommit !== undefined && result.sortedCommit.length > 0
-              ? result.sortedCommit.find(module => module.week === key).data
-              : [];
-          setSelectedCountData(selected);
-        } else if (selectedMode === "submissions") {
-          const selected = result.sortedSubmission !== undefined && result.sortedSubmission.length > 0
-            ? result.sortedSubmission.find(module => module.week === key).data
-            : [];
-          setSelectedCountData(selected);
-        } else {
-          const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
-            ? result.sortedProgress.find(module => module.week === key).data
-            : [];
-          setSelectedWeekData(selected)
-        }
+    if(selectedMode === "commits" || selectedMode === "submissions" ){
+      if(commitSubmissionData && commitSubmissionData.length > 0){
+        helpers.moduleDataSorting(commitSubmissionData, sortConfig);
+      }
+    }else{
+      if(pointExerciseData && pointExerciseData.length > 0){
+        helpers.moduleDataSorting(pointExerciseData, sortConfig);
       }
     }
+    // if (progressData && submissionData && commitData){
+    //   if (progressData.length && submissionData.length && commitData.length) {
+        
+    //     const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
+    //     setProgressData(result.sortedProgress);
+    //     setCommitData(result.sortedCommit);
+    //     setSubmissionData(result.sortedSubmission);
+
+    //     const key = selectedMode === "commits"
+    //       ? selectedWeek.toString().length < 2
+    //         ? `0${selectedWeek}`
+    //         : selectedWeek.toString()
+    //       : selectedWeek.toString();
+
+    //     if (selectedMode === "commits") {
+    //       const selected = result.sortedCommit !== undefined && result.sortedCommit.length > 0
+    //           ? result.sortedCommit.find(module => module.week === key).data
+    //           : [];
+    //       setSelectedCountData(selected);
+    //     } else if (selectedMode === "submissions") {
+    //       const selected = result.sortedSubmission !== undefined && result.sortedSubmission.length > 0
+    //         ? result.sortedSubmission.find(module => module.week === key).data
+    //         : [];
+    //       setSelectedCountData(selected);
+    //     } else {
+    //       const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
+    //         ? result.sortedProgress.find(module => module.week === key).data
+    //         : [];
+          
+    //       setSelectedWeekData(selected)
+    //     }
+    //   }
+    // }
   }, [sortConfig, graphIndex === 0 ? state.courseID : courseID]) //eslint-disable-line
 
   useEffect(() => {
     if ((graphIndex === 0 && isNaN(state.courseID)) || (graphIndex !== 0 && isNaN(courseID))) return;
 
-    getStatusData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
-      // console.log(res);
-      setSelectedCountData(res ? res.data : []);
+    // getStatusData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
+    //   setSelectedCountData(res ? res.data : []);
+    //   updateTreshold(treshold, undefined, res.data);
+
+    //     if (res && res.data.length > 0){
+    //       setStudentRange([1, res.data.length]);
+    //       setMaxlength(res.data.length);
+    //     }
+    // });
+    getStatusDataNew(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
+      setSelectedCountData(res ? res : []);
+      setCommitSubmissionData(res ? res : []);
+      updateTreshold(treshold, undefined, res);
+
+      if (res && res.length > 0){
+        setStudentRange([1, res.length]);
+        setMaxlength(res.length);
+      }
     });
   }, [graphIndex === 0 ? state.courseID : courseID, selectedWeek, graphIndex === 0 ? state.mode : selectedMode])
 
@@ -508,6 +566,25 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
       setSortConfig(sortProps);
     }
   }, [sortProps, sameSortProps])
+
+  useEffect(() => {
+    getExerciseData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
+      const {weeks, data, cumulatives} = res;  
+      setWeeks(weeks);
+        setPointExerciseData(data);
+        handleWeekSwitch(
+        Object.keys(state.statusProps.props).length 
+          ? state.statusProps.props[graphIndex.toString()].week 
+          : selectedWeek, 
+        data, 
+        cumulatives, 
+        undefined, 
+        undefined,
+        Object.keys(state.statusProps.props).length 
+          ? state.statusProps.props[graphIndex.toString()].mode 
+          : selectedMode);
+    });
+  }, [graphIndex === 0 ? state.courseID : courseID, selectedWeek, graphIndex === 0 ? state.mode : selectedMode])
 
   // console.log(selectedWeek, selectedMode)
   // console.log(state)

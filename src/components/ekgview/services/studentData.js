@@ -83,7 +83,7 @@ export const getStudentData = async (studentID, courseID, expectGrade = 1) => {
                 submission: module.data.submission_count,
 
                 points: module.data.points,
-                maxPoints: parentModule.data.max_points,
+                maxPoints: module.data.max_points,
                 pointsToPass: parentModule.data.points_to_pass,
 
                 commit: exercisePointsDetails.filter(s => s.moduleID === module.id).map(s => s.commit).reduce((a,b) => a + b, 0),

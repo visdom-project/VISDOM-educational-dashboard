@@ -370,7 +370,7 @@ const calcCommonData = (data) => {
     avgs[week - 1] = Math.round(avgs[week - 1] / data.length);
     exerciseAvgs[week - 1] = Math.round(exerciseAvgs[week - 1] / data.length);
   });
-
+  
   const commonData = {
     cumulativeAvgs: calcCumulatives(avgs),
     cumulativeMinExpected: calcCumulatives(minExpected),
@@ -407,7 +407,7 @@ const dataByWeeks = (data) => {
         // For displaying how many points the student has gained in total during the course:
         totPts:
           student.cumulativeMaxes[weekIndex] - student.weeklyMaxes[weekIndex],
-        // For displaying how many points student received this week:
+        // For displaying how many points stuent received this week:
         week:
           student.cumulativeMaxes[weekIndex] -
           student.weeklyMaxes[weekIndex] +
@@ -444,6 +444,7 @@ const formatProgressData = (pData) => {
   );
   console.log(pData)
   // return [helpers.orderData(dataByWeeks(data)), commonData];
+ 
   return [dataByWeeks(data), commonData]
 };
 

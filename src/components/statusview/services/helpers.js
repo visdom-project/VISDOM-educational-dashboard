@@ -54,5 +54,15 @@ const dataSorting = (progressData, commitData, submissionData, sortConfig) => {
   return { sortedProgress, sortedCommit, sortedSubmission }
 }
 
+const moduleDataSorting = (selectedData, sortConfig) => {
+  if(sortConfig.order === "ascending"){
+    selectedData.sort(getOrder(sortConfig))
+  }
+  else{
+    selectedData.sort(getOrder(sortConfig)).reverse()
+  }
+  console.log(selectedData);
+}
+
 //eslint-disable-next-line
-export default { dataSorting };
+export default { dataSorting, sortOrder, moduleDataSorting };
