@@ -11,7 +11,7 @@ const getOrder = (sortConfig) => {
     } if (sortConfig.exerciseMode === "miss") {
       return (a, b) => a.missedExer - b.missedExer;
     }
-  } else if (sortConfig.mode === "submussions") {
+  } else if (sortConfig.mode === "submissions") {
     return (a, b) => a.submissions.reduce((x,y) => x + y, 0) - b.submissions.reduce((x,y) => x+y, 0);
   } else if (sortConfig.mode === "commits") {
     return (a, b) => a.commit_counts.reduce((x,y) => x+y, 0) - b.commit_counts.reduce((x,y) => x+y, 0);
@@ -56,12 +56,11 @@ const dataSorting = (progressData, commitData, submissionData, sortConfig) => {
 
 const moduleDataSorting = (selectedData, sortConfig) => {
   if(sortConfig.order === "ascending"){
-    selectedData.sort(getOrder(sortConfig))
+    return selectedData.sort(getOrder(sortConfig))
   }
   else{
-    selectedData.sort(getOrder(sortConfig)).reverse()
+    return selectedData.sort(getOrder(sortConfig)).reverse()
   }
-  console.log(selectedData);
 }
 
 //eslint-disable-next-line

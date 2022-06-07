@@ -17,7 +17,7 @@ import DropdownMenu from "./DropdownMenu";
 import helpers from "../services/helpers";
 import { TwoThumbInputRange } from "react-two-thumb-input-range";
 import { getCourseIDs } from "../services/courseData";
-import { getExerciseData, getStatusData, getStatusDataNew } from "../services/statusGraphData";
+import { getExerciseData, getStatusData } from "../services/statusGraphData";
 
 const InputRange = ({ values, maxlength, setStudentRange }) => {
   if (maxlength === 0) return null;
@@ -280,12 +280,12 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
       setMax(data[0][keys.max]);
       setSelectedWeekData(data);
       setcommonDataToDisplay({
-          // avg: commons[keys.cumulativeAvgs][newWeek - 1],
+          avg: commons[keys.cumulativeAvgs],
           mid: commons[keys.cumulativeMidExpected],
           min: commons[keys.cumulativeMinExpected],
       });
     }
-    // OLD ADAPTER KEY
+    // OLD ADAPTER CODE
     // if (
     //   ["exercises", "points"].includes(mode) &&
     //   data[newWeek - 1] !== undefined &&
@@ -493,13 +493,16 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     if (sameSortProps) {
       setSortProps(sortConfig)
     }
-    if(selectedMode === "commits" || selectedMode === "submissions" ){
-      if(commitSubmissionData && commitSubmissionData.length > 0){
-        helpers.moduleDataSorting(commitSubmissionData, sortConfig);
-      }
-    }else{
-      if(pointExerciseData && pointExerciseData.length > 0){
-        helpers.moduleDataSorting(pointExerciseData, sortConfig);
+    let dataToSort = selectedWeekData.map(weekData => {
+      let commitData = selectedCountData.find(countData => countData.id === weekData.id)
+      return { ...weekData, ...commitData}
+    })
+    if(dataToSort && dataToSort.length > 0){
+      const sortedData = helpers.moduleDataSorting(dataToSort, sortConfig);
+      if(selectedMode === "commits" || selectedMode === "submissions" ){ 
+        setSelectedCountData(sortedData);
+      }else{ 
+        setSelectedWeekData(sortedData);
       }
     }
     // if (progressData && submissionData && commitData){
@@ -549,9 +552,9 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     //       setMaxlength(res.data.length);
     //     }
     // });
-    getStatusDataNew(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
+    getStatusData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
       setSelectedCountData(res ? res : []);
-      setCommitSubmissionData(res ? res : []);
+      // setCommitSubmissionData(res ? res : []);
       updateTreshold(treshold, undefined, res);
 
       if (res && res.length > 0){
