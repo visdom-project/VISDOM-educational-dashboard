@@ -9,6 +9,33 @@ import axios from "axios";
 //   "gitlab-course-40-commit-data-anonymized/_search"
 // );
 
+export const getCourseIds = async () => {
+    const adapterUrl = `${process.env.REACT_APP_ADAPTER_HOST}/general/metadata?type=course&data=course_id`
+    // const adapterUrl = `${process.env.REACT_APP_ADAPTER_HOST}/metadata?type=course&data=course_id`
+    const courseIds = [] 
+    await axios.get(adapterUrl).then(response => response.data.results)
+    .then(data => {
+        data.forEach((course) => {
+            courseIds.push(course.data.course_id)
+        })
+    })
+    return courseIds;
+}
+
+export const getCourseStudents = async (courseID) => {
+  const baseUrl =  `${process.env.REACT_APP_ADAPTER_HOST}/general/artifacts?page=1&pageSize=1000&type=course_points&query=data.course_id==${courseID}&data=user_id&links=constructs`;
+  
+  try {
+    const response = await axios.get(baseUrl);
+    const studentIDs = response.data.results.map(data => data.related_constructs.filter(event => event.type === "aplus_user").map(user => user.id)).flat();
+    return studentIDs
+  }
+  catch(e) { 
+    console.log(e);
+  }
+}
+
+
 const getAllStudentData = (courseID) => {
   const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/usernames?courseId=${courseID}`
   const request = axios
@@ -45,6 +72,40 @@ const getStudentInfo = async (studentID, courseID) => {
     fullname: studentData.full_name
   }
 };
+
+// const getData = async (studentId) => {
+//   // getting the git submission for the chosen student to get the project name.
+//   const gitSubmissionUrl =  `${process.env.REACT_APP_ADAPTER_HOST}/general/events?type=submission&page=1&pageSize=1&query=author.id==${studentId};data.submission_data.git.host_name~=tuni&links=none&data=submission_data`;
+//   const submissionData = await axios.get(gitSubmissionUrl)
+//     .then(response => response.data.results[0])
+//     .catch(e => console.log(e));
+//   const projectName = submissionData?.data?.submission_data?.git?.project_name;
+
+//   // getting the context attribute of the above project name to get the origin id.
+//   const contextUrl = `${process.env.REACT_APP_ADAPTER_HOST}/general/origins?type=gitlab&query=context==${projectName}`;
+//   const contextData = await axios.get(contextUrl)
+//     .then(respose => respose.data.results[0])
+//     .catch(e => console.log(e)); 
+//   const originId = contextData?.id;
+
+//   // getting commit data for the student
+//   const commitDataUrl = `${process.env.REACT_APP_ADAPTER_HOST}/general/events?type=commit&pageSize=1000&query=origin.id==${originId}&links=none`;
+//   const commitData = await axios.get(commitDataUrl)
+//     .then(response => response.data.results)
+//     .catch(e => console.log(e))
+  
+//   const CheckCommitDate = (deadline, date) => {
+//     if (deadline - date === 1) return "IN-TIME";
+//     if (deadline - date > 1) return "EARLY";
+//     if (deadline - date < 1) return "LATE";
+//   };
+  
+//     const getNumberOfDay = (date) => date && Math.round(date.getTime() / (1000 * 60 * 60 * 24));
+
+    
+
+
+// }
 
 const getData = (studentId, courseID) => {
   const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseID}&username=${studentId}`;
@@ -153,9 +214,9 @@ const getData = (studentId, courseID) => {
       ];
     })
     .catch((someError) => console.log(someError));
-
+  
   return request;
 };
 
 //eslint-disable-next-line
-export default { getData, getStudentInfo, getAllStudentData };
+export default { getCourseIds, getCourseStudents, getData, getStudentInfo, getAllStudentData };

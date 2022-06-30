@@ -1,3 +1,8 @@
+// Copyright 2022 Tampere University
+// This software was developed as a part of the VISDOM project: https://iteavisdom.org/
+// This source code is licensed under the MIT license. See LICENSE in the repository root directory.
+// Author(s): Duc Hong <duc.hong@tuni.fi>, Nhi Tran <thuyphuongnhi.tran@tuni.fi>, Sulav Rayamajhi<sulav.rayamajhi@tuni.fi>, Ville Heikkilä <ville.heikkila@tuni.fi>, Vivian Lunnikivi <vivian.lunnikivi@tuni.fi>.
+
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
@@ -17,11 +22,11 @@ import GroupDisplay from "./GroupDisplay.js";
 import StudentSelector from "./StudentSelector";
 
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
-import { 
-  // getAllStudentsData, 
-  // fetchStudentData, 
-  fetchStudentsData } from "../services/studentData";
-import { getAgregateData } from "../services/courseData";
+import {
+  // getAllStudentsData,
+  // fetchStudentData,
+  fetchStudentsData, fetchStudentsDataNewAdp } from "../services/studentData";
+import { getAgregateData, getCourseIds } from "../services/courseData";
 
 import {
   useMessageState,
@@ -138,6 +143,8 @@ const ProgressTab = () => {
   // const [client, setClient] = useState(null);
 
   const [studentIds, setStudentIds] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState();
+  const [courseIds, setCourseIds] = useState([]);
   const [studentsData, setStudentsData] = useState({});
   const [courseData, setCourseData] = useState([]);
   const [maxlength, setMaxlength] = useState(0);
@@ -173,7 +180,7 @@ const ProgressTab = () => {
         ...state.timescale,
         end: maxlength - 1,
       });
-      return;      
+      return;
     }
     // setLineChartShouldUpdate(linechartShouldUpdate+1);
 
@@ -188,11 +195,28 @@ const ProgressTab = () => {
       // const studentDataPromise = Promise.all(studentsDtataList).then(data => data.map( (studentData,index) => studentDataObj[list[index]]= studentData))
       // .then(() => setStudentsData(studentDataObj));
     // });
-    // fetch whole data at once
-    fetchStudentsData(state.courseID).then(data => {
+    // fetch whole data at once old code
+    // fetchStudentsData(state.courseID).then(data => {
+    //   setStudentsData(data);
+    //   setStudentIds(Object.keys(data));
+    //   setDisplayedStudents(Object.keys(data));
+
+
+    //   // setup timescale
+    //   try {
+    //     setMaxlength((Object.values(data)[0].length) * 7);
+    //   }
+    //   catch (err){
+    //     // Do nothing
+    //   }
+    // });
+
+     // fetch whole data at once new code
+    fetchStudentsDataNewAdp(selectedCourseId).then(data => {
       setStudentsData(data);
       setStudentIds(Object.keys(data));
       setDisplayedStudents(Object.keys(data));
+
 
       // setup timescale
       try {
@@ -200,11 +224,11 @@ const ProgressTab = () => {
       }
       catch (err){
         // Do nothing
-      }         
+      }
     });
     Promise.all( grades.map(grade => getAgregateData(grade)) ).then(expectValues => setCourseData(expectValues));
   }, [state.courseID]);
-  
+
 
 
   const showableLines = ["Average", "Expected"];
@@ -212,7 +236,7 @@ const ProgressTab = () => {
     Average: true,
     Expected: true,
   });
-  
+
   const [displayedCumulativeData, setDisplayedCumulativeData] = useState([
     { name: "init" },
   ]);
@@ -254,7 +278,7 @@ const ProgressTab = () => {
       return;
     }
     //average goes here ...
-    
+
     const avgData = {
       [avgDataKey]: getAverageData(studentsData, state.mode),
     };
@@ -270,7 +294,7 @@ const ProgressTab = () => {
     });
 
     setDisplayedData(newData);
-  }, 
+  },
   [state.mode, studentIds, studentsData, courseData]
   );
 
@@ -325,6 +349,20 @@ const ProgressTab = () => {
     }
     setSelectedMode(newMode);
   };
+
+  useEffect(() => {
+    const fetchCourseIds = async () => {
+      const courseIdsList = await getCourseIds()
+      setCourseIds(courseIdsList)
+    };
+    fetchCourseIds()
+  },[])
+
+  useEffect(() => {
+    if (courseIds.length > 0) {
+      setSelectedCourseId(courseIds[0])
+    }
+  },[courseIds])
 
   const handleToggleStudentGroupClick = (groupIdentifier, groupState) => {
     if (groupIdentifier === "all") {
@@ -398,12 +436,12 @@ const ProgressTab = () => {
       <h1>Progress Visualization</h1>
       <DropdownMenu
         handleClick={handleCourseDataSelected}
-        options={[40, 90, 117]}
-        selectedOption={state.courseID}
+        options={courseIds}
+        selectedOption={selectedCourseId}
         title="Course ID: "
       />
       <h2>{`Weekly ${state.mode}`}</h2>
-      
+
       <ConfigDialog
         title={{
           button: "Show view configuration",
@@ -509,7 +547,7 @@ const ProgressTab = () => {
               const newTimescale = {
                 start: e.startIndex * 7,
                 end: (e.endIndex + 1) * 7 - 1,
-              }             
+              }
 
               if (state.timescale.start !== newTimescale.start ||
                 state.timescale.end !== newTimescale.end) {

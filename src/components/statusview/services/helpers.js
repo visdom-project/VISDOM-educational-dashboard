@@ -1,3 +1,8 @@
+// Copyright 2022 Tampere University
+// This software was developed as a part of the VISDOM project: https://iteavisdom.org/
+// This source code is licensed under the MIT license. See LICENSE in the repository root directory.
+// Author(s): Duc Hong <duc.hong@tuni.fi>, Nhi Tran <thuyphuongnhi.tran@tuni.fi>, Sulav Rayamajhi<sulav.rayamajhi@tuni.fi>, Ville Heikkilä <ville.heikkila@tuni.fi>, Vivian Lunnikivi <vivian.lunnikivi@tuni.fi>.
+
 const getOrder = (sortConfig) => {
   if (sortConfig.mode === "points") {
     if (sortConfig.pointMode === "gain points") {
@@ -11,7 +16,7 @@ const getOrder = (sortConfig) => {
     } if (sortConfig.exerciseMode === "miss") {
       return (a, b) => a.missedExer - b.missedExer;
     }
-  } else if (sortConfig.mode === "submussions") {
+  } else if (sortConfig.mode === "submissions") {
     return (a, b) => a.submissions.reduce((x,y) => x + y, 0) - b.submissions.reduce((x,y) => x+y, 0);
   } else if (sortConfig.mode === "commits") {
     return (a, b) => a.commit_counts.reduce((x,y) => x+y, 0) - b.commit_counts.reduce((x,y) => x+y, 0);
@@ -54,5 +59,14 @@ const dataSorting = (progressData, commitData, submissionData, sortConfig) => {
   return { sortedProgress, sortedCommit, sortedSubmission }
 }
 
+const moduleDataSorting = (selectedData, sortConfig) => {
+  if(sortConfig.order === "ascending"){
+    return selectedData.sort(getOrder(sortConfig))
+  }
+  else{
+    return selectedData.sort(getOrder(sortConfig)).reverse()
+  }
+}
+
 //eslint-disable-next-line
-export default { dataSorting };
+export default { dataSorting, sortOrder, moduleDataSorting };

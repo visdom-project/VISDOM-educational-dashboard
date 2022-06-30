@@ -1,3 +1,8 @@
+// Copyright 2022 Tampere University
+// This software was developed as a part of the VISDOM project: https://iteavisdom.org/
+// This source code is licensed under the MIT license. See LICENSE in the repository root directory.
+// Author(s): Duc Hong <duc.hong@tuni.fi>, Nhi Tran <thuyphuongnhi.tran@tuni.fi>, Sulav Rayamajhi<sulav.rayamajhi@tuni.fi>, Ville Heikkilä <ville.heikkila@tuni.fi>, Vivian Lunnikivi <vivian.lunnikivi@tuni.fi>.
+
 import React, { useEffect, useState } from "react";
 
 import DropdownMenu from "./DropdownMenu";
@@ -41,7 +46,7 @@ const MultiStatusChartContainer = () => {
       }
     });
   };
-  
+
 
   useEffect(() => {
     if (graphNum === 1) {
@@ -83,10 +88,10 @@ const MultiStatusChartContainer = () => {
       {Array(graphNum)
         .fill(0)
         .map((_, item) => <div className="status-chart" key={`status-chart-${item}-container`} style={{ width: state.statusProps.displayMode === "list" ? "95%" : "50%" }}>
-          <StatusTab 
+          <StatusTab
             key={`status-chart-${item}`}
             graphIndex={item}
-            sortProps={sortProps} 
+            sortProps={sortProps}
             setSortProps={setSortProps}
             sameSortProps={sameSortProps}
           />

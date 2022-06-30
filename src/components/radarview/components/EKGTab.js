@@ -1,9 +1,15 @@
+// Copyright 2022 Tampere University
+// This software was developed as a part of the VISDOM project: https://iteavisdom.org/
+// This source code is licensed under the MIT license. See LICENSE in the repository root directory.
+// Author(s): Duc Hong <duc.hong@tuni.fi>, Nhi Tran <thuyphuongnhi.tran@tuni.fi>, Sulav Rayamajhi<sulav.rayamajhi@tuni.fi>, Ville Heikkilä <ville.heikkila@tuni.fi>, Vivian Lunnikivi <vivian.lunnikivi@tuni.fi>.
+
 import React, { useState, useEffect } from "react";
 import { Form} from "react-bootstrap";
 import { TwoThumbInputRange } from "react-two-thumb-input-range"
 import VisGraph from "./VisGraph";
 
-import { getAllStudentsData, fetchStudentData } from "../services/studentData";
+import { getCourseIDs } from "../services/courseData";
+import { getAllStudentsIDs, getStudentData } from "../services/studentData";
 import { useMessageDispatch, useMessageState } from "../../../contexts/messageContext";
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 
@@ -41,7 +47,7 @@ const EKGTab = () => {
     dispatch({
       ...state,
       instances: newInstances,
-    })
+    });
     return;
   }
   const setTimescale = (timescale) => dispatch({...state, timescale: timescale});
@@ -62,6 +68,8 @@ const EKGTab = () => {
 
   const [maxlength, setMaxlength] = useState(0);
 
+  const [courseIDs, setCourseIDs] = useState([]);
+
   // handle course ID selection
   const handleCourseDataSelected = option => {
     if (option !== state.courseID) {
@@ -74,9 +82,17 @@ const EKGTab = () => {
   };
 
   useEffect(() => {
-    getAllStudentsData(state.courseID).then(list => setStudentList(list));
-  }, [state.courseID]);
-  
+    getCourseIDs().then(data => setCourseIDs(data));
+  }, [])
+
+  useEffect(() => {
+    getAllStudentsIDs(state.courseID).then(data => setStudentList(data));
+  }, [state.courseID, courseIDs]);
+
+  // useEffect(() => {
+  //   getAllStudentsData(state.courseID).then(list => setStudentList(list));
+  // }, [state.courseID]);
+
   useEffect(() => {
     if (!state.timescale) {
       if (maxlength !== 0) {
@@ -93,19 +109,24 @@ const EKGTab = () => {
         ...state.timescale,
         end: maxlength - 1,
       });
-      return;      
+      return;
     }
     setDisplayedWeek([Math.floor(state.timescale.start / 7) + 1, Math.ceil(state.timescale.end / 7)]);
   }, [state.timescale, maxlength]); //eslint-disable-line
 
   useEffect(() => {
     if (state.instances.length && state.instances[0].length){
-      fetchStudentData(state.instances[0], state.courseID)
+      // fetchStudentData(state.instances[0], state.courseID)
+      //   .then(data => {
+      //     setDisplayData(data);
+      //     setMaxlength(data.length * 7);
+      // });
+      getStudentData(state.instances[0], state.courseID)
         .then(data => {
           setDisplayData(data);
           setMaxlength(data.length * 7);
-      });
-    }
+        });
+    };
   }, [state.instances, state.courseID]);
 
   // useEffect(() => {
@@ -125,7 +146,7 @@ const EKGTab = () => {
       <h2>Radar Visualization</h2>
       <DropdownMenu
         handleClick={handleCourseDataSelected}
-        options={[40, 90, 117]}
+        options={courseIDs}
         selectedOption={state.courseID}
         title="Course ID: "
       />
@@ -156,8 +177,8 @@ const EKGTab = () => {
           state.instances[0] && maxlength !== 0 &&
           <>
             <div>
-              <VisGraph 
-                data={displayData} 
+              <VisGraph
+                data={displayData}
                 displayedWeek={displayedWeek}
                 configs={configs}
               />

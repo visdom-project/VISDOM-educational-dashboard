@@ -1,3 +1,8 @@
+// Copyright 2022 Tampere University
+// This software was developed as a part of the VISDOM project: https://iteavisdom.org/
+// This source code is licensed under the MIT license. See LICENSE in the repository root directory.
+// Author(s): Duc Hong <duc.hong@tuni.fi>, Nhi Tran <thuyphuongnhi.tran@tuni.fi>, Sulav Rayamajhi<sulav.rayamajhi@tuni.fi>, Ville Heikkilä <ville.heikkila@tuni.fi>, Vivian Lunnikivi <vivian.lunnikivi@tuni.fi>.
+
 import React, { useEffect } from 'react';
 import "../stylesheets/visualizationview.css"
 
@@ -24,11 +29,11 @@ const GroupOfVisualizations = ({ views, viewkey }) => {
     if (viewkey.length > 0) {
       updateVisualizations(views)
     }
-  }, [viewkey]) 
+  }, [viewkey])
 
   return (
     <>
-    <Form 
+    <Form
       id="drap-drop-mode-switch"
       style={{ backgroundColor: dragMode ? "#d8f3dc" : "#e9ecef" }}
     >

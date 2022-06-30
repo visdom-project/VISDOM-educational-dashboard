@@ -7,6 +7,8 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "ajv": "^6.9.1",
+    "autoprefixer": "10.4.5",
     "axios": "^0.21.4",
     "bootstrap": "^5.1.0",
     "d3-shape": "^3.0.1",
@@ -21,8 +23,10 @@
     "react-scripts": "^5.0.1",
     "react-two-thumb-input-range": "^1.0.7",
     "react-vis": "^1.11.7",
-    "recharts": "^2.1.2",
-    "web-vitals": "^1.0.1"
+    "recharts": "^2.1.2"
+  },
+  "overrides": {
+    "autoprefixer": "10.4.5"
   },
   "scripts": {
     "start": "react-scripts start",

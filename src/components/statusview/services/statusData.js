@@ -1,6 +1,12 @@
+// Copyright 2022 Tampere University
+// This software was developed as a part of the VISDOM project: https://iteavisdom.org/
+// This source code is licensed under the MIT license. See LICENSE in the repository root directory.
+// Author(s): Duc Hong <duc.hong@tuni.fi>, Nhi Tran <thuyphuongnhi.tran@tuni.fi>, Sulav Rayamajhi<sulav.rayamajhi@tuni.fi>, Ville Heikkilä <ville.heikkila@tuni.fi>, Vivian Lunnikivi <vivian.lunnikivi@tuni.fi>.
+
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 import axios from "axios";
+// import { AdapterConfiguration } from "../../../services/serviceConfiguration";
 // import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
 import { PROJECT_MAPPING, PROJECT_MAPPING_117, PROJECT_MAPPING_40 } from "./constant";
 
@@ -10,7 +16,6 @@ import { PROJECT_MAPPING, PROJECT_MAPPING_117, PROJECT_MAPPING_40 } from "./cons
 // const courseId = process.env.REACT_APP_COURSE_ID;
 // const courseId = 40;
 // const baseUrl = `${process.env.REACT_APP_ADAPTER_HOST}/adapter/data?courseId=${courseId}`
-
 const getWeeklyPoints = (modules, mapping) => {
   const weeklyPts = {};
   const weeklyMaxes = [];
@@ -181,8 +186,6 @@ const getData = courseID => {
       //   }
       // });
 
-      // console.log("mapping", moduleMapping)
-
       const results = response.map(result => {
         if (!result) return {};
         if (!result.username.includes("redacted")) {
@@ -191,7 +194,9 @@ const getData = courseID => {
             weeklyMaxes,
             weeklyExercises,
             weeklyExerciseMaxes,
+            // eslint-disable-next-line no-unused-vars
             weeklySubmissions,
+            // eslint-disable-next-line no-unused-vars
             weeklyPassed,
           ] = getWeeklyPoints(result.points.modules, moduleMapping);
           const formattedResult = {
@@ -210,6 +215,7 @@ const getData = courseID => {
           };
           return formattedResult;
         }
+        return {};
       });
 
       const submissionData = response.map(result => {
@@ -217,8 +223,11 @@ const getData = courseID => {
         if (!result.username.includes("redacted")) {
           const [
             weeklies,
+            // eslint-disable-next-line no-unused-vars
             weeklyMaxes,
+            // eslint-disable-next-line no-unused-vars
             weeklyExercises,
+            // eslint-disable-next-line no-unused-vars
             weeklyExerciseMaxes,
             weeklySubmissions,
             weeklyPassed,
@@ -237,6 +246,7 @@ const getData = courseID => {
           };
           return formattedData;
         }
+        return {};
       });
 
       const [progress, commons] = formatProgressData(results);
@@ -372,7 +382,7 @@ const calcCommonData = (data) => {
     avgs[week - 1] = Math.round(avgs[week - 1] / data.length);
     exerciseAvgs[week - 1] = Math.round(exerciseAvgs[week - 1] / data.length);
   });
-
+  
   const commonData = {
     cumulativeAvgs: calcCumulatives(avgs),
     cumulativeMinExpected: calcCumulatives(minExpected),
@@ -409,7 +419,7 @@ const dataByWeeks = (data) => {
         // For displaying how many points the student has gained in total during the course:
         totPts:
           student.cumulativeMaxes[weekIndex] - student.weeklyMaxes[weekIndex],
-        // For displaying how many points student received this week:
+        // For displaying how many points stuent received this week:
         week:
           student.cumulativeMaxes[weekIndex] -
           student.weeklyMaxes[weekIndex] +
@@ -444,7 +454,9 @@ const formatProgressData = (pData) => {
   const [data, commonData] = calcCommonData(
     calcCumulativeScoresForStudents(pData)
   );
+  console.log(pData)
   // return [helpers.orderData(dataByWeeks(data)), commonData];
+ 
   return [dataByWeeks(data), commonData]
 };
 
@@ -493,6 +505,8 @@ const getCommitData = courseID => {
                 return sum + val;
               }, 0);
           });
+          
+
           // Start with a data stucture with proper default values:
           const newCommits = Object.keys(project_map).map(moduleName => {
             return {
@@ -567,6 +581,7 @@ const getCommitData = courseID => {
           });
         });
       // return helpers.orderCountData(results);
+      // console.log(results)
       return results
     })
     .catch(() => [[], []]);

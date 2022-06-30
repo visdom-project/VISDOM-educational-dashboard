@@ -1,3 +1,8 @@
+// Copyright 2022 Tampere University
+// This software was developed as a part of the VISDOM project: https://iteavisdom.org/
+// This source code is licensed under the MIT license. See LICENSE in the repository root directory.
+// Author(s): Duc Hong <duc.hong@tuni.fi>, Nhi Tran <thuyphuongnhi.tran@tuni.fi>, Sulav Rayamajhi<sulav.rayamajhi@tuni.fi>, Ville Heikkilä <ville.heikkila@tuni.fi>, Vivian Lunnikivi <vivian.lunnikivi@tuni.fi>.
+
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
@@ -14,14 +19,16 @@ import DropdownMenu from "./DropdownMenu";
 import CheckBoxMenu from "./CheckBoxMenu";
 import ConfigDialog from "./ConfigDialog";
 import GroupDisplay from "./GroupDisplay.js";
-import StudentSelector from "./StudentSelector";
+// import StudentSelector from "./StudentSelector";
 
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
-import { 
-  // getAllStudentsData, 
-  // fetchStudentData, 
-  fetchStudentsData } from "../services/studentData";
-import { getAgregateData } from "../services/courseData";
+import {
+  // getAllStudentsData,
+  // fetchStudentData,
+  fetchStudentsData,
+  fetchStudentsDataNewAdp
+} from "../services/studentData";
+import { getAgregateData, getCourseIds } from "../services/courseData";
 
 import {
   useMessageState,
@@ -136,7 +143,8 @@ const CumulativeTab = () => {
   const setSelectedMode = (newMode) => dispatch({ ...state, mode: newMode});
 
   // const [client, setClient] = useState(null);
-
+  const [courseIds, setCourseIds] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState();
   const [studentIds, setStudentIds] = useState([]);
   const [studentsData, setStudentsData] = useState({});
   const [courseData, setCourseData] = useState([]);
@@ -160,7 +168,7 @@ const CumulativeTab = () => {
   useEffect(() => {
     if (!state.timescale) {
       if (maxlength !== 0) {
-        setTimescale({
+    setTimescale({
           start: 0,
           end: maxlength - 1,
         });
@@ -169,15 +177,29 @@ const CumulativeTab = () => {
     }
 
     if (state.timescale.end > maxlength - 1 && maxlength - 1 > 0){
-      setTimescale({
+    setTimescale({
         ...state.timescale,
         end: maxlength - 1,
       });
-      return;      
+      return;
     }
     // setLineChartShouldUpdate(linechartShouldUpdate+1);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.timescale, maxlength]);
+
+  useEffect(() => {
+    const fetchCourseIds = async () => {
+      const courseIdsList = await getCourseIds()
+      setCourseIds(courseIdsList)
+    };
+    fetchCourseIds()
+  },[])
+
+  useEffect(() => {
+    if (courseIds.length > 0) {
+      setSelectedCourseId(courseIds[0])
+    }
+  },[courseIds])
 
   useEffect(() => {
     // fetch every student (make many requests)
@@ -189,22 +211,37 @@ const CumulativeTab = () => {
       // .then(() => setStudentsData(studentDataObj));
     // });
     // fetch whole data at once
-    fetchStudentsData(state.courseID).then(data => {
-      setStudentsData(data);
-      setStudentIds(Object.keys(data));
-      setDisplayedStudents(Object.keys(data));
+    if(selectedCourseId) {
+      fetchStudentsDataNewAdp(selectedCourseId).then(data => {
+        setStudentsData(data);
+        setStudentIds(Object.keys(data));
+        setDisplayedStudents(Object.keys(data));
 
-      // setup timescale
-      try {
-        setMaxlength((Object.values(data)[0].length) * 7);
-      }
-      catch (err){
-        // Do nothing
-      }         
+        // setup timescale
+        try {
+          setMaxlength((Object.values(data)[0].length) * 7);
+        }
+        catch (err){
+          // Do nothing
+        }
     });
+    //   fetchStudentsData(selectedCourseId).then(data => {
+    //     setStudentsData(data);
+    //     setStudentIds(Object.keys(data));
+    //     setDisplayedStudents(Object.keys(data));
+
+    //     // setup timescale
+    //     try {
+    //       setMaxlength((Object.values(data)[0].length) * 7);
+    //     }
+    //     catch (err){
+    //       // Do nothing
+    //     }
+    // });
     Promise.all( grades.map(grade => getAgregateData(grade)) ).then(expectValues => setCourseData(expectValues));
-  }, [state.courseID]);
-  
+  }
+
+  }, [selectedCourseId]);
 
 
   const showableLines = ["Average", "Expected"];
@@ -212,8 +249,9 @@ const CumulativeTab = () => {
     Average: true,
     Expected: true,
   });
-  
-  const [displayedCumulativeData, setDisplayedCumulativeData] = useState([
+
+    // eslint-disable-next-line no-unused-vars
+    const [displayedCumulativeData, setDisplayedCumulativeData] = useState([
     { name: "init" },
   ]);
   // hard coding const without metadata
@@ -254,7 +292,7 @@ const CumulativeTab = () => {
       return;
     }
     //average goes here ...
-    
+
     const avgData = {
       [avgDataKey]: getAverageData(studentsData, state.mode),
     };
@@ -270,7 +308,8 @@ const CumulativeTab = () => {
     });
 
     setDisplayedData(newData);
-  }, 
+  },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   [state.mode, studentIds, studentsData, courseData]
   );
 
@@ -284,16 +323,18 @@ const CumulativeTab = () => {
 
   // handle course ID selection
   const handleCourseDataSelected = option => {
-    if (option !== state.courseID) {
+    if (option !== selectedCourseId) {
       dispatch({
         ...state,
         instances: [],
         courseID: option
       });
+      setSelectedCourseId(option)
     }
   };
 
   // Toggle selection of a student that is clicked in the student list:
+  // eslint-disable-next-line no-unused-vars
   const handleListClick = (id) => {
     const targetNode = document.querySelector(`#li-${id}`);
 
@@ -397,12 +438,12 @@ const CumulativeTab = () => {
       <h1>Cumulative Visualization</h1>
       <DropdownMenu
         handleClick={handleCourseDataSelected}
-        options={[40, 90, 117]}
-        selectedOption={state.courseID}
+        options={courseIds}
+        selectedOption={selectedCourseId}
         title="Course ID: "
       />
       <h2>{`Weekly ${state.mode}`}</h2>
-      
+
       <ConfigDialog
         title={{
           button: "Show view configuration",
@@ -507,7 +548,7 @@ const CumulativeTab = () => {
               const newTimescale = {
                 start: e.startIndex * 7,
                 end: (e.endIndex + 1) * 7 - 1,
-              }             
+              }
 
               if (state.timescale.start !== newTimescale.start ||
                 state.timescale.end !== newTimescale.end) {

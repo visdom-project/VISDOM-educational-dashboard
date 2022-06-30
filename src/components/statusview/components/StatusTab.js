@@ -1,3 +1,8 @@
+// Copyright 2022 Tampere University
+// This software was developed as a part of the VISDOM project: https://iteavisdom.org/
+// This source code is licensed under the MIT license. See LICENSE in the repository root directory.
+// Author(s): Duc Hong <duc.hong@tuni.fi>, Nhi Tran <thuyphuongnhi.tran@tuni.fi>, Sulav Rayamajhi<sulav.rayamajhi@tuni.fi>, Ville Heikkilä <ville.heikkila@tuni.fi>, Vivian Lunnikivi <vivian.lunnikivi@tuni.fi>.
+
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
@@ -16,6 +21,8 @@ import ConfigDialog from "./ConfigDialog";
 import DropdownMenu from "./DropdownMenu";
 import helpers from "../services/helpers";
 import { TwoThumbInputRange } from "react-two-thumb-input-range";
+import { getCourseIDs } from "../services/courseData";
+import { getExerciseData, getStatusData } from "../services/statusGraphData";
 
 const InputRange = ({ values, maxlength, setStudentRange }) => {
   if (maxlength === 0) return null;
@@ -33,12 +40,12 @@ const InputRange = ({ values, maxlength, setStudentRange }) => {
           style={{ marginBottom: "20px" }}
         />
       </div>
-      <div 
+      <div
         className="student-range-selector"
         style={{ paddingLeft: "43%" }}
       >
-        <input 
-          type="number" 
+        <input
+          type="number"
           min="1"
           max={values[1]}
           value={values[0]}
@@ -73,21 +80,28 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   const [max, setMax] = useState(1);
 
   const [weeks, setWeeks] = useState(["1"]);
-  const [selectedWeek, setSelectedWeek] = useState("1");
+  const [selectedWeek, setSelectedWeek] = useState(Object.keys(state.statusProps.props).includes(graphIndex.toString())
+    ? state.statusProps.props[graphIndex.toString()].week
+    : "1");
   const [selectedWeekData, setSelectedWeekData] = useState([]);
   const [selectedCountData, setSelectedCountData] = useState([]);
 
   const modes = ["points", "exercises", "submissions", "commits"];
-  const [selectedMode, setSelectedMode] = useState(modes[0]);
+  const [selectedMode, setSelectedMode] = useState(Object.keys(state.statusProps.props).includes(graphIndex.toString())
+    ? state.statusProps.props[graphIndex.toString()].mode
+    : modes[0]);
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [treshold, setTreshold] = useState(0.4);
   const [studentsBelowTreshold, setStudentsBelowTreshold] = useState(-99);
+  const [pointExerciseData, setPointExerciseData] = useState([]);
+  const [commitSubmissionData, setCommitSubmissionData] = useState([]);
 
   const [sortConfig, setSortConfig] = useState(sortProps);
   const [studentRange, setStudentRange] = useState([1,0]);
   const [maxlength, setMaxlength] = useState(0)
-  const [courseID, setCourseID] = useState(Object.keys(state.statusProps.props).length > graphIndex
-    ? state.statusProps.props[graphIndex.toString()].courseID 
+  const [courseIDs, setCourseIDs] = useState([]);
+  const [courseID, setCourseID] = useState(Object.keys(state.statusProps.props).includes(graphIndex.toString())
+    ? state.statusProps.props[graphIndex.toString()].courseID
     : parseInt(process.env.REACT_APP_COURSE_ID));
 
   const allKeys = {
@@ -170,7 +184,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
           instances: [],
           courseID: option
         });
-      } 
+      }
     } else {
       if (option !== courseID) {
         setCourseID(option);
@@ -187,7 +201,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
           // mode: selectedMode,
           instances: instances,
         });
-      } 
+      }
       dispatch({
         ...state,
         statusDialogProps: {
@@ -202,12 +216,12 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
 
   const handleModeSwitchClick = (newMode) => {
     setSelectedMode(newMode);
-
-    if (graphIndex === 0) {
-      dispatch({...state,
-        mode: newMode,
-      });
-    }
+    // if (graphIndex === 0) {
+    //   console.log(newMode)
+    //   dispatch({...state,
+    //     mode: newMode,
+    //   });
+    // }
 
     const newKeys = allKeys[newMode];
     setDataKeys(newKeys);
@@ -222,7 +236,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     );
   };
 
-  const handleWeekSwitch = (
+  const handleWeekSwitch = async(
     newWeek,
     data,
     commons,
@@ -253,6 +267,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     const graphIndexStr = graphIndex.toString();
     dispatch({
       ...state,
+      mode: graphIndex === 0 ? mode : state.mode,
       statusProps: {
         ...state.statusProps,
         props: {
@@ -266,47 +281,58 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
       }
     });
 
-    if (
-      ["exercises", "points"].includes(mode) &&
-      data[newWeek - 1] !== undefined &&
-      data[newWeek - 1]["data"] !== undefined
-    ) {
-      setMax(data[newWeek - 1]["data"][0][keys.max]);
-      setSelectedWeekData(data[newWeek - 1].data);
-
+    if(data.length > 0) {
+      setMax(data[0][keys.max]);
+      setSelectedWeekData(data);
       setcommonDataToDisplay({
-        avg: commons[keys.cumulativeAvgs][newWeek - 1],
-        mid: commons[keys.cumulativeMidExpected][newWeek - 1],
-        min: commons[keys.cumulativeMinExpected][newWeek - 1],
+          avg: commons[keys.cumulativeAvgs],
+          mid: commons[keys.cumulativeMidExpected],
+          min: commons[keys.cumulativeMinExpected],
       });
     }
+    // OLD ADAPTER CODE
+    // if (
+    //   ["exercises", "points"].includes(mode) &&
+    //   data[newWeek - 1] !== undefined &&
+    //   data[newWeek - 1]["data"] !== undefined
+    // ) {
 
-    let newCountData = undefined;
 
-    if (mode === "submissions") {
-      if (submissions !== undefined && submissions[newWeek - 1] !== undefined) {
-        newCountData = submissions[newWeek - 1].data;
-        setSelectedCountData(newCountData);
-      }
-    } else {
-      if (commitData !== undefined && commitData.length > 1) {
-        const weekStr = newWeek.toString();
-        const key =
-          weekStr.length < 2
-            ? `0${weekStr}`
-            : weekStr !== "14"
-            ? weekStr
-            : "01-14";
-        newCountData = commitData.find(module => module.week === key) !== undefined
-          ? commitData.find(module => module.week === key).data
-          : []
-        setSelectedCountData(newCountData);
-      }
-    }
+    //   setMax(data[newWeek - 1]["data"][0][keys.max]);
+    //   setSelectedWeekData(data[newWeek - 1].data);
 
-    if (newCountData !== undefined && data[newWeek - 1] !== undefined) {
-      updateTreshold(treshold, data[newWeek - 1].data, newCountData);
-    }
+
+    // }
+
+    // let newCountData = undefined;
+
+    // if (mode === "submissions") {
+    //   if (submissions !== undefined && submissions[newWeek - 1] !== undefined) {
+    //     newCountData = submissions[newWeek - 1].data;
+    //     // setSelectedCountData(newCountData);
+    //   }
+    // } else {
+    //   if (commitData !== undefined && commitData.length > 1) {
+    //     // const weekStr = newWeek.toString();
+    //     // const key =
+    //     //   weekStr.length < 2
+    //     //     ? `0${weekStr}`
+    //     //     : weekStr !== "14"
+    //     //     ? weekStr
+    //     //     : "01-14";
+    //     // console.log(newWeek)
+    //     // console.log(commitData)
+    //     newCountData = commitData.find(module => parseInt(module.week) === parseInt(newWeek)) !== undefined
+    //       ? commitData.find(module => parseInt(module.week) === parseInt(newWeek)).data
+    //       : []
+    //     // console.log(newCountData)
+    //     // setSelectedCountData(newCountData);
+    //   }
+    // }
+
+    // if (newCountData !== undefined && data[newWeek - 1] !== undefined) {
+    //   updateTreshold(treshold, data[newWeek - 1].data, newCountData);
+    // }
   };
 
   const handleToggleRefLineVisibilityClick = (targetLine) => {
@@ -351,14 +377,12 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   };
 
   useEffect(() => {
+    getCourseIDs().then(data => setCourseIDs(data))
+  }, []);
+
+  useEffect(() => {
     const graphIndexStr = graphIndex.toString();
-    if (Object.keys(state.statusProps.props).includes(graphIndexStr)) {
-      const graphProps = state.statusProps.props[graphIndexStr];
-      setCourseID(graphProps.courseID);
-      setSelectedMode(graphProps.mode);
-      setSelectedWeek(graphProps.week);
-    } 
-    else {
+    if (!Object.keys(state.statusProps.props).includes(graphIndexStr)) {
       const newGraphProps = {
         [graphIndexStr]: {
           courseID: courseID,
@@ -370,58 +394,85 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
         statusProps: {
           ...state.statusProps,
           props: Object.assign(state.statusProps.props, newGraphProps)}
-      })
+      });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
 
-  useEffect(() => {
-    const courseData = Object.keys(state.statusProps.props).length > graphIndex
-    ? state.statusProps.props[graphIndex.toString()].courseID
-    : courseID
-    dataService.getData(graphIndex === 0 ? state.courseID : courseData).then(response => {
-      const [pData, commons, submissions] = response;
+  // OLD ADAPTER CODE
+  // useEffect(() => {
+  //   if ((graphIndex === 0 && isNaN(state.courseID)) || (graphIndex !== 0 && isNaN(courseID))) return;
+  //   const courseData = Object.keys(state.statusProps.props).length > graphIndex
+  //   ? state.statusProps.props[graphIndex.toString()].courseID
+  //   : courseID
+  //   dataService.getData(graphIndex === 0 ? state.courseID : courseData).then(response => {
+  //     const [pData, commons, submissions] = response;
 
-      // Fetch needed data:
-      setProgressData(pData);
-      setCommonData(commons);
-      setSubmissionData(submissions);
-      setWeeks(pData.map(week => week.week));
+  //     setProgressData(pData);
+  //     setCommonData(commons);
 
-      // Set initial UI state:
-      handleWeekSwitch(
-        Object.keys(state.statusProps.props).length 
-          ? state.statusProps.props[graphIndex.toString()].week 
-          : selectedWeek, 
-        pData, 
-        commons, 
-        undefined, 
-        submissions,
-        Object.keys(state.statusProps.props).length 
-          ? state.statusProps.props[graphIndex.toString()].mode 
-          : selectedMode);
-    });
+  //     setSubmissionData(submissions);
+  //     setWeeks(pData.map(week => week.week));
 
-    dataService.getCommitData(graphIndex === 0 ? state.courseID : courseData).then((response) => {
-      const commits = response;
+  //     // Set initial UI state:
+  //     handleWeekSwitch(
+  //       Object.keys(state.statusProps.props).length
+  //         ? state.statusProps.props[graphIndex.toString()].week
+  //         : selectedWeek,
+  //       pData,
+  //       commons,
+  //       undefined,
+  //       submissions,
+  //       Object.keys(state.statusProps.props).length
+  //         ? state.statusProps.props[graphIndex.toString()].mode
+  //         : selectedMode);
+  //   });
 
-      setCommitData(commits);
-      // Select count data from correct week:
-      const selected =
-        commits !== undefined && commits.length > 0
-          ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)) !== undefined
-            ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
-            : []
-          : [];
-      setSelectedCountData(selected);
+  //   getStatusData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
+  //     const commits = res ? res.data : [];
+  //     setCommitData(commits);
+  //     // Select count data from correct week:
+  //     const selected =
+  //       commits !== undefined && commits.length > 0
+  //         ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)) !== undefined
+  //           ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
+  //           : []
+  //         : [];
 
-      updateTreshold(treshold, undefined, commits);
+  //     // console.log("selected", selected)
+  //     setSelectedCountData(selected);
 
-      if (commits !== undefined && commits.length > 0 && commits[0].data) {
-        setStudentRange([1, commits[0].data.length]);
-        setMaxlength(commits[0].data.length);
-      }
-    });
-  }, [graphIndex === 0 ? state.courseID : courseID]); //eslint-disable-line
+  //     updateTreshold(treshold, undefined, commits);
+
+  //     if (commits !== undefined && commits.length > 0 && commits[0].data) {
+  //       setStudentRange([1, commits[0].data.length]);
+  //       setMaxlength(commits[0].data.length);
+  //     }
+  //   });
+
+  //   dataService.getCommitData(graphIndex === 0 ? state.courseID : courseData).then((response) => {
+  //     const commits = response;
+
+  //     setCommitData(commits);
+  //     // Select count data from correct week:
+  //     const selected =
+  //       commits !== undefined && commits.length > 0
+  //         ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)) !== undefined
+  //           ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
+  //           : []
+  //         : [];
+
+  //     setSelectedCountData(selected);
+
+  //     updateTreshold(treshold, undefined, commits);
+
+  //     if (commits !== undefined && commits.length > 0 && commits[0].data) {
+  //       setStudentRange([1, commits[0].data.length]);
+  //       setMaxlength(commits[0].data.length);
+  //     }
+  //   });
+
+  // }, [graphIndex === 0 ? state.courseID : courseID, selectedWeek]); //eslint-disable-line
 
   // useEffect(() => {
   //   MQTTConnect(dispatch).then((newClient) => setClient(newClient));
@@ -443,49 +494,112 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   //   setSelectedStudent(currentIntance);
   // }, [state.instances]);
 
+
   useEffect(() => {
     if (sameSortProps) {
       setSortProps(sortConfig)
     }
-    if (progressData && submissionData && commitData){
-      if (progressData.length && submissionData.length && commitData.length) {
-        const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
-        setProgressData(result.sortedProgress);
-        setCommitData(result.sortedCommit);
-        setSubmissionData(result.sortedSubmission);
-
-        const key = selectedMode === "commits"
-          ? selectedWeek.toString().length < 2
-            ? `0${selectedWeek}`
-            : selectedWeek.toString()
-          : selectedWeek.toString();
-
-        if (selectedMode === "commits") {
-          const selected = result.sortedCommit !== undefined && result.sortedCommit.length > 0
-              ? result.sortedCommit.find(module => module.week === key).data
-              : [];
-          setSelectedCountData(selected);
-        } else if (selectedMode === "submissions") {
-          const selected = result.sortedSubmission !== undefined && result.sortedSubmission.length > 0
-            ? result.sortedSubmission.find(module => module.week === key).data
-            : [];
-          setSelectedCountData(selected);
-        } else {
-          const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
-            ? result.sortedProgress.find(module => module.week === key).data
-            : [];
-          setSelectedWeekData(selected)
-        }
+    let dataToSort = selectedWeekData.map(weekData => {
+      let commitData = selectedCountData.find(countData => countData.id === weekData.id)
+      return { ...weekData, ...commitData}
+    })
+    if(dataToSort && dataToSort.length > 0){
+      const sortedData = helpers.moduleDataSorting(dataToSort, sortConfig);
+      if(selectedMode === "commits" || selectedMode === "submissions" ){
+        setSelectedCountData(sortedData);
+      }else{
+        setSelectedWeekData(sortedData);
       }
     }
+    // if (progressData && submissionData && commitData){
+    //   if (progressData.length && submissionData.length && commitData.length) {
+
+    //     const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
+    //     setProgressData(result.sortedProgress);
+    //     setCommitData(result.sortedCommit);
+    //     setSubmissionData(result.sortedSubmission);
+
+    //     const key = selectedMode === "commits"
+    //       ? selectedWeek.toString().length < 2
+    //         ? `0${selectedWeek}`
+    //         : selectedWeek.toString()
+    //       : selectedWeek.toString();
+
+    //     if (selectedMode === "commits") {
+    //       const selected = result.sortedCommit !== undefined && result.sortedCommit.length > 0
+    //           ? result.sortedCommit.find(module => module.week === key).data
+    //           : [];
+    //       setSelectedCountData(selected);
+    //     } else if (selectedMode === "submissions") {
+    //       const selected = result.sortedSubmission !== undefined && result.sortedSubmission.length > 0
+    //         ? result.sortedSubmission.find(module => module.week === key).data
+    //         : [];
+    //       setSelectedCountData(selected);
+    //     } else {
+    //       const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
+    //         ? result.sortedProgress.find(module => module.week === key).data
+    //         : [];
+
+    //       setSelectedWeekData(selected)
+    //     }
+    //   }
+    // }
   }, [sortConfig, graphIndex === 0 ? state.courseID : courseID]) //eslint-disable-line
+
+  useEffect(() => {
+    if ((graphIndex === 0 && isNaN(state.courseID)) || (graphIndex !== 0 && isNaN(courseID))) return;
+
+    // getStatusData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
+    //   setSelectedCountData(res ? res.data : []);
+    //   updateTreshold(treshold, undefined, res.data);
+
+    //     if (res && res.data.length > 0){
+    //       setStudentRange([1, res.data.length]);
+    //       setMaxlength(res.data.length);
+    //     }
+    // });
+    getStatusData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
+      setSelectedCountData(res ? res : []);
+      // setCommitSubmissionData(res ? res : []);
+      updateTreshold(treshold, undefined, res);
+
+      if (res && res.length > 0){
+        setStudentRange([1, res.length]);
+        setMaxlength(res.length);
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [graphIndex === 0 ? state.courseID : courseID, selectedWeek, graphIndex === 0 ? state.mode : selectedMode])
 
   useEffect(() => {
     if (JSON.stringify(sortConfig) !== JSON.stringify(sortProps)) {
       setSortConfig(sortProps);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortProps, sameSortProps])
 
+  useEffect(() => {
+    getExerciseData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
+      const {weeks, data, cumulatives} = res;
+      setWeeks(weeks);
+        setPointExerciseData(data);
+        handleWeekSwitch(
+        Object.keys(state.statusProps.props).length
+          ? state.statusProps.props[graphIndex.toString()].week
+          : selectedWeek,
+        data,
+        cumulatives,
+        undefined,
+        undefined,
+        Object.keys(state.statusProps.props).length
+          ? state.statusProps.props[graphIndex.toString()].mode
+          : selectedMode);
+    });
+  }, [graphIndex === 0 ? state.courseID : courseID, selectedWeek, graphIndex === 0 ? state.mode : selectedMode])
+
+  // console.log(selectedWeek, selectedMode)
+  // console.log(state)
+  // console.log("selectedCountData", selectedCountData)
   return (
     // (graphIndex !== 0 && selectedCountData.length === 0 || selectedWeekData.length === 0)
     //   ? <Modal show={true} size="sm" centered >
@@ -493,11 +607,11 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     //       <Spinner animation="border" />
     //     </Modal.Body>
     //   </Modal>
-    //   : 
+    //   :
       <>
         <DropdownMenu
           handleClick={handleCourseDataSelected}
-          options={[40, 90, 117]}
+          options={courseIDs}
           selectedOption={graphIndex === 0 ? state.courseID : courseID}
           title="Course ID: "
         />
