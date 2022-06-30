@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:16.15.1-slim AS builder
 ENV PATH /app/node_modules/.bin:$PATH
 WORKDIR /app
 
@@ -10,11 +10,15 @@ ARG REACT_APP_TOKEN
 ARG REACT_APP_MQTT_HOST
 
 COPY package*.json /app/
-RUN npm clean-install
-# hack to avoid autoprefixer warning about deprecated color-adjust
-RUN for filename in $(find . -type f -print0 | xargs -0 grep -l ";color-adjust:" | grep bootstrap); do sed -i 's/;color-adjust/;print-color-adjust/g' $filename; done
+RUN npm clean-install  --legacy-peer-deps
 
-COPY ./ /app/
-RUN npm run build
+COPY public/ ./public/
+COPY src/ ./src/
 
-ENTRYPOINT ["npx", "serve", "-s", "build"]
+RUN npm run-script build
+
+
+FROM node:16.15.1-slim
+COPY --from=builder /app/build /node-build
+
+ENTRYPOINT [ "npx", "serve", "-s", "/node-build" ]

@@ -30,40 +30,40 @@ build_image:
           .
         - docker push $DOCKER_REGISTRY_IMAGE:latest
 
-deploy_latest:
-    stage: Deploy
-    variables:
-        # the repository contents are not needed for the deploy stage
-        GIT_STRATEGY: none
-    extends:
-        - .docker_registry
-    only:
-        - master
-    before_script:
-      - apk add openssh-client
-      - eval $(ssh-agent -s)
-      - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-      - mkdir -p ~/.ssh
-      - chmod 700 ~/.ssh
-    script:
-        # copy the Docker registry access credentials to the production server
-        - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
-          mkdir -p /home/$DEPLOY_USERNAME/.docker
-        - scp /root/.docker/config.json
-          $DEPLOY_USERNAME@$DEPLOY_HOSTNAME:/home/$DEPLOY_USERNAME/.docker/config.json
-        # pull the latest Docker image on the production server
-        - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
-          docker pull $DOCKER_REGISTRY_IMAGE:latest
-        # stop the previously deployed Docker container on the production server
-        - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
-          docker stop $CONTAINER_NAME || true
-        # deploy the Docker container on the production server
-        - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
-          docker run -d --rm --name $CONTAINER_NAME
-          $DOCKER_DEPLOY_OPTIONS
-          $DOCKER_REGISTRY_IMAGE:latest
-        # remove all dangling (those with tag: <none>) Docker images from the production server
-        - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
-          docker rmi --force
-          $(ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
-          docker images --quiet --filter "dangling=true") || true
+# deploy_latest:
+#     stage: Deploy
+#     variables:
+#         # the repository contents are not needed for the deploy stage
+#         GIT_STRATEGY: none
+#     extends:
+#         - .docker_registry
+#     only:
+#         - master
+#     before_script:
+#       - apk add openssh-client
+#       - eval $(ssh-agent -s)
+#       - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+#       - mkdir -p ~/.ssh
+#       - chmod 700 ~/.ssh
+#     script:
+#         # copy the Docker registry access credentials to the production server
+#         - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
+#           mkdir -p /home/$DEPLOY_USERNAME/.docker
+#         - scp /root/.docker/config.json
+#           $DEPLOY_USERNAME@$DEPLOY_HOSTNAME:/home/$DEPLOY_USERNAME/.docker/config.json
+#         # pull the latest Docker image on the production server
+#         - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
+#           docker pull $DOCKER_REGISTRY_IMAGE:latest
+#         # stop the previously deployed Docker container on the production server
+#         - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
+#           docker stop $CONTAINER_NAME || true
+#         # deploy the Docker container on the production server
+#         - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
+#           docker run -d --rm --name $CONTAINER_NAME
+#           $DOCKER_DEPLOY_OPTIONS
+#           $DOCKER_REGISTRY_IMAGE:latest
+#         # remove all dangling (those with tag: <none>) Docker images from the production server
+#         - ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
+#           docker rmi --force
+#           $(ssh $DEPLOY_USERNAME@$DEPLOY_HOSTNAME
+#           docker images --quiet --filter "dangling=true") || true
