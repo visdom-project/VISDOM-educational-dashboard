@@ -16,7 +16,7 @@ import { TwoThumbInputRange } from "react-two-thumb-input-range";
 import VisGraph from "./VisGraph";
 
 import { getAllStudentsIDs, getStudentData } from "../services/studentData";
-import { getAllStudentsData, fetchStudentData } from "../services/studentData";
+// import { getAllStudentsData, fetchStudentData } from "../services/studentData";
 import { getCourseIDs } from "../services/courseData";
 import { getConfigurationsList, getConfiguration, createConfig, modifyConfig } from "../services/configurationStoring";
 import { useMessageDispatch, useMessageState } from "../../../contexts/messageContext";
@@ -81,7 +81,7 @@ const EKGTab = ({onlyRead=false}) => {
 
   const [displayData, setDisplayData] = useState([]);
   const [maxlength, setMaxlength] = useState(0);
-  
+
   const [expectedGrade, setExpectedGrade] = useState(1);
 
   const relativeTimescaleOptions = [true, false];
@@ -161,6 +161,7 @@ const EKGTab = ({onlyRead=false}) => {
         setMode(modes[0]);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.mode])
 
   useEffect(() => {
@@ -179,7 +180,7 @@ const EKGTab = ({onlyRead=false}) => {
         ...state.timescale,
         end: maxlength - 1,
       });
-      return;      
+      return;
     }
     setDisplayedWeek([Math.floor(state.timescale.start / 7) + 1, Math.ceil(state.timescale.end / 7)]);
   }, [state.timescale, maxlength]); //eslint-disable-line
@@ -212,6 +213,7 @@ const EKGTab = ({onlyRead=false}) => {
         // });
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.instances, expectedGrade, state.courseID, state.statusDialogProps]);
 
   return (
@@ -386,7 +388,7 @@ const EKGTab = ({onlyRead=false}) => {
             setOpenDialog={setDisplayConfigurationDialog}
 
             additionalFooter={
-              (currentConfiguration !== configName.current || currentConfiguration.length === 0) 
+              (currentConfiguration !== configName.current || currentConfiguration.length === 0)
                 ? <Button
                   size="md"
                   onClick={() => {
@@ -437,7 +439,7 @@ const EKGTab = ({onlyRead=false}) => {
             {currentConfiguration === configName.current && currentConfiguration.length > 0 &&
               <Alert variant="warning">
                 The configuration <strong>{currentConfiguration}</strong> will be overwritten with current configuration properties!
-              </Alert> 
+              </Alert>
             }
             <Form.Control
               type="text"
@@ -447,16 +449,16 @@ const EKGTab = ({onlyRead=false}) => {
             />
           </ConfigDialog>
         </div>
-        
+
         {
           (onlyRead ? state.statusDialogProps.studentID : state.instances[0]) && maxlength !== 0 &&
           <>
             <div>
-              <VisGraph 
-                data={displayData} 
-                configs={configs.current} 
-                displayedWeek={displayedWeek} 
-                compress={relativeTimescale.current} 
+              <VisGraph
+                data={displayData}
+                configs={configs.current}
+                displayedWeek={displayedWeek}
+                compress={relativeTimescale.current}
                 pulseRatio={pulseRatio.current} />
             </div>
             <div className="timescale-slider">

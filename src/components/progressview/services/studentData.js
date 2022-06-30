@@ -4,7 +4,7 @@
 // Author(s): Duc Hong <duc.hong@tuni.fi>, Nhi Tran <thuyphuongnhi.tran@tuni.fi>, Sulav Rayamajhi<sulav.rayamajhi@tuni.fi>, Ville Heikkilä <ville.heikkila@tuni.fi>, Vivian Lunnikivi <vivian.lunnikivi@tuni.fi>.
 
 import axios from "axios";
-import { ElasticSearchConfiguration, AdapterConfiguration } from "../../../services/serviceConfiguration";
+import { AdapterConfiguration } from "../../../services/serviceConfiguration";
 import { getAgregateData } from "./courseData";
 
 // TODO: fix base URL and courseId, parameter in request
@@ -51,7 +51,7 @@ export const fetchStudentData = async (studentId, courseID, expectGrade = 1) => 
             }
     });
     const expectedValues = await getAgregateData(expectGrade);
-    
+
 
     // metadata has 15 weeks but students have 16 weeks;
     studentData.points.modules.splice(15, 1);
@@ -113,7 +113,7 @@ export const fetchStudentsData = async (courseID) => {
             catch (err) {
             }
         });
-    
+
         // metadata has 15 weeks but students have 16 weeks;
         //TODO: change this when change to new course data / maybe its okay to set max = 15
         studentData.points.modules.splice(15, 1);
@@ -123,30 +123,30 @@ export const fetchStudentsData = async (courseID) => {
             index: index,
             name: module.name,
             passed: module.passed, // true/false
-    
+
             pointsToPass: module.points_to_pass,
             maxPoints: module.max_points,
-    
+
             notPassedPoints: module.max_points - module.points,
-    
+
             submission: module.submission_count,
-    
+
             commit: commits[index] === undefined ? 0 : commits[index],
-    
+
             points: module.points,
-    
+
             numberOfExercises: module.exercises.length,
             //new
             numberOfExercisesAttemped: module.exercises.reduce((attempt, exercise ) => exercise.points === 0 ? attempt : attempt +1, 0),
-    
+
             pointRatio: module.max_points === 0 ? 1 : module.points/module.max_points,
-    
+
             notPassedRatio: module.max_points === 0 ? 0 : 1 - module.points/module.max_points,
         }));
     }));
 
     // cumulative Data:
-    
+
     Object.values(studentsData).forEach(student => {
         student.forEach((week, index) => {
             if (index === 0) {
@@ -170,10 +170,10 @@ const queryUrl = (type, queryType ,query, queryId, requiredData, linkOptions) =>
     let queryUrl = `general/${type}?pageSize=1000&type=${queryType}&query=data.${query}==${queryId}&data=`
 
     requiredData.forEach((reqData, index) => {
-        index < requiredData.length - 1 ? queryUrl += `${reqData},` : queryUrl += reqData  
+        index < requiredData.length - 1 ? queryUrl += `${reqData},` : queryUrl += reqData
     } )
     queryUrl += `&links=${linkOptions}`
-    
+
     return  AdapterConfiguration.createUrl(queryUrl)
 }
 
@@ -187,41 +187,40 @@ export const fetchStudentsDataNewAdp = async (courseID) => {
                     return response.data.results
                 })
                 .catch(error => console.log(error))
-    
-    
-    
+
+
+
     // Filtering and sorting modules with exercise in the order of week
     const moduleWithExercises = availableModules.filter( moduleDetail => moduleDetail.data.exercises.length !=0 );
-    
+
     const sortedModuleWithExercises = moduleWithExercises.sort((a,b) => a.data.module_id - b.data.module_id)
-   
+
     const studentsData = {};
-    
+
     // Fetching student data for all the student on the basis of module
     for (const oneModule of sortedModuleWithExercises) {
         const {max_points, points_to_pass, module_id, exercises} = oneModule.data;
-       
+
         const moduleUrl = queryUrl('artifacts', 'module_points', 'module_id', module_id, ['user_id', 'points', 'passed', 'exercise_count', 'submission_count', 'commit_count'], 'constructs' )
-       
-        
+
+
        const response = await axios.get(moduleUrl, {
             Accept: "application/json",
             "Content-Type": "application/json",
         })
 
         const studentDataPerModule = response.data.results
-        
-        
+
+
         studentDataPerModule.forEach((moduleDetail) => {
-            
+
             const studentId = moduleDetail.related_constructs.find( data => data.type === 'aplus_user').id
-            
+
             const {submission_count, passed, commit_count, points,  exercise_count} =  moduleDetail.data
             const moduleDescription = moduleDetail.description
             const studentData = {
                 name: moduleDescription,
                 passed: passed,
-                
 
                 pointsToPass: points_to_pass,
                 max_points: max_points,
@@ -236,7 +235,6 @@ export const fetchStudentsDataNewAdp = async (courseID) => {
                 pointRatio: max_points === 0 ? 1 : points/max_points,
                 notPassedRatio: max_points === 0 ? 0 : 1 - points/max_points
            }
-            
            // appending the module data to student's data
             if(studentsData.hasOwnProperty(studentId)){
                 const prevData = studentsData[studentId]
@@ -248,8 +246,8 @@ export const fetchStudentsDataNewAdp = async (courseID) => {
             }
         } )
 
-    } 
-    
+    }
+
     // cumulative Data:
      Object.values(studentsData).forEach(student => {
         student.forEach((week, index) => {

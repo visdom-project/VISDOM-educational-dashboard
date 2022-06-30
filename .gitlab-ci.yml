@@ -12,28 +12,25 @@ stages:
         - echo -n $DOCKER_REGISTRY_PASSWORD |
           docker login -u $DOCKER_REGISTRY_USERNAME --password-stdin $DOCKER_REGISTRY
 
-build_image: 
+build_image:
     stage: Build
-    variables: 
+    variables:
         ELASTICSEARCH_HOST: $(ELASTICSEARCH_HOST)
         CONFIGURATION_HOST: $(CONFIGURATION_HOST)
-    extends: 
+    extends:
         - .docker_registry
-    only:
-        - master
-    script: 
+    # only:
+    #     - master
+    script:
         - docker pull $DOCKER_REGISTRY_IMAGE:latest || true
-        - apk add --update npm
-        - npm clean-install
-        - npm run build 
         - docker build
           --pull
           --cache-from $DOCKER_REGISTRY_IMAGE:latest
           --tag $DOCKER_REGISTRY_IMAGE:latest
           .
-        - docker push $DOCKER_REGISTRY_IMAGE:latest
+        # - docker push $DOCKER_REGISTRY_IMAGE:latest
 
-deploy_latest: 
+deploy_latest:
     stage: Deploy
     variables:
         # the repository contents are not needed for the deploy stage
@@ -44,7 +41,7 @@ deploy_latest:
         - master
     before_script:
       - apk add openssh-client
-      - eval $(ssh-agent -s) 
+      - eval $(ssh-agent -s)
       - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
       - mkdir -p ~/.ssh
       - chmod 700 ~/.ssh

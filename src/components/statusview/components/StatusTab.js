@@ -40,12 +40,12 @@ const InputRange = ({ values, maxlength, setStudentRange }) => {
           style={{ marginBottom: "20px" }}
         />
       </div>
-      <div 
+      <div
         className="student-range-selector"
         style={{ paddingLeft: "43%" }}
       >
-        <input 
-          type="number" 
+        <input
+          type="number"
           min="1"
           max={values[1]}
           value={values[0]}
@@ -101,7 +101,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   const [maxlength, setMaxlength] = useState(0)
   const [courseIDs, setCourseIDs] = useState([]);
   const [courseID, setCourseID] = useState(Object.keys(state.statusProps.props).includes(graphIndex.toString())
-    ? state.statusProps.props[graphIndex.toString()].courseID 
+    ? state.statusProps.props[graphIndex.toString()].courseID
     : parseInt(process.env.REACT_APP_COURSE_ID));
 
   const allKeys = {
@@ -184,7 +184,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
           instances: [],
           courseID: option
         });
-      } 
+      }
     } else {
       if (option !== courseID) {
         setCourseID(option);
@@ -201,7 +201,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
           // mode: selectedMode,
           instances: instances,
         });
-      } 
+      }
       dispatch({
         ...state,
         statusDialogProps: {
@@ -296,12 +296,12 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     //   data[newWeek - 1] !== undefined &&
     //   data[newWeek - 1]["data"] !== undefined
     // ) {
-      
-     
+
+
     //   setMax(data[newWeek - 1]["data"][0][keys.max]);
     //   setSelectedWeekData(data[newWeek - 1].data);
-     
-   
+
+
     // }
 
     // let newCountData = undefined;
@@ -396,6 +396,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
           props: Object.assign(state.statusProps.props, newGraphProps)}
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
 
   // OLD ADAPTER CODE
@@ -406,24 +407,24 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   //   : courseID
   //   dataService.getData(graphIndex === 0 ? state.courseID : courseData).then(response => {
   //     const [pData, commons, submissions] = response;
-      
+
   //     setProgressData(pData);
   //     setCommonData(commons);
-     
+
   //     setSubmissionData(submissions);
   //     setWeeks(pData.map(week => week.week));
 
   //     // Set initial UI state:
   //     handleWeekSwitch(
-  //       Object.keys(state.statusProps.props).length 
-  //         ? state.statusProps.props[graphIndex.toString()].week 
-  //         : selectedWeek, 
-  //       pData, 
-  //       commons, 
-  //       undefined, 
+  //       Object.keys(state.statusProps.props).length
+  //         ? state.statusProps.props[graphIndex.toString()].week
+  //         : selectedWeek,
+  //       pData,
+  //       commons,
+  //       undefined,
   //       submissions,
-  //       Object.keys(state.statusProps.props).length 
-  //         ? state.statusProps.props[graphIndex.toString()].mode 
+  //       Object.keys(state.statusProps.props).length
+  //         ? state.statusProps.props[graphIndex.toString()].mode
   //         : selectedMode);
   //   });
 
@@ -446,12 +447,12 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   //     if (commits !== undefined && commits.length > 0 && commits[0].data) {
   //       setStudentRange([1, commits[0].data.length]);
   //       setMaxlength(commits[0].data.length);
-  //     } 
+  //     }
   //   });
 
   //   dataService.getCommitData(graphIndex === 0 ? state.courseID : courseData).then((response) => {
   //     const commits = response;
-     
+
   //     setCommitData(commits);
   //     // Select count data from correct week:
   //     const selected =
@@ -504,15 +505,15 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     })
     if(dataToSort && dataToSort.length > 0){
       const sortedData = helpers.moduleDataSorting(dataToSort, sortConfig);
-      if(selectedMode === "commits" || selectedMode === "submissions" ){ 
+      if(selectedMode === "commits" || selectedMode === "submissions" ){
         setSelectedCountData(sortedData);
-      }else{ 
+      }else{
         setSelectedWeekData(sortedData);
       }
     }
     // if (progressData && submissionData && commitData){
     //   if (progressData.length && submissionData.length && commitData.length) {
-        
+
     //     const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
     //     setProgressData(result.sortedProgress);
     //     setCommitData(result.sortedCommit);
@@ -538,7 +539,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     //       const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
     //         ? result.sortedProgress.find(module => module.week === key).data
     //         : [];
-          
+
     //       setSelectedWeekData(selected)
     //     }
     //   }
@@ -567,29 +568,31 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
         setMaxlength(res.length);
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graphIndex === 0 ? state.courseID : courseID, selectedWeek, graphIndex === 0 ? state.mode : selectedMode])
 
   useEffect(() => {
     if (JSON.stringify(sortConfig) !== JSON.stringify(sortProps)) {
       setSortConfig(sortProps);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortProps, sameSortProps])
 
   useEffect(() => {
     getExerciseData(graphIndex === 0 ? state.courseID : courseID, parseInt(selectedWeek)).then(res => {
-      const {weeks, data, cumulatives} = res;  
+      const {weeks, data, cumulatives} = res;
       setWeeks(weeks);
         setPointExerciseData(data);
         handleWeekSwitch(
-        Object.keys(state.statusProps.props).length 
-          ? state.statusProps.props[graphIndex.toString()].week 
-          : selectedWeek, 
-        data, 
-        cumulatives, 
-        undefined, 
+        Object.keys(state.statusProps.props).length
+          ? state.statusProps.props[graphIndex.toString()].week
+          : selectedWeek,
+        data,
+        cumulatives,
         undefined,
-        Object.keys(state.statusProps.props).length 
-          ? state.statusProps.props[graphIndex.toString()].mode 
+        undefined,
+        Object.keys(state.statusProps.props).length
+          ? state.statusProps.props[graphIndex.toString()].mode
           : selectedMode);
     });
   }, [graphIndex === 0 ? state.courseID : courseID, selectedWeek, graphIndex === 0 ? state.mode : selectedMode])
@@ -604,7 +607,7 @@ const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
     //       <Spinner animation="border" />
     //     </Modal.Body>
     //   </Modal>
-    //   : 
+    //   :
       <>
         <DropdownMenu
           handleClick={handleCourseDataSelected}

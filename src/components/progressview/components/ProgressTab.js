@@ -22,9 +22,9 @@ import GroupDisplay from "./GroupDisplay.js";
 import StudentSelector from "./StudentSelector";
 
 // import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
-import { 
-  // getAllStudentsData, 
-  // fetchStudentData, 
+import {
+  // getAllStudentsData,
+  // fetchStudentData,
   fetchStudentsData, fetchStudentsDataNewAdp } from "../services/studentData";
 import { getAgregateData, getCourseIds } from "../services/courseData";
 
@@ -180,7 +180,7 @@ const ProgressTab = () => {
         ...state.timescale,
         end: maxlength - 1,
       });
-      return;      
+      return;
     }
     // setLineChartShouldUpdate(linechartShouldUpdate+1);
 
@@ -208,7 +208,7 @@ const ProgressTab = () => {
     //   }
     //   catch (err){
     //     // Do nothing
-    //   }         
+    //   }
     // });
 
      // fetch whole data at once new code
@@ -224,11 +224,11 @@ const ProgressTab = () => {
       }
       catch (err){
         // Do nothing
-      }         
+      }
     });
     Promise.all( grades.map(grade => getAgregateData(grade)) ).then(expectValues => setCourseData(expectValues));
   }, [state.courseID]);
-  
+
 
 
   const showableLines = ["Average", "Expected"];
@@ -236,7 +236,7 @@ const ProgressTab = () => {
     Average: true,
     Expected: true,
   });
-  
+
   const [displayedCumulativeData, setDisplayedCumulativeData] = useState([
     { name: "init" },
   ]);
@@ -278,7 +278,7 @@ const ProgressTab = () => {
       return;
     }
     //average goes here ...
-    
+
     const avgData = {
       [avgDataKey]: getAverageData(studentsData, state.mode),
     };
@@ -294,7 +294,7 @@ const ProgressTab = () => {
     });
 
     setDisplayedData(newData);
-  }, 
+  },
   [state.mode, studentIds, studentsData, courseData]
   );
 
@@ -441,7 +441,7 @@ const ProgressTab = () => {
         title="Course ID: "
       />
       <h2>{`Weekly ${state.mode}`}</h2>
-      
+
       <ConfigDialog
         title={{
           button: "Show view configuration",
@@ -547,7 +547,7 @@ const ProgressTab = () => {
               const newTimescale = {
                 start: e.startIndex * 7,
                 end: (e.endIndex + 1) * 7 - 1,
-              }             
+              }
 
               if (state.timescale.start !== newTimescale.start ||
                 state.timescale.end !== newTimescale.end) {

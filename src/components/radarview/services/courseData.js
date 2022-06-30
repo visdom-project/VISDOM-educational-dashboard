@@ -7,7 +7,7 @@
 import axios from "axios";
 import { ElasticSearchConfiguration, AdapterConfiguration } from "../../../services/serviceConfiguration";
 
-const baseUrl = ElasticSearchConfiguration.createUrl("gitlab-course-30-aggregate-data/_search");
+// const baseUrl = ElasticSearchConfiguration.createUrl("gitlab-course-30-aggregate-data/_search");
 
 const MAXPOINTS = [30, 100, 110, 95, 60, 90, 55, 70, 90, 40, 55, 120, 105, 30, 0];
 export const getAgregateData = (grade = 1) => {

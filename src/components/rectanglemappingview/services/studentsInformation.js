@@ -26,7 +26,7 @@ import axios from 'axios'
 //       ))
 //     ))
 //     .catch(someErrors => console.log(someErrors))
-  
+
 //   return request;
 // }
 

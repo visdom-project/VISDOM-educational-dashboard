@@ -5,6 +5,13 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+      args:
+        REACT_APP_ELASTICSEARCH_HOST: ${REACT_APP_ELASTICSEARCH_HOST}
+        REACT_APP_CONFIG_HOST: ${REACT_APP_CONFIG_HOST}
+        REACT_APP_ADAPTER_HOST: ${REACT_APP_ADAPTER_HOST}
+        REACT_APP_COURSE_ID: ${REACT_APP_COURSE_ID}
+        REACT_APP_TOKEN: ${REACT_APP_TOKEN}
+        REACT_APP_MQTT_HOST: ${REACT_APP_MQTT_HOST}
     ports:
       - 8000:3000
     env_file:
