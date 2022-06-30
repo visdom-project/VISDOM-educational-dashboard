@@ -23,3 +23,11 @@ export const configConfiguration = {
     return configurationHost + "/" + url;
   },
 };
+
+export const AdapterConfiguration = {
+  host: adapterHost,
+  createUrl: function (url) {
+    return adapterHost + "/" + url;
+  },
+};
+

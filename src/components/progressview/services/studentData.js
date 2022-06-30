@@ -1,5 +1,5 @@
 import axios from "axios";
-// import { ElasticSearchConfiguration } from "../../../services/serviceConfiguration";
+import { AdapterConfiguration } from "../../../services/serviceConfiguration";
 import { getAgregateData } from "./courseData";
 
 // TODO: fix base URL and courseId, parameter in request
@@ -160,3 +160,107 @@ export const fetchStudentsData = async (courseID) => {
     });
     return studentsData;
 };
+
+const queryUrl = (type, queryType ,query, queryId, requiredData, linkOptions) => {
+    let queryUrl = `general/${type}?pageSize=1000&type=${queryType}&query=data.${query}==${queryId}&data=`
+
+    requiredData.forEach((reqData, index) => {
+        index < requiredData.length - 1 ? queryUrl += `${reqData},` : queryUrl += reqData
+    } )
+    queryUrl += `&links=${linkOptions}`
+
+    return  AdapterConfiguration.createUrl(queryUrl)
+}
+
+export const fetchStudentsDataNewAdp = async (courseID) => {
+    const baseUrl = queryUrl('metadata', 'module', 'course_id', courseID, ['module_id', 'module_number', 'max_points', 'points_to_pass','exercises'], 'none')
+    // Fetching all available modules.
+    const availableModules =  await axios.get(baseUrl, {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                }).then(response => {
+                    return response.data.results
+                })
+                .catch(error => console.log(error))
+
+
+
+    // Filtering and sorting modules with exercise in the order of week
+    const moduleWithExercises = availableModules.filter( moduleDetail => moduleDetail.data.exercises.length !=0 );
+
+    const sortedModuleWithExercises = moduleWithExercises.sort((a,b) => a.data.module_id - b.data.module_id)
+
+    const studentsData = {};
+
+    // Fetching student data for all the student on the basis of module
+    for (const oneModule of sortedModuleWithExercises) {
+        const {max_points, points_to_pass, module_id, exercises} = oneModule.data;
+
+        const moduleUrl = queryUrl('artifacts', 'module_points', 'module_id', module_id, ['user_id', 'points', 'passed', 'exercise_count', 'submission_count', 'commit_count'], 'constructs' )
+
+
+       const response = await axios.get(moduleUrl, {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+        })
+
+        const studentDataPerModule = response.data.results
+
+
+        studentDataPerModule.forEach((moduleDetail) => {
+
+            const studentId = moduleDetail.related_constructs.find( data => data.type === 'aplus_user').id
+
+            const {submission_count, passed, commit_count, points,  exercise_count} =  moduleDetail.data
+            const moduleDescription = moduleDetail.description
+            const studentData = {
+                name: moduleDescription,
+                passed: passed,
+
+
+                pointsToPass: points_to_pass,
+                max_points: max_points,
+
+                notPassedPoints: max_points - points,
+
+                submission: submission_count,
+                commit: commit_count,
+                points: points,
+                numberOfExercises: exercises.length,
+                numberOfExercisesAttemped: exercise_count,
+                pointRatio: max_points === 0 ? 1 : points/max_points,
+                notPassedRatio: max_points === 0 ? 0 : 1 - points/max_points
+           }
+
+           // appending the module data to student's data
+            if(studentsData.hasOwnProperty(studentId)){
+                const prevData = studentsData[studentId]
+                prevData.push(studentData)
+                studentsData[studentId] = prevData
+            }
+            else{
+                studentsData[studentId] = [studentData]
+            }
+        } )
+
+    }
+
+    // cumulative Data:
+     Object.values(studentsData).forEach(student => {
+        student.forEach((week, index) => {
+            if (index === 0) {
+                week.cumPoints = week.points;
+                week.cumCommit = week.commit;
+                week.cumSubmission = week.submission;
+                week.cumExercises = week.numberOfExercisesAttemped
+            }
+            else {
+                week.cumPoints = student[index-1].cumPoints + week.points;
+                week.cumCommit = student[index-1].cumCommit + week.commit;
+                week.cumSubmission = student[index-1].cumSubmission + week.submission;
+                week.cumExercises = student[index-1].cumExercises + week.numberOfExercisesAttemped;
+            }
+        })
+    });
+    return studentsData
+}
