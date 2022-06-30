@@ -15,13 +15,6 @@ export const ElasticSearchConfiguration = {
   },
 };
 
-export const AdapterConfiguration = {
-  host: adapterHost,
-  createUrl: function (url) {
-    return adapterHost + "/" + url;
-  },
-};
-
 export const configConfiguration = {
   host: configurationHost,
   createUrl: function (url) {
