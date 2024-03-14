@@ -9,7 +9,7 @@
     "@testing-library/user-event": "^12.1.10",
     "ajv": "^6.9.1",
     "autoprefixer": "10.4.5",
-    "axios": "^0.21.4",
+    "axios": "^0.28.0",
     "bootstrap": "^5.1.0",
     "d3-shape": "^3.0.1",
     "inline-style-prefixer": "^6.0.0",
@@ -23,7 +23,7 @@
     "react-scripts": "^5.0.1",
     "react-two-thumb-input-range": "^1.0.7",
     "react-vis": "^1.12.1",
-    "recharts": "^2.1.2"
+    "recharts": "^2.12.2"
   },
   "overrides": {
     "autoprefixer": "10.4.5"
